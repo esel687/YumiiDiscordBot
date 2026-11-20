@@ -191,3 +191,16 @@ footer{color:#a18aaf}
 .selectedServer small{line-height:1.6}
 .emptyServers{color:#c5aaca;font-size:12px;line-height:1.7}
 @media(max-width:650px){.serverGrid{grid-template-columns:1fr}.serverCard{padding:12px}}
+
+
+/* Required-cookie information notice */
+.cookieBackdrop{position:fixed;inset:0;z-index:1000;display:flex;align-items:flex-end;justify-content:center;padding:22px;background:#05030ab8;backdrop-filter:blur(7px)}
+.cookieDialog{width:min(100%,760px);display:flex;align-items:center;gap:18px;padding:22px 24px;border:1px solid #9b4eb4;border-radius:17px;background:linear-gradient(120deg,#1d102b,#120b1d 72%,#29102f);box-shadow:0 0 35px #a855f744,0 18px 55px #000b}
+.cookieIcon{width:48px;height:48px;flex-shrink:0;display:grid;place-items:center;border:1px solid #a855f7;border-radius:14px;background:#351344;color:#f0abfc;box-shadow:0 0 18px #c026d944}
+.cookieCopy{flex:1}
+.cookieCopy h2{margin:0 0 6px;font:600 16px 'Space Grotesk';color:#fff0ff}
+.cookieCopy p{margin:0;color:#c5aaca;font-size:12px;line-height:1.6}
+.cookieCopy small{display:block;margin-top:6px;color:#987eaa;font-size:10px}
+.cookieAccept{flex-shrink:0;padding:12px 16px;border:1px solid #d946ef;border-radius:10px;background:linear-gradient(105deg,#641b78,#8b1d63);color:#fff;font-size:12px;font-weight:700;box-shadow:0 0 15px #c026d355}
+.cookieAccept:hover{filter:brightness(1.15)}
+@media(max-width:620px){.cookieBackdrop{padding:12px}.cookieDialog{align-items:flex-start;flex-wrap:wrap;padding:18px}.cookieCopy{flex-basis:calc(100% - 68px)}.cookieAccept{width:100%;padding:13px}}
