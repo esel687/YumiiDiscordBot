@@ -26,9 +26,9 @@ if (!clientId) {
 const modules = ["welcome", "tickets", "automod", "logs"];
 const commands = [
   new SlashCommandBuilder()
-    .setName("yb")
-    .setDescription("YumiiBot server tools")
-    .addSubcommand(sub => sub.setName("status").setDescription("Show this server's YumiiBot settings"))
+    .setName("moonbot")
+    .setDescription("MoonBot server tools")
+    .addSubcommand(sub => sub.setName("status").setDescription("Show this server's MoonBot settings"))
     .addSubcommand(sub => sub
       .setName("module")
       .setDescription("Enable or disable a module for this server")
@@ -46,7 +46,7 @@ client.once(Events.ClientReady, async readyClient => {
   const rest = new REST({ version: "10" }).setToken(token);
   try {
     await rest.put(Routes.applicationCommands(clientId), { body: commands });
-    console.log("YumiiBot slash commands registered.");
+    console.log("MoonBot slash commands registered.");
   } catch (error) {
     console.error("Could not register slash commands:", error);
   }
@@ -62,7 +62,7 @@ client.on(Events.GuildDelete, guild => {
 });
 
 client.on(Events.InteractionCreate, async interaction => {
-  if (!interaction.isChatInputCommand() || interaction.commandName !== "yb" || !interaction.guildId) return;
+  if (!interaction.isChatInputCommand() || interaction.commandName !== "moonbot" || !interaction.guildId) return;
 
   if (!interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) {
     return interaction.reply({ content: "Du brauchst die Berechtigung „Server verwalten“.", ephemeral: true });
@@ -72,7 +72,7 @@ client.on(Events.InteractionCreate, async interaction => {
     const settings = getGuildSettings(interaction.guildId);
     const embed = new EmbedBuilder()
       .setColor(0x36d6d0)
-      .setTitle("YumiiBot – Server-Einstellungen")
+      .setTitle("MoonBot – Server-Einstellungen")
       .setDescription(modules.map(name => `**${name}:** ${settings[name] ? "Aktiv" : "Deaktiviert"}`).join("\n"))
       .setFooter({ text: "Diese Einstellungen gelten nur für diesen Discord-Server." });
     return interaction.reply({ embeds: [embed], ephemeral: true });
