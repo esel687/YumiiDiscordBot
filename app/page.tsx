@@ -1,159 +1,54 @@
 "use client";
-
 import { useEffect, useMemo, useState } from "react";
-import {
-  Bot, LayoutDashboard, ShieldCheck, Ticket, Settings, Bell, Search,
-  ChevronDown, ChevronRight, Check, Plus, Users, MessageSquare,
-  Radio, LockKeyhole, Server, LogOut, CircleHelp
-} from "lucide-react";
+import { Bot, LayoutDashboard, ShieldCheck, Ticket, Settings, Bell, Search, ChevronDown, ChevronRight, Check, Users, MessageSquare, Radio, LockKeyhole, Server, LogOut, CircleHelp, SlidersHorizontal, FileText, Sparkles, Activity, Menu } from "lucide-react";
 
 type Guild = { id: string; name: string; icon: string | null; permissions: string; owner: boolean };
 type User = { id: string; username: string; avatar: string | null; guilds: Guild[] };
+type ModuleId = "welcome" | "tickets" | "moderation" | "suggestions" | "social" | "security";
+type PageId = "overview" | ModuleId | "settings";
 
-const features = [
-  { name: "Willkommensnachrichten", description: "Begrüße neue Mitglieder automatisch.", icon: Users, state: "In Planung" },
-  { name: "Ticket-System", description: "Verwalte Support-Anfragen an einem Ort.", icon: Ticket, state: "In Planung" },
-  { name: "Auto-Moderation", description: "Hilf dabei, deinen Server sauber zu halten.", icon: ShieldCheck, state: "Teilweise verfügbar" },
-  { name: "Vorschläge", description: "Sammle Feedback und Ideen deiner Community.", icon: MessageSquare, state: "In Planung" },
-  { name: "Social Alerts", description: "Informiere Mitglieder über neue Beiträge.", icon: Radio, state: "In Planung" },
-  { name: "Server-Einstellungen", description: "Passe die Bot-Grundeinstellungen an.", icon: Settings, state: "In Planung" },
+const modules: { id: ModuleId; name: string; description: string; detail: string; icon: any; category: string; status: string }[] = [
+ {id:"welcome",name:"Willkommen & Abschied",description:"Begrüße neue Mitglieder automatisch.",detail:"Erstelle Nachrichten für neue Mitglieder und verabschiede Personen, wenn sie den Server verlassen.",icon:Users,category:"Community",status:"Demnächst"},
+ {id:"tickets",name:"Ticket-System",description:"Organisiere Support-Anfragen.",detail:"Erstelle ein Ticket-Panel, lege Kategorien fest und verwalte Support-Anfragen zentral.",icon:Ticket,category:"Support",status:"Demnächst"},
+ {id:"moderation",name:"Moderation",description:"Behalte die Ordnung auf deinem Server.",detail:"Konfiguriere Moderationsfunktionen und lege fest, wie Aktionen protokolliert werden.",icon:ShieldCheck,category:"Moderation",status:"In Arbeit"},
+ {id:"suggestions",name:"Vorschläge",description:"Lass deine Community Ideen teilen.",detail:"Sammle Vorschläge in einem Kanal und ermögliche deiner Community, darüber abzustimmen.",icon:MessageSquare,category:"Community",status:"Demnächst"},
+ {id:"social",name:"Social Media",description:"Melde neue Inhalte automatisch.",detail:"Verbinde Creator-Kanäle und informiere deinen Discord-Server über neue Inhalte.",icon:Radio,category:"Community",status:"Demnächst"},
+ {id:"security",name:"Server-Schutz",description:"Zusätzliche Schutzfunktionen für deinen Server.",detail:"Plane Sicherheitsregeln und Schutzmaßnahmen für deine Community.",icon:LockKeyhole,category:"Sicherheit",status:"Demnächst"}
 ];
-
-const iconUrl = (g: Guild) => g.icon ? `https://cdn.discordapp.com/icons/${g.id}/${g.icon}.png?size=64` : null;
+const iconUrl = (g: Guild) => g.icon ? "https://cdn.discordapp.com/icons/" + g.id + "/" + g.icon + ".png?size=64" : null;
 
 export default function Home() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [selected, setSelected] = useState("");
-  const [search, setSearch] = useState("");
-
-  useEffect(() => {
-    fetch("/api/auth/me")
-      .then((response) => response.json())
-      .then((result) => {
-        if (result.user) {
-          setUser(result.user);
-          if (result.user.guilds?.length) setSelected(result.user.guilds[0].id);
-        }
-      })
-      .catch(() => undefined)
-      .finally(() => setLoading(false));
-  }, []);
-
-  const guilds = user?.guilds ?? [];
-  const visibleGuilds = useMemo(
-    () => guilds.filter((guild) => guild.name.toLowerCase().includes(search.toLowerCase())),
-    [guilds, search]
-  );
-  const activeGuild = guilds.find((guild) => guild.id === selected);
-  const avatar = user?.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=64` : null;
-
-  return (
-    <main className="dashboard">
-      <aside className="sidebar">
-        <a className="brand" href="/">
-          <span className="brand-mark"><Bot size={22} /></span>
-          <span>MoonBot</span>
-        </a>
-        <div className="nav-caption">MENÜ</div>
-        <a className="nav-link active" href="#overview"><LayoutDashboard size={18} />Übersicht</a>
-        <a className="nav-link" href="#modules"><ShieldCheck size={18} />Module</a>
-        <a className="nav-link" href="#activity"><Bell size={18} />Aktivität</a>
-        <div className="nav-caption nav-caption-spaced">VERWALTUNG</div>
-        <a className="nav-link" href="#modules"><Ticket size={18} />Tickets</a>
-        <a className="nav-link" href="#modules"><Settings size={18} />Einstellungen</a>
-        <div className="sidebar-bottom">
-          <div className="help-row"><CircleHelp size={17} />Hilfe & Support</div>
-          <div className="sidebar-version">MoonBot Dashboard · 1.0</div>
-        </div>
-      </aside>
-
-      <section className="main-column">
-        <header className="topbar">
-          <div className="breadcrumb">Dashboard <ChevronRight size={14} /> Übersicht</div>
-          {loading ? <span className="muted">Lädt …</span> : user ? (
-            <div className="account">
-              {avatar ? <img src={avatar} alt="" /> : <span className="avatar-fallback">{user.username.slice(0, 1).toUpperCase()}</span>}
-              <span>{user.username}</span>
-              <form action="/api/auth/logout" method="post"><button className="logout"><LogOut size={15} /> Abmelden</button></form>
-            </div>
-          ) : <a className="discord-login" href="/api/auth/discord"><LockKeyhole size={16} /> Mit Discord anmelden</a>}
-        </header>
-
-        <div className="content" id="overview">
-          <div className="page-heading">
-            <div>
-              <div className="overline">MOONBOT CONTROL PANEL</div>
-              <h1>Dashboard</h1>
-              <p>Verwalte deinen Discord-Server an einem zentralen Ort.</p>
-            </div>
-            <div className="heading-mark"><Bot size={30} /></div>
-          </div>
-
-          <section className="panel server-panel">
-            <div className="panel-heading">
-              <div><h2>Deine Server</h2><p>Wähle den Server aus, den du verwalten möchtest.</p></div>
-              {user && <span className="count-label">{guilds.length} Server</span>}
-            </div>
-
-            {!user ? (
-              <div className="empty-panel">
-                <div className="empty-icon"><Server size={24} /></div>
-                <h3>Mit Discord verbinden</h3>
-                <p>Melde dich mit Discord an, um deine Server hier anzeigen zu lassen.</p>
-                <a className="primary-button" href="/api/auth/discord">Mit Discord anmelden</a>
-              </div>
-            ) : guilds.length === 0 ? (
-              <div className="empty-panel">
-                <div className="empty-icon"><Server size={24} /></div>
-                <h3>Keine Server gefunden</h3>
-                <p>Für deinen Account wurden keine Server mit Verwaltungsrechten gefunden.</p>
-              </div>
-            ) : (
-              <>
-                <label className="search-box"><Search size={17} /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Server suchen …" /></label>
-                <div className="server-list">
-                  {visibleGuilds.map((guild) => (
-                    <button key={guild.id} className={selected === guild.id ? "server-option chosen" : "server-option"} onClick={() => setSelected(guild.id)}>
-                      {iconUrl(guild) ? <img src={iconUrl(guild)!} alt="" /> : <span className="server-placeholder"><Server size={19} /></span>}
-                      <span className="server-name"><strong>{guild.name}</strong><small>{guild.owner ? "Serverbesitzer" : "Verwaltungsrechte"}</small></span>
-                      {selected === guild.id ? <span className="chosen-indicator"><Check size={15} /></span> : <ChevronRight size={17} />}
-                    </button>
-                  ))}
-                </div>
-                {visibleGuilds.length === 0 && <p className="no-results">Kein passender Server gefunden.</p>}
-              </>
-            )}
-          </section>
-
-          {activeGuild && (
-            <section className="modules-section" id="modules">
-              <div className="active-server">
-                {iconUrl(activeGuild) ? <img src={iconUrl(activeGuild)!} alt="" /> : <span className="server-placeholder"><Server size={20} /></span>}
-                <div><small>AKTUELL AUSGEWÄHLT</small><strong>{activeGuild.name}</strong></div>
-                <span className="selected-label">Ausgewählt <ChevronDown size={14} /></span>
-              </div>
-              <div className="section-heading"><div><h2>Bot-Module</h2><p>Die Funktionen von MoonBot im Überblick.</p></div><span className="count-label">{features.length} Module</span></div>
-              <div className="feature-grid">
-                {features.map((feature) => {
-                  const Icon = feature.icon;
-                  return <article className="feature-card" key={feature.name}>
-                    <div className="feature-top"><span className="feature-icon"><Icon size={20} /></span><span className={feature.state === "Teilweise verfügbar" ? "state available" : "state"}>{feature.state}</span></div>
-                    <h3>{feature.name}</h3><p>{feature.description}</p>
-                    <div className="feature-footer"><span>Konfiguration</span><ChevronRight size={16} /></div>
-                  </article>;
-                })}
-              </div>
-            </section>
-          )}
-
-          <section className="notice" id="activity">
-            <div className="notice-icon"><Bell size={19} /></div>
-            <div><strong>Willkommen bei MoonBot</strong><p>Weitere Funktionen und Einstellungen werden nach und nach ergänzt.</p></div>
-          </section>
-          <footer>MoonBot · Discord-Verwaltung einfach gemacht</footer>
-        </div>
-      </section>
-    </main>
-  );
+ const [user,setUser]=useState<User|null>(null),[loading,setLoading]=useState(true),[selected,setSelected]=useState(""),[search,setSearch]=useState(""),[page,setPage]=useState<PageId>("overview"),[mobileNav,setMobileNav]=useState(false),[previewEnabled,setPreviewEnabled]=useState<Record<string,boolean>>({});
+ useEffect(()=>{fetch("/api/auth/me").then(r=>r.json()).then(result=>{if(result.user){setUser(result.user);if(result.user.guilds?.length)setSelected(result.user.guilds[0].id);}}).catch(()=>undefined).finally(()=>setLoading(false));},[]);
+ const guilds=user?.guilds??[],visibleGuilds=useMemo(()=>guilds.filter(g=>g.name.toLowerCase().includes(search.toLowerCase())),[guilds,search]),activeGuild=guilds.find(g=>g.id===selected),activeModule=modules.find(m=>m.id===page),avatar=user?.avatar?"https://cdn.discordapp.com/avatars/"+user.id+"/"+user.avatar+".png?size=64":null;
+ const nav=(id:PageId,label:string,Icon:any)=><button key={id} className={page===id?"nav-link active":"nav-link"} onClick={()=>{setPage(id);setMobileNav(false);}}><Icon size={17}/><span>{label}</span>{page===id&&<span className="nav-active-dot"/>}</button>;
+ return <main className="dashboard-shell">
+  <aside className={mobileNav?"sidebar mobile-open":"sidebar"}>
+   <a className="brand" href="/"><span className="brand-mark"><Bot size={21}/></span><span>MoonBot</span></a>
+   <div className="sidebar-label">SERVER</div>
+   <div className="server-current">{activeGuild?(iconUrl(activeGuild)?<img src={iconUrl(activeGuild)!} alt=""/>:<span className="server-fallback"><Server size={17}/></span>):<span className="server-fallback"><Server size={17}/></span>}<div className="server-current-name"><strong>{activeGuild?.name??"Kein Server ausgewählt"}</strong><small>Discord-Server</small></div><ChevronDown size={15}/></div>
+   <div className="sidebar-label nav-label">DASHBOARD</div>{nav("overview","Übersicht",LayoutDashboard)}
+   <div className="sidebar-label nav-label">MODULE</div>{modules.map(m=>nav(m.id,m.name,m.icon))}
+   <div className="sidebar-label nav-label">ALLGEMEIN</div>{nav("settings","Einstellungen",Settings)}
+   <div className="sidebar-bottom"><div className="help-link"><CircleHelp size={17}/>Hilfe & Support</div><div className="sidebar-version">MoonBot Dashboard · Beta</div></div>
+  </aside>
+  <section className="workspace">
+   <header className="topbar"><button className="mobile-menu" onClick={()=>setMobileNav(!mobileNav)} aria-label="Menü"><Menu size={19}/></button><div className="breadcrumbs"><span>MoonBot</span><ChevronRight size={14}/><strong>{page==="overview"?"Übersicht":page==="settings"?"Einstellungen":activeModule?.name}</strong></div><div className="topbar-actions"><button className="icon-button" aria-label="Benachrichtigungen"><Bell size={17}/></button>{loading?<span className="muted">Lädt …</span>:user?<div className="account-menu">{avatar?<img src={avatar} alt=""/>:<span className="avatar-fallback">{user.username.slice(0,1).toUpperCase()}</span>}<span>{user.username}</span><form action="/api/auth/logout" method="post"><button className="logout" title="Abmelden"><LogOut size={15}/></button></form></div>:<a className="discord-login" href="/api/auth/discord"><LockKeyhole size={15}/> Mit Discord anmelden</a>}</div></header>
+   <div className="page-content">
+    {!user?<div className="login-stage"><div className="login-card"><div className="login-logo"><Bot size={29}/></div><span className="eyebrow">MOONBOT CONTROL PANEL</span><h1>Dein Server. Deine Kontrolle.</h1><p>Melde dich mit Discord an und verwalte deine Server und Bot-Module an einem zentralen Ort.</p><a className="primary-button" href="/api/auth/discord">Mit Discord anmelden <ChevronRight size={16}/></a></div></div>:guilds.length===0?<div className="empty-state"><Server size={28}/><h2>Keine Server verfügbar</h2><p>Dein Discord-Account hat aktuell keine Server mit Verwaltungsrechten.</p></div>:
+    <>
+     {page==="overview"&&<>
+      <div className="page-title-row"><div><div className="eyebrow">SERVERVERWALTUNG</div><h1>Übersicht</h1><p>Alles Wichtige zu deinem MoonBot auf einen Blick.</p></div><span className="server-pill">{activeGuild?.name??"Server auswählen"}</span></div>
+      <div className="overview-grid"><section className="welcome-panel"><div className="welcome-copy"><span className="eyebrow">WILLKOMMEN ZURÜCK</span><h2>Hallo, {user.username}!</h2><p>Wähle links ein Modul aus, um die Einstellungen deines Servers zu verwalten.</p></div><div className="welcome-art"><Bot size={47}/></div></section><div className="stat-grid"><div className="stat-card"><span className="stat-icon"><Server size={17}/></span><small>Deine Server</small><strong>{guilds.length}</strong><span className="stat-foot">Mit Verwaltungsrechten</span></div><div className="stat-card"><span className="stat-icon"><SlidersHorizontal size={17}/></span><small>MoonBot-Module</small><strong>{modules.length}</strong><span className="stat-foot">Verfügbare Bereiche</span></div><div className="stat-card"><span className="stat-icon"><Activity size={17}/></span><small>Dashboard-Status</small><strong className="status-text">Online</strong><span className="stat-foot">Weboberfläche erreichbar</span></div></div></div>
+      <div className="section-heading"><div><h2>Module</h2><p>Wähle ein Modul, um dessen Bereich zu öffnen.</p></div><span className="section-count">{modules.length} Module</span></div>
+      <div className="module-grid">{modules.map(m=>{const Icon=m.icon;return <button className="module-card" key={m.id} onClick={()=>setPage(m.id)}><div className="module-card-head"><span className="module-icon"><Icon size={20}/></span><span className={m.status==="In Arbeit"?"module-status in-progress":"module-status"}>{m.status}</span></div><strong>{m.name}</strong><p>{m.description}</p><span className="module-open">Modul öffnen <ChevronRight size={15}/></span></button>;})}</div>
+      <div className="info-banner"><Sparkles size={18}/><div><strong>MoonBot wird weiterentwickelt</strong><p>Einige Module sind noch nicht mit dem Bot-Backend verbunden. Einstellungen werden deshalb derzeit noch nicht dauerhaft gespeichert.</p></div></div>
+     </>}
+     {activeModule&&<><div className="page-title-row"><div><div className="eyebrow">{activeModule.category.toUpperCase()} · MODUL</div><h1>{activeModule.name}</h1><p>{activeModule.detail}</p></div><span className="module-status large-status">{activeModule.status}</span></div><div className="module-layout"><div className="module-main-card"><div className="settings-card-head"><span className="module-icon large">{(() => {const Icon=activeModule.icon;return <Icon size={22}/>})()}</span><div><strong>{activeModule.name}</strong><small>Modulübersicht und Konfiguration</small></div></div><div className="setting-row"><div><strong>Modul aktivieren</strong><p>Aktiviere oder deaktiviere dieses Modul für deinen Server.</p></div><button className={previewEnabled[page]?"toggle on":"toggle"} onClick={()=>setPreviewEnabled(v=>({...v,[page]:!v[page]}))} aria-label="Modul aktivieren"><span/></button></div><div className="preview-note"><Bell size={16}/><span>Vorschau: Diese Auswahl wird aktuell nur auf dieser Seite angezeigt und noch nicht dauerhaft gespeichert.</span></div><div className="settings-placeholder"><FileText size={22}/><strong>Weitere Einstellungen folgen</strong><p>Die detaillierten Optionen für dieses Modul werden ergänzt, sobald die Verbindung zum MoonBot-Backend bereit ist.</p></div></div><aside className="module-side-card"><h3>Über dieses Modul</h3><p>{activeModule.detail}</p><div className="side-divider"/><small>KATEGORIE</small><strong>{activeModule.category}</strong><small>STATUS</small><strong>{activeModule.status}</strong></aside></div></>}
+     {page==="settings"&&<><div className="page-title-row"><div><div className="eyebrow">ALLGEMEIN</div><h1>Einstellungen</h1><p>Verwalte die Verbindung und grundlegende Optionen.</p></div></div><div className="module-main-card settings-page-card"><div className="settings-card-head"><span className="module-icon large"><Settings size={22}/></span><div><strong>Discord-Verbindung</strong><small>Dein angemeldeter Account</small></div></div><div className="setting-row"><div><strong>Discord-Benutzer</strong><p>{user.username}</p></div><span className="connected-tag"><Check size={14}/> Verbunden</span></div><div className="setting-row"><div><strong>Ausgewählter Server</strong><p>{activeGuild?.name??"Kein Server ausgewählt"}</p></div><span className="connected-tag">Discord</span></div><div className="setting-row"><div><strong>Account</strong><p>Verwalte deine Anmeldung über Discord.</p></div><form action="/api/auth/logout" method="post"><button className="secondary-button">Abmelden</button></form></div></div></>}
+    </>}
+    <footer className="page-footer">MoonBot Dashboard <span>·</span> Einfach. Übersichtlich. Für deinen Discord-Server.</footer>
+   </div>
+  </section>
+ </main>;
 }
