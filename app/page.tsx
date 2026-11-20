@@ -60,7 +60,7 @@ export default function Home() {
         <section className="faqSection" id="faq"><div className="sectionHead"><div><h2>Häufige Fragen</h2><p>Ein paar Antworten rund um MoonBot.</p></div></div>
           <div className="faqGrid"><article><h3>Ist MoonBot schon vollständig fertig?</h3><p>Nein. Das Dashboard ist bereits sichtbar, die einzelnen Bot-Module werden aber noch entwickelt und verbunden.</p></article><article><h3>Wie funktioniert der Discord-Login?</h3><p>Du wirst zur offiziellen Discord-Anmeldeseite weitergeleitet und anschließend zurück zum Dashboard gebracht.</p></article><article><h3>Kann ich jeden Server verwalten?</h3><p>Im Dashboard werden Server angezeigt, für die dein Discord-Konto die nötigen Verwaltungsrechte besitzt.</p></article><article><h3>Werden Einstellungen schon gespeichert?</h3><p>Die Modul-Einstellungen sind noch nicht aktiv. Sie werden erst mit der späteren Bot-Anbindung nutzbar.</p></article></div>
         </section>
-        <footer><b>MoonBot</b><span>Einfach verwalten. Gemeinsam besser.</span><small>COMMUNITY DASHBOARD</small></footer>
+        <footer><b>MoonBot</b><span>Einfach verwalten. Gemeinsam besser.</span><a href="/impressum">Impressum</a><small>COMMUNITY DASHBOARD</small></footer>
       </div>
     </section>
   </main>;
