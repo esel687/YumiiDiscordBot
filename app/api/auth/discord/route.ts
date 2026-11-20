@@ -1,0 +1,13 @@
+import { NextResponse } from "next/server";
+import { randomState } from "@/lib/session";
+export async function GET() {
+  const id = process.env.DISCORD_CLIENT_ID;
+  const redirect = process.env.DISCORD_REDIRECT_URI;
+  if (!id || !redirect) return NextResponse.json({ error: "Discord OAuth ist noch nicht konfiguriert." }, { status: 500 });
+  const state = randomState();
+  const url = new URL("https://discord.com/oauth2/authorize");
+  url.search = new URLSearchParams({ client_id: id, response_type: "code", redirect_uri: redirect, scope: "identify guilds", state }).toString();
+  const response = NextResponse.redirect(url);
+  response.cookies.set("yumiibot_oauth_state", state, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 600 });
+  return response;
+}
