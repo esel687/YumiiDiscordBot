@@ -52,3 +52,121 @@ html{scroll-behavior:smooth;scroll-padding-top:24px}
 .faqGrid p{font-size:10px}
 @media(max-width:850px){.featureGrid,.steps{grid-template-columns:1fr}.modules{grid-template-columns:1fr}.loginBanner{align-items:flex-start;flex-direction:column}.loginBanner .heroCta{margin-top:0}}
 @media(max-width:560px){.hero{min-height:unset;align-items:flex-start}.heroCta{font-size:10px}.featureGrid article,.steps article{padding:17px}.loginBanner{padding:21px}.loginBanner h2{font-size:18px}.faqGrid{grid-template-columns:1fr}}
+
+
+/* MoonBot Galaxy theme: purple, black & pink */
+:root{
+  --bg:#080510;
+  --panel:#130d20;
+  --line:#38204d;
+  --text:#fbf4ff;
+  --muted:#b6a1c8;
+  --cyan:#c084fc;
+  --purple:#a855f7;
+  --blue:#f472b6;
+}
+body{
+  background:
+    radial-gradient(ellipse at 82% 4%,#4c176c55 0%,transparent 34%),
+    radial-gradient(ellipse at 12% 35%,#a21caf22 0%,transparent 32%),
+    radial-gradient(ellipse at 72% 82%,#83184322 0%,transparent 30%),
+    linear-gradient(145deg,#080510 0%,#10091b 55%,#090510 100%);
+}
+.sidebar{background:#0b0712;border-right-color:#321b45;box-shadow:8px 0 34px #a855f722}
+.brandIcon{
+  background:linear-gradient(145deg,#351052,#641b78);
+  color:#f0abfc;
+  box-shadow:0 0 14px #c026d355,0 0 30px #9333ea44;
+}
+.accent,.hero b{color:#f0abfc}
+.sideLabel{color:#9675aa}
+.nav{color:#c1abcF}
+.nav.active,.nav:hover{
+  background:linear-gradient(100deg,#301044,#25102f);
+  color:#f0abfc;
+  box-shadow:inset 0 0 0 1px #c084fc66,0 0 18px #a855f733;
+}
+.sideFoot{border-color:#38204d;color:#d8c4e8}
+.sideFoot i{background:#f472b6;box-shadow:0 0 9px #f472b6}
+.sideFoot small{color:#987eaa}
+.topbar{border-bottom-color:#38204d}
+.topbar span{color:#80648f}
+.login,.userPill{
+  background:linear-gradient(110deg,#321044,#4a164c);
+  border-color:#a855f7;
+  color:#f5c8ff;
+  box-shadow:0 0 14px #a855f744,0 0 28px #ec489922;
+}
+.hero{
+  background:
+    radial-gradient(circle at 82% 25%,#ec489944,transparent 28%),
+    linear-gradient(115deg,#241035,#170d27 58%,#35103c);
+  border-color:#783b91;
+  box-shadow:0 0 28px #a855f733,0 12px 35px #020008aa;
+}
+.eyebrow{color:#f0abfc}
+.hero p,.sectionHead p{color:#c3adcf}
+.heroLogo{
+  color:#f0abfc;
+  background:linear-gradient(145deg,#32104488,#a21caf22);
+  border-color:#d946ef55;
+  box-shadow:0 0 22px #c026d466,0 0 58px #9333ea44,inset 0 0 25px #f0abfc22;
+}
+.hero:after{background:#d946ef33}
+.status{color:#f0abfc;background:#291033;border:1px solid #74358c}
+.stats article,.modules>a,.featureGrid article,.steps article,.faqGrid article,
+.modules>article{
+  background:linear-gradient(145deg,#1b1028,#110b1a 78%);
+  border-color:#3b2450;
+  box-shadow:0 8px 25px #02000888;
+}
+.stats article>svg,.modules>a>svg:first-child,.modules>article>svg:first-child{
+  color:#e879f9;
+  filter:drop-shadow(0 0 8px #d946ef99);
+}
+.stats article span,.stats small{color:#b49bc4}
+.good{color:#f472b6!important}
+.stats article:hover,.modules>a:hover,.modules>article:hover{
+  border-color:#e879f9aa;
+  box-shadow:0 0 0 1px #d946ef22,0 0 25px #c026d544,0 12px 30px #020008aa;
+}
+.heroCta{
+  border-color:#d946ef;
+  background:linear-gradient(105deg,#641b78,#8b1d63);
+  color:#fff0ff;
+  box-shadow:0 0 16px #c026d355,0 0 32px #ec489933;
+}
+.heroCta:hover{box-shadow:0 0 22px #d946ef88,0 0 42px #ec489955}
+.featureGrid article,.steps article,.faqGrid article{border-color:#432653}
+.featureGrid article>span{
+  border-color:#a23bb9;
+  background:linear-gradient(145deg,#39134b,#551747);
+  color:#f0abfc;
+  box-shadow:0 0 18px #c026d944;
+}
+.featureGrid h3,.steps h3,.faqGrid h3{color:#fff0ff}
+.featureGrid p,.steps p,.faqGrid p{color:#bba6c9}
+.modules em{
+  border-color:#78428d;
+  background:#2b1238;
+  color:#f0abfc;
+}
+.steps article>b{
+  color:#f472b6;
+  text-shadow:0 0 15px #ec489988;
+}
+.loginBanner{
+  border-color:#8b3b8f;
+  background:
+    radial-gradient(circle at 85% 20%,#ec489933,transparent 30%),
+    linear-gradient(105deg,#29103b,#32102f 70%,#1a0c26);
+  box-shadow:0 0 30px #a855f733,0 12px 30px #02000888;
+}
+.loginBanner h2{color:#fff0ff}
+.loginBanner p{color:#c5aaca}
+footer{color:#a18aaf}
+@keyframes moon-pulse{
+  0%,100%{box-shadow:0 0 18px #c026d455,0 0 42px #9333ea33,inset 0 0 24px #f0abfc11}
+  50%{box-shadow:0 0 30px #e879f999,0 0 72px #9333ea66,inset 0 0 34px #f0abfc33}
+}
+@media(prefers-reduced-motion:reduce){.heroLogo{animation:none}}
