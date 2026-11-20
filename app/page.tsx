@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Bot, ShieldCheck, Ticket, Settings2, Users, ChevronRight, LockKeyhole, Sparkles, MessageCircle, Bell, Zap, Globe, CheckCircle2, ArrowRight, HelpCircle } from "lucide-react";
-type User = { id: string; username: string; avatar: string | null };
+type Guild = { id: string; name: string; icon: string | null; permissions: string; owner: boolean };
+type User = { id: string; username: string; avatar: string | null; guilds: Guild[] };
 const modules = [
   { icon: Ticket, title: "Ticket-System", text: "Organisiere Support-Anfragen und behalte offene Anliegen im Blick.", status: "In Planung" },
   { icon: ShieldCheck, title: "Moderation", text: "Werkzeuge für Regeln, Moderation und ein sicheres Miteinander.", status: "In Planung" },
@@ -13,7 +14,9 @@ const modules = [
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  useEffect(() => { fetch("/api/auth/me").then(r => r.json()).then(d => setUser(d.user)).catch(() => {}).finally(() => setLoading(false)); }, []);
+  const [selectedGuildId, setSelectedGuildId] = useState("");
+  const selectedGuild = user?.guilds?.find(g => g.id === selectedGuildId) ?? user?.guilds?.[0] ?? null;
+  useEffect(() => { fetch("/api/auth/me").then(r => r.json()).then(d => { setUser(d.user); if (d.user?.guilds?.length) setSelectedGuildId(d.user.guilds[0].id); }).catch(() => {}).finally(() => setLoading(false)); }, []);
   return <main className="shell">
     <aside className="sidebar">
       <a className="brand" href="#"><span className="brandIcon"><Bot size={23}/></span><span>Moon<span className="accent">Bot</span></span></a>
@@ -34,10 +37,22 @@ export default function Home() {
 
         <div className="sectionHead"><div><h2>Dein Dashboard</h2><p>Ein zentraler Überblick für deine Community.</p></div><span className="status">● Dashboard erreichbar</span></div>
         <div className="stats">
-          <article><Users/><span>Deine Server</span><strong>{user ? "Verbunden" : "—"}</strong><small>{user ? "Discord-Konto angemeldet" : "Melde dich mit Discord an"}</small></article>
+          <article><Users/><span>Verwaltbare Server</span><strong>{user ? String(user.guilds?.length ?? 0).padStart(2, "0") : "—"}</strong><small>{user ? "Mit deinen Discord-Rechten gefunden" : "Melde dich mit Discord an"}</small></article>
           <article><Settings2/><span>Geplante Module</span><strong>06</strong><small>Weitere Funktionen in Vorbereitung</small></article>
           <article><ShieldCheck/><span>MoonBot Status</span><strong className="good">Online</strong><small>Dashboard-Oberfläche erreichbar</small></article>
         </div>
+
+
+        {user && <section className="serverSection" id="servers">
+          <div className="sectionHead"><div><h2>Deine Discord-Server</h2><p>Wähle einen Server aus, den du verwalten darfst.</p></div><span className="serverCount">{user.guilds?.length ?? 0} SERVER</span></div>
+          {user.guilds?.length ? <><div className="serverGrid">{user.guilds.map(g => <button type="button" key={g.id} className={selectedGuild?.id === g.id ? "serverCard selected" : "serverCard"} onClick={() => setSelectedGuildId(g.id)}>
+            <span className="serverAvatar">{g.icon ? <img src={`https://cdn.discordapp.com/icons/${g.id}/${g.icon}.png?size=96`} alt="" /> : g.name.slice(0, 1).toUpperCase()}</span>
+            <span className="serverInfo"><strong>{g.name}</strong><small>{g.owner ? "Server-Inhaber" : "Verwaltungsrechte vorhanden"}</small></span>
+            <span className="serverCheck">{selectedGuild?.id === g.id ? "Ausgewählt" : "Auswählen"}</span>
+          </button>)}</div>
+          {selectedGuild && <div className="selectedServer"><span>Aktuell ausgewählt</span><strong>{selectedGuild.name}</strong><small>Die Serverauswahl ist vorbereitet. Die einzelnen Bot-Einstellungen werden als nächster Schritt angebunden.</small></div>}
+          </> : <div className="emptyServers">Dein Discord-Konto hat aktuell keine Server mit den benötigten Verwaltungsrechten. Du kannst die Berechtigungen bei Discord prüfen und dich erneut anmelden.</div>}
+        </section>}
 
         <section className="wideSection" id="features"><div className="sectionHead"><div><h2>Was MoonBot bieten soll</h2><p>Die wichtigsten Bereiche für eine gut organisierte Community.</p></div></div>
           <div className="featureGrid">
