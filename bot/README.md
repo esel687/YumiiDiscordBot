@@ -1,4 +1,4 @@
-# YumiiBot runtime
+# MoonBot runtime
 
 ## Bot-Hosting.net
 
@@ -16,8 +16,8 @@ Never commit real tokens to GitHub or send them in chat.
 
 ## Included commands
 
-- `/yb status`: shows this guild's module settings
-- `/yb module name:<module> enabled:<true|false>`: changes one module for this guild
+- `/moonbot status`: shows this guild's module settings
+- `/moonbot module name:<module> enabled:<true|false>`: changes one module for this guild
 
 Settings are stored per guild in `bot/data/guild-settings.json`. Make sure the hosting provider keeps the bot's working directory persistent across restarts/deployments.
 
