@@ -18,3 +18,37 @@ body{background:radial-gradient(ellipse at 78% 0%,#172b50 0%,#080e1c 58%,#070b16
 .stats article>svg,.modules>a>svg:first-child{filter:drop-shadow(0 0 7px #39f2d9aa)}
 @keyframes moon-pulse{0%,100%{box-shadow:0 0 18px #2cf0d455,0 0 42px #2c9cff33,inset 0 0 24px #6effe511}50%{box-shadow:0 0 28px #2cf0d499,0 0 70px #2c9cff66,inset 0 0 32px #6effe522}}
 @media(prefers-reduced-motion:reduce){.heroLogo{animation:none}*,*:before,*:after{transition:none!important}}
+
+/* Expanded MoonBot landing dashboard */
+html{scroll-behavior:smooth;scroll-padding-top:24px}
+.hero{gap:25px;min-height:250px}
+.hero>div:first-child{max-width:690px}
+.heroCta{display:inline-flex;align-items:center;gap:10px;margin-top:19px;padding:11px 15px;border:1px solid #43e6d2;border-radius:9px;background:linear-gradient(105deg,#123c4b,#17304b);color:#dffffa;text-decoration:none;font-size:12px;font-weight:700;box-shadow:0 0 15px #23e8c344,0 0 30px #168ce622;transition:transform .2s,box-shadow .2s}
+.heroCta:hover{transform:translateY(-2px);box-shadow:0 0 20px #23e8c388,0 0 38px #168ce655}
+.wideSection,.howSection,.faqSection{padding-top:10px}
+.featureGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+.featureGrid article,.steps article,.faqGrid article{padding:21px;background:linear-gradient(145deg,#111d32,#101a2d);border:1px solid #263a56;border-radius:13px;box-shadow:0 8px 24px #02081755}
+.featureGrid article>span{width:42px;height:42px;display:grid;place-items:center;border:1px solid #28616a;border-radius:11px;background:#123846;color:#65f5df;box-shadow:0 0 17px #27dfc933}
+.featureGrid h3,.steps h3,.faqGrid h3{margin:14px 0 7px;font:600 14px 'Space Grotesk';color:#eaf8ff}
+.featureGrid p,.steps p,.faqGrid p{margin:0;color:#91a7bd;font-size:11px;line-height:1.7}
+.modules{grid-template-columns:repeat(2,1fr)}
+.modules>article{min-height:130px;background:linear-gradient(145deg,#111d32,#101a2d);border:1px solid #263a56;border-radius:13px;padding:18px;display:flex;align-items:flex-start;gap:13px;box-shadow:0 8px 24px #02081755;transition:transform .2s,border-color .2s,box-shadow .2s}
+.modules>article:hover{transform:translateY(-3px);border-color:#42ddcb88;box-shadow:0 0 22px #20d8c522,0 12px 30px #02081777}
+.modules>article>svg:first-child{color:#55f5df;width:23px;flex-shrink:0;filter:drop-shadow(0 0 7px #39f2d9aa)}
+.modules>article>div{flex:1}
+.modules>article>svg:last-child{width:15px;color:#71849e}
+.modules em{display:inline-block;margin-top:3px;padding:5px 8px;border:1px solid #34476a;border-radius:6px;background:#1b2440;color:#c4b6ff;font-size:9px;font-style:normal}
+.howSection{margin-top:10px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+.steps article>b{color:#5bf3dc;font:700 23px 'Space Grotesk';text-shadow:0 0 14px #39e8d277}
+.steps h3{margin-top:12px}
+.loginBanner{display:flex;align-items:center;justify-content:space-between;gap:25px;margin-top:40px;padding:27px 30px;border:1px solid #28636a;border-radius:15px;background:linear-gradient(105deg,#102f40,#172446 70%,#242449);box-shadow:0 0 27px #20dfc522,0 12px 30px #02081766}
+.loginBanner h2{margin:10px 0 7px;color:#f0fbff;font:700 21px 'Space Grotesk'}
+.loginBanner p{margin:0;color:#9db4c8;font-size:11px;line-height:1.7}
+.loginBanner .heroCta{flex-shrink:0;margin:0}
+.faqGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.faqGrid article{padding:18px}
+.faqGrid h3{margin:0 0 8px;font-size:12px}
+.faqGrid p{font-size:10px}
+@media(max-width:850px){.featureGrid,.steps{grid-template-columns:1fr}.modules{grid-template-columns:1fr}.loginBanner{align-items:flex-start;flex-direction:column}.loginBanner .heroCta{margin-top:0}}
+@media(max-width:560px){.hero{min-height:unset;align-items:flex-start}.heroCta{font-size:10px}.featureGrid article,.steps article{padding:17px}.loginBanner{padding:21px}.loginBanner h2{font-size:18px}.faqGrid{grid-template-columns:1fr}}
