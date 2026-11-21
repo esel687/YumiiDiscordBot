@@ -66,7 +66,7 @@ export default function Home() {
         {loading ? <small>Lädt …</small> : user ? <div className="userPill">{user.username}<form action="/api/auth/logout" method="post"><button>Abmelden</button></form></div> : <a className="login" href="/api/auth/discord"><LockKeyhole size={16}/> Mit Discord anmelden</a>}
       </header>
       <div className="content">
-        {authError && <div role="alert" className="authError"><strong>Discord-Anmeldung fehlgeschlagen</strong><span>{authError}</span></div>}
+        {authError && <div role="alert" style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 18, padding: "14px 16px", border: "1px solid #a855f7", borderRadius: 12, background: "linear-gradient(110deg,#321044,#24102f)", color: "#fff0ff", fontSize: 13, lineHeight: 1.6, overflowWrap: "anywhere" }}><strong>Discord-Anmeldung fehlgeschlagen</strong><span>{authError}</span></div>}
         <section className="hero" id="home"><div><div className="eyebrow"><Sparkles size={14}/> DEIN SERVER. DEINE KONTROLLE.</div><h1>Mehr Kontrolle für deinen <b>Discord-Server.</b></h1><p>MoonBot soll dir helfen, deine Community an einem Ort einfacher zu verwalten.</p><a className="heroCta" href="/api/auth/discord"><LockKeyhole size={16}/> {user ? "Mit Discord verbunden" : "Jetzt mit Discord anmelden"} <ArrowRight size={16}/></a></div><div className="heroLogo"><Bot size={74}/></div></section>
 
         <div className="sectionHead"><div><h2>Dein Dashboard</h2><p>Ein zentraler Überblick für deine Community.</p></div><span className="status">● Dashboard erreichbar</span></div>
