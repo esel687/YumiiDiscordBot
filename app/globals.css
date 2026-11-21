@@ -195,7 +195,7 @@ footer{color:#a18aaf}
 
 /* Required-cookie information notice */
 .cookieBackdrop{position:fixed;inset:auto 0 0;z-index:1000;display:flex;align-items:flex-end;justify-content:center;padding:0;background:transparent;backdrop-filter:none;pointer-events:none}
-.cookieDialog{pointer-events:auto;width:100%;max-width:none;display:flex;align-items:center;gap:16px;padding:14px max(22px,calc((100vw - 1100px)/2));border:1px solid #9b4eb4;border-bottom:0;border-radius:16px 16px 0 0;background:linear-gradient(120deg,#1d102b,#120b1d 72%,#29102f);box-shadow:0 -8px 30px #0008}
+.cookieDialog{pointer-events:auto;max-height:50vh;overflow-y:auto;width:100%;max-width:none;display:flex;align-items:center;gap:16px;padding:14px max(22px,calc((100vw - 1100px)/2));border:1px solid #9b4eb4;border-bottom:0;border-radius:16px 16px 0 0;background:linear-gradient(120deg,#1d102b,#120b1d 72%,#29102f);box-shadow:0 -8px 30px #0008}
 .cookieIcon{width:40px;height:40px;flex-shrink:0;display:grid;place-items:center;border:1px solid #a855f7;border-radius:12px;background:#351344;color:#f0abfc;box-shadow:0 0 18px #c026d944}
 .cookieCopy{flex:1;min-width:0}
 .cookieCopy h2{margin:0 0 4px;font:600 15px 'Space Grotesk';color:#fff0ff}
@@ -204,3 +204,5 @@ footer{color:#a18aaf}
 .cookieAccept{flex-shrink:0;padding:11px 16px;border:1px solid #d946ef;border-radius:10px;background:linear-gradient(105deg,#641b78,#8b1d63);color:#fff;font-size:12px;font-weight:700;box-shadow:0 0 15px #c026d355}
 .cookieAccept:hover{filter:brightness(1.15)}
 @media(max-width:620px){.cookieDialog{gap:10px;padding:12px 14px;flex-wrap:wrap}.cookieIcon{width:34px;height:34px}.cookieCopy{flex:1 1 calc(100% - 48px)}.cookieCopy h2{font-size:14px}.cookieCopy p{font-size:11px}.cookieCopy small{font-size:9px}.cookieAccept{width:100%;padding:10px}}
+
+.main{padding-bottom:var(--cookie-bar-h,0px)}
