@@ -58,7 +58,7 @@ function moduleEnabled(settings, name) {
   return name === "logs" ? settings.logs === true : settings[name]?.enabled === true;
 }
 
-async function moderateText(text) {
+async function moderateText(text, threshold = 0.82) {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) return { available: false, flagged: false };
   const response = await fetch("https://api.openai.com/v1/moderations", {
@@ -76,7 +76,6 @@ async function moderateText(text) {
   if (!result) return { available: true, flagged: false };
   const categories = result.categories || {};
   const scores = result.category_scores || {};
-  const threshold = 0.82;
   const harassment = categories.harassment === true && (scores.harassment == null || scores.harassment >= threshold);
   const hate = categories.hate === true && (scores.hate == null || scores.hate >= threshold);
   const threatening = categories["harassment/threatening"] === true;
@@ -151,7 +150,7 @@ client.on(Events.MessageCreate, async message => {
   if (!process.env.OPENAI_API_KEY) return;
 
   try {
-    const result = await moderateText(message.content);
+    const result = await moderateText(message.content, settings.automod.threshold || 0.82);
     if (!result.flagged) return;
     await message.delete().catch(() => {});
     if (settings.automod.action !== "delete") {
