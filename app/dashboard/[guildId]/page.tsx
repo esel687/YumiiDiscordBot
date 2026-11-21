@@ -49,6 +49,7 @@ export default function ServerManagement(){
  const guild=user?.guilds?.find(g=>g.id===guildId);
  const textChannels=useMemo(()=>resources?.channels.filter(c=>[0,5,15,16].includes(c.type))??[],[resources]);
  const categories=useMemo(()=>resources?.channels.filter(c=>c.type===4)??[],[resources]);
+ const voiceChannels=useMemo(()=>resources?.channels.filter(c=>c.type===2)??[],[resources]);
  const roles=resources?.roles??[];
  useEffect(()=>{fetch("/api/auth/me",{cache:"no-store"}).then(r=>r.json()).then(d=>setUser(d.user??null)).catch(()=>setError("Sitzung konnte nicht geladen werden.")).finally(()=>setLoading(false));},[]);
  useEffect(()=>{if(!guildId||!user)return;fetch("/api/bot/settings?guildId="+encodeURIComponent(guildId),{cache:"no-store"}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||"Einstellungen konnten nicht geladen werden.");setSettings(d.settings);setAiConfigured(d.aiConfigured===true);}).catch(e=>setError(e.message));},[guildId,user]);
@@ -176,7 +177,7 @@ export default function ServerManagement(){
        <label className="discordPickerLabel">Löschverzögerung in Sekunden<input className="moduleTextInput" type="number" min="5" max="86400" value={value.delaySeconds??30} onChange={e=>update(m.key,{delaySeconds:Number(e.target.value)})}/></label>
       </div>}
       {m.key==="memberCounter"&&<div className="moduleFields">
-       <ChannelPicker label="Zähler-Kanal (Sprachkanal empfohlen)" value={value.channelId} channels={textChannels} emptyLabel="Kanal auswählen …" onChange={id=>update(m.key,{channelId:id})}/>
+       <ChannelPicker label="Zähler-Kanal" value={value.channelId} channels={[...textChannels,...voiceChannels]} emptyLabel="Kanal auswählen …" onChange={id=>update(m.key,{channelId:id})}/>
        <label className="discordPickerLabel">Kanalname-Vorlage<input className="moduleTextInput" value={value.nameTemplate??"Mitglieder: {count}"} maxLength={80} onChange={e=>update(m.key,{nameTemplate:e.target.value})}/><small>Platzhalter: {"{count}"}</small></label>
       </div>}
       {m.key==="autoPin"&&<div className="moduleFields">
@@ -184,7 +185,7 @@ export default function ServerManagement(){
        <label className="discordPickerLabel">Benötigte Reaktionen<input className="moduleTextInput" type="number" min="2" max="20" value={value.threshold??5} onChange={e=>update(m.key,{threshold:Number(e.target.value)})}/></label>
       </div>}
       {m.key==="voiceMaster"&&<div className="moduleFields">
-       <ChannelPicker label="Beitreten-zum-Erstellen-Kanal" value={value.joinChannelId} channels={textChannels} emptyLabel="Sprachkanal auswählen …" onChange={id=>update(m.key,{joinChannelId:id})}/>
+       <ChannelPicker label="Beitreten-zum-Erstellen-Kanal" value={value.joinChannelId} channels={voiceChannels} emptyLabel="Sprachkanal auswählen …" onChange={id=>update(m.key,{joinChannelId:id})}/>
        <ChannelPicker label="Kategorie für temporäre Räume" value={value.categoryId} channels={categories} emptyLabel="Keine Kategorie" onChange={id=>update(m.key,{categoryId:id})}/>
        <label className="discordPickerLabel">Raumname<input className="moduleTextInput" value={value.nameTemplate??"Raum von {username}"} maxLength={80} onChange={e=>update(m.key,{nameTemplate:e.target.value})}/><small>Platzhalter: {"{username}"}</small></label>
        <label className="discordPickerLabel">Nutzerlimit (0 = unbegrenzt)<input className="moduleTextInput" type="number" min="0" max="99" value={value.userLimit??0} onChange={e=>update(m.key,{userLimit:Number(e.target.value)})}/></label>
