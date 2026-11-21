@@ -76,13 +76,15 @@ async function moderateText(text, threshold = 0.82) {
   if (!result) return { available: true, flagged: false };
   const categories = result.categories || {};
   const scores = result.category_scores || {};
-  const harassment = categories.harassment === true && (scores.harassment == null || scores.harassment >= threshold);
-  const hate = categories.hate === true && (scores.hate == null || scores.hate >= threshold);
-  const threatening = categories["harassment/threatening"] === true;
+  const matches = (name) => categories[name] === true &&
+    (scores[name] == null || scores[name] >= threshold);
+  const threatening = matches("harassment/threatening") || matches("hate/threatening");
+  const hate = matches("hate");
+  const harassment = matches("harassment");
   return {
     available: true,
     flagged: harassment || hate || threatening,
-    category: threatening ? "Bedrohung" : hate ? "Hassrede" : "Beleidigung oder Belästigung"
+    category: threatening ? "Drohung" : hate ? "Hassrede" : "Beleidigung oder Belästigung"
   };
 }
 
@@ -147,7 +149,13 @@ client.on(Events.MessageCreate, async message => {
   if (!message.guild || message.author.bot || !message.content?.trim()) return;
   const settings = getGuildSettings(message.guild.id);
   if (!moduleEnabled(settings, "automod")) return;
-  if (!process.env.OPENAI_API_KEY) return;
+  if (!process.env.OPENAI_API_KEY) {
+    if (!client.__moonbotAiKeyWarning) {
+      console.warn("KI-Auto-Mod ist aktiviert, aber OPENAI_API_KEY fehlt. Bitte den API-Schlüssel als Umgebungsvariable setzen.");
+      client.__moonbotAiKeyWarning = true;
+    }
+    return;
+  }
 
   try {
     const result = await moderateText(message.content, settings.automod.threshold || 0.82);
