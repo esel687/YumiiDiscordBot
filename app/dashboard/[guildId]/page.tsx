@@ -13,7 +13,12 @@ const modules=[
   {key:"welcome",name:"Willkommensnachrichten",icon:Bell,desc:"Begrüße neue Mitglieder automatisch."},
   {key:"autorole",name:"Auto Role",icon:UserPlus,desc:"Weise neuen Mitgliedern automatisch eine Rolle zu."},
   {key:"selfroles",name:"Self Roles",icon:Users,desc:"Mitglieder können ihre Rollen selbst auswählen."},
-  {key:"automod",name:"KI-Auto-Mod",icon:ShieldCheck,desc:"Unterstützt die Moderation beim Erkennen problematischer Nachrichten."}
+  {key:"automod",name:"KI-Auto-Mod",icon:ShieldCheck,desc:"Unterstützt die Moderation beim Erkennen problematischer Nachrichten."},
+  {key:"leave",name:"Abschiedsnachrichten",icon:LogOut,desc:"Verabschiede Mitglieder automatisch."},
+  {key:"suggestions",name:"Vorschläge",icon:MessageSquare,desc:"Sammle Community-Ideen mit Abstimmungen."},
+  {key:"starboard",name:"Starboard",icon:Star,desc:"Zeige besonders beliebte Nachrichten."},
+  {key:"antiInvite",name:"Anti-Discord-Links",icon:Link2,desc:"Erkennt und moderiert fremde Discord-Einladungen."},
+  {key:"logs",name:"Server-Logs",icon:ClipboardList,desc:"Protokolliert wichtige Serverereignisse."}
 ];
 function ChannelPicker({label,value,channels,emptyLabel,onChange}:{label:string;value:string;channels:DiscordChannel[];emptyLabel:string;onChange:(id:string)=>void}){
   return <label className="discordPickerLabel">{label}<span className="discordPicker"><Hash size={15}/><select value={value||""} onChange={e=>onChange(e.target.value)}><option value="">{emptyLabel}</option>{channels.map(channel=><option key={channel.id} value={channel.id}>#{channel.name}</option>)}</select><ChevronDown size={15}/></span></label>;
@@ -59,10 +64,19 @@ export default function ServerManagement(){
        <ChannelPicker label="Ticket-Kategorie" value={value.categoryId} channels={categories} emptyLabel="Kategorie auswählen …" onChange={id=>update(m.key,{categoryId:id})}/>
        <RolePicker label="Support-Rolle" value={value.supportRoleId} roles={roles} placeholder="Rolle auswählen …" onChange={id=>update(m.key,{supportRoleId:id})}/>
        <ChannelPicker label="Ticket-Panel-Kanal" value={value.panelChannelId} channels={textChannels} emptyLabel="Kanal auswählen …" onChange={id=>update(m.key,{panelChannelId:id})}/>
+       <label className="discordPickerLabel">Panel-Titel<input className="moduleTextInput" value={value.panelTitle??"Support benötigt?"} maxLength={100} onChange={e=>update(m.key,{panelTitle:e.target.value})}/></label>
+       <label className="discordPickerLabel">Beschreibung<textarea className="moduleTextInput" rows={3} value={value.panelDescription??""} maxLength={1000} onChange={e=>update(m.key,{panelDescription:e.target.value})}/></label>
+       <label className="discordPickerLabel">Button-Beschriftung<input className="moduleTextInput" value={value.buttonLabel??"Ticket erstellen"} maxLength={80} onChange={e=>update(m.key,{buttonLabel:e.target.value})}/></label>
+       <label className="discordPickerLabel">Embed-Farbe<input type="color" className="moduleTextInput" value={value.color??"#22d3ee"} onChange={e=>update(m.key,{color:e.target.value})}/></label>
+       <div className="discordPreview"><div className="discordPreviewTop"><span>VORSCHAU · DISCORD</span><span>LIVE</span></div><div className="discordPreviewMessage"><div className="discordPreviewAvatar">M</div><div><b>MoonBot</b><small> BOT</small><div className="discordEmbed" style={{borderLeftColor:value.color||"#22d3ee"}}><strong>{value.panelTitle||"Support benötigt?"}</strong><p>{value.panelDescription||"Klicke auf die Schaltfläche, um ein privates Support-Ticket zu erstellen."}</p><span className="discordFakeButton">🎫 {value.buttonLabel||"Ticket erstellen"}</span></div></div></div></div>
       </div>}
       {m.key==="welcome"&&<div className="moduleFields">
        <ChannelPicker label="Willkommens-Kanal" value={value.channelId} channels={textChannels} emptyLabel="Kanal auswählen …" onChange={id=>update(m.key,{channelId:id})}/>
-       <label className="discordPickerLabel">Willkommensnachricht<input className="moduleTextInput" value={value.message??""} onChange={e=>update(m.key,{message:e.target.value})}/><small>Platzhalter: {"{user}"}, {"{username}"}, {"{server}"}</small></label>
+       <label className="discordPickerLabel">Willkommensnachricht<input className="moduleTextInput" value={value.message??""} maxLength={500} onChange={e=>update(m.key,{message:e.target.value})}/><small>Platzhalter: {"{user}"}, {"{username}"}, {"{server}"}</small></label>
+       <label className="discordPickerLabel">Embed-Titel<input className="moduleTextInput" value={value.title??""} maxLength={100} onChange={e=>update(m.key,{title:e.target.value})}/></label>
+       <label className="discordPickerLabel">Embed-Farbe<input type="color" className="moduleTextInput" value={value.color??"#22d3ee"} onChange={e=>update(m.key,{color:e.target.value})}/></label>
+       <label className="discordPickerLabel"><span><input type="checkbox" checked={value.mentionUser!==false} onChange={e=>update(m.key,{mentionUser:e.target.checked})}/> Mitglied erwähnen</span></label>
+       <div className="discordPreview"><div className="discordPreviewTop"><span>VORSCHAU · DISCORD</span><span>LIVE</span></div><div className="discordPreviewMessage"><div className="discordPreviewAvatar">M</div><div><b>MoonBot</b><small> BOT</small><div className="discordEmbed" style={{borderLeftColor:value.color||"#22d3ee"}}>{value.title&&<strong>{value.title}</strong>}<p>{(value.message||"Willkommen {user} auf {server}!").replaceAll("{user}","@NeuesMitglied").replaceAll("{username}","NeuesMitglied").replaceAll("{server}",guild.name)}</p></div></div></div></div>
       </div>}
       {m.key==="autorole"&&<div className="moduleFields"><RolePicker label="Automatische Rolle" value={value.roleId} roles={roles} placeholder="Rolle auswählen …" onChange={id=>update(m.key,{roleId:id})}/></div>}
       {m.key==="selfroles"&&<div className="moduleFields">
