@@ -32,6 +32,14 @@ function defaults() {
     suggestions: { enabled: false, channelId: "", reviewChannelId: "", title: "Neuer Vorschlag", color: "#22d3ee" },
     starboard: { enabled: false, channelId: "", threshold: 3, emoji: "⭐" },
     antiInvite: { enabled: false, action: "delete_warn", allowedChannelId: "" },
+    antiSpam: { enabled: false, maxMessages: 5, intervalSeconds: 6, action: "delete_warn" },
+    antiCaps: { enabled: false, minLength: 12, percentage: 75, action: "delete_warn" },
+    antiLinks: { enabled: false, action: "delete_warn", allowedChannelId: "" },
+    keywordFilter: { enabled: false, words: [], action: "delete_warn", logChannelId: "" },
+    slowmode: { enabled: false, channelId: "", seconds: 5 },
+    counting: { enabled: false, channelId: "", startNumber: 1, lastNumber: 0 },
+    polls: { enabled: false, channelId: "" },
+    giveaways: { enabled: false, channelId: "" },
     logs: { enabled: false, channelId: "", messageDelete: true, messageEdit: true, memberJoin: true, memberLeave: true }
   };
 }
@@ -92,6 +100,48 @@ function normalizeSettings(input) {
       action: value.antiInvite?.action === "delete" ? "delete" : "delete_warn",
       allowedChannelId: stringValue(value.antiInvite?.allowedChannelId, 24)
     },
+    antiSpam: {
+      enabled: value.antiSpam?.enabled === true,
+      maxMessages: Math.min(15, Math.max(2, Number(value.antiSpam?.maxMessages) || 5)),
+      intervalSeconds: Math.min(30, Math.max(2, Number(value.antiSpam?.intervalSeconds) || 6)),
+      action: value.antiSpam?.action === "delete" ? "delete" : "delete_warn"
+    },
+    antiCaps: {
+      enabled: value.antiCaps?.enabled === true,
+      minLength: Math.min(100, Math.max(5, Number(value.antiCaps?.minLength) || 12)),
+      percentage: Math.min(100, Math.max(50, Number(value.antiCaps?.percentage) || 75)),
+      action: value.antiCaps?.action === "delete" ? "delete" : "delete_warn"
+    },
+    antiLinks: {
+      enabled: value.antiLinks?.enabled === true,
+      action: value.antiLinks?.action === "delete" ? "delete" : "delete_warn",
+      allowedChannelId: stringValue(value.antiLinks?.allowedChannelId, 24)
+    },
+    keywordFilter: {
+      enabled: value.keywordFilter?.enabled === true,
+      words: Array.isArray(value.keywordFilter?.words) ? value.keywordFilter.words.slice(0, 100).map(word => stringValue(word, 50)).filter(Boolean) : [],
+      action: value.keywordFilter?.action === "delete" ? "delete" : "delete_warn",
+      logChannelId: stringValue(value.keywordFilter?.logChannelId, 24)
+    },
+    slowmode: {
+      enabled: value.slowmode?.enabled === true,
+      channelId: stringValue(value.slowmode?.channelId, 24),
+      seconds: Math.min(21600, Math.max(0, Number(value.slowmode?.seconds) || 5))
+    },
+    counting: {
+      enabled: value.counting?.enabled === true,
+      channelId: stringValue(value.counting?.channelId, 24),
+      startNumber: Math.max(1, Number(value.counting?.startNumber) || 1),
+      lastNumber: Math.max(0, Number(value.counting?.lastNumber) || 0)
+    },
+    polls: {
+      enabled: value.polls?.enabled === true,
+      channelId: stringValue(value.polls?.channelId, 24)
+    },
+    giveaways: {
+      enabled: value.giveaways?.enabled === true,
+      channelId: stringValue(value.giveaways?.channelId, 24)
+    },
     logs: {
       enabled: value.logs?.enabled === true || value.logs === true,
       channelId: stringValue(value.logs?.channelId, 24),
@@ -123,7 +173,7 @@ function setGuildSettings(guildId, settings) {
 
 function setGuildModule(guildId, moduleName, enabled) {
   const current = getGuildSettings(guildId);
-  if (!["welcome", "tickets", "autorole", "selfroles", "automod", "leave", "suggestions", "starboard", "antiInvite", "logs"].includes(moduleName)) {
+  if (!["welcome", "tickets", "autorole", "selfroles", "automod", "leave", "suggestions", "starboard", "antiInvite", "antiSpam", "antiCaps", "antiLinks", "keywordFilter", "slowmode", "counting", "polls", "giveaways", "logs"].includes(moduleName)) {
     throw new Error("Unknown module");
   }
   current[moduleName].enabled = enabled;
