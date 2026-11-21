@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
-import { Bot, ArrowLeft, Ticket, Bell, UserPlus, Users, ShieldCheck, Save, Hash, ChevronDown, ChevronRight, RefreshCw, MessageSquare, LogIn, LogOut, Star, Link2, ClipboardList, Ban, Filter, Timer, Gift, Vote, CaseSensitive, VolumeX } from "lucide-react";
+import { Bot, ArrowLeft, Ticket, Bell, UserPlus, Users, ShieldCheck, Save, Hash, ChevronDown, ChevronRight, RefreshCw, MessageSquare, LogIn, LogOut, Star, Link2, ClipboardList, Ban, Filter, Timer, Gift, Vote, CaseSensitive, VolumeX, AtSign, GitBranch, Trash2, UsersRound, Pin, Headphones, BellRing } from "lucide-react";
 
 type Guild={id:string;name:string;icon:string|null;owner:boolean};
 type User={username:string;guilds:Guild[]};
@@ -26,6 +26,13 @@ const modules=[
   {key:"counting",name:"Zählspiel",icon:Hash,desc:"Ein gemeinsamer Zahlen-Channel mit fortlaufender Reihenfolge."},
   {key:"polls",name:"Umfragen",icon:Vote,desc:"Erstelle Abstimmungen direkt per Slash-Befehl."},
   {key:"giveaways",name:"Giveaways",icon:Gift,desc:"Starte zeitgesteuerte Verlosungen per Slash-Befehl."},
+  {key:"antiMassMention",name:"Anti-Mass-Mention",icon:AtSign,desc:"Verhindert Nachrichten mit zu vielen Erwähnungen."},
+  {key:"autoThread",name:"Auto-Thread",icon:GitBranch,desc:"Erstellt automatisch Diskussions-Threads."},
+  {key:"messageCleanup",name:"Nachrichten-Auto-Löschung",icon:Trash2,desc:"Entfernt Nachrichten nach einer festgelegten Zeit."},
+  {key:"memberCounter",name:"Mitgliederzähler",icon:UsersRound,desc:"Hält einen Kanalnamen mit der Mitgliederzahl aktuell."},
+  {key:"autoPin",name:"Auto-Pin",icon:Pin,desc:"Pinnt Nachrichten ab einer Reaktionszahl."},
+  {key:"voiceMaster",name:"Voice Master",icon:Headphones,desc:"Erstellt persönliche Sprachkanäle beim Beitreten."},
+  {key:"bumpReminder",name:"Bump-Erinnerung",icon:BellRing,desc:"Erinnert nach einem erfolgreichen Disboard-Bump."},
   {key:"logs",name:"Server-Logs",icon:ClipboardList,desc:"Protokolliert wichtige Serverereignisse."}
 ];
 function ChannelPicker({label,value,channels,emptyLabel,onChange}:{label:string;value:string;channels:DiscordChannel[];emptyLabel:string;onChange:(id:string)=>void}){
@@ -154,6 +161,38 @@ export default function ServerManagement(){
        <ChannelPicker label="Giveaway-Kanal" value={value.channelId} channels={textChannels} emptyLabel="Aktuellen Kanal verwenden" onChange={id=>update(m.key,{channelId:id})}/>
        <div className="discordPreview"><div className="discordPreviewTop"><span>VORSCHAU · DISCORD</span><span>LIVE</span></div><div className="discordPreviewMessage"><div className="discordPreviewAvatar">M</div><div><b>MoonBot</b><small> BOT</small><div className="discordEmbed"><strong>🎉 Giveaway</strong><p>Gewinn: Beispielpreis</p><p>Reagiere mit 🎉, um teilzunehmen!</p></div></div></div></div>
        <small>Starten mit <code>/moonbot giveaway</code>. Die Laufzeit wird beim Start angegeben.</small>
+      </div>}
+
+      {m.key==="antiMassMention"&&<div className="moduleFields">
+       <label className="discordPickerLabel">Maximale Erwähnungen<input className="moduleTextInput" type="number" min="2" max="20" value={value.maxMentions??5} onChange={e=>update(m.key,{maxMentions:Number(e.target.value)})}/></label>
+       <label className="discordPickerLabel">Aktion<select className="moduleTextInput" value={value.action??"delete_warn"} onChange={e=>update(m.key,{action:e.target.value})}><option value="delete_warn">Löschen und warnen</option><option value="delete">Nur löschen</option></select></label>
+      </div>}
+      {m.key==="autoThread"&&<div className="moduleFields">
+       <ChannelPicker label="Thread-Ausgangskanal" value={value.channelId} channels={textChannels} emptyLabel="Kanal auswählen …" onChange={id=>update(m.key,{channelId:id})}/>
+       <label className="discordPickerLabel">Auto-Archivierung<select className="moduleTextInput" value={value.archiveMinutes??1440} onChange={e=>update(m.key,{archiveMinutes:Number(e.target.value)})}><option value="60">1 Stunde</option><option value="1440">24 Stunden</option><option value="4320">3 Tage</option><option value="10080">7 Tage</option></select></label>
+      </div>}
+      {m.key==="messageCleanup"&&<div className="moduleFields">
+       <ChannelPicker label="Auto-Lösch-Kanal" value={value.channelId} channels={textChannels} emptyLabel="Kanal auswählen …" onChange={id=>update(m.key,{channelId:id})}/>
+       <label className="discordPickerLabel">Löschverzögerung in Sekunden<input className="moduleTextInput" type="number" min="5" max="86400" value={value.delaySeconds??30} onChange={e=>update(m.key,{delaySeconds:Number(e.target.value)})}/></label>
+      </div>}
+      {m.key==="memberCounter"&&<div className="moduleFields">
+       <ChannelPicker label="Zähler-Kanal (Sprachkanal empfohlen)" value={value.channelId} channels={textChannels} emptyLabel="Kanal auswählen …" onChange={id=>update(m.key,{channelId:id})}/>
+       <label className="discordPickerLabel">Kanalname-Vorlage<input className="moduleTextInput" value={value.nameTemplate??"Mitglieder: {count}"} maxLength={80} onChange={e=>update(m.key,{nameTemplate:e.target.value})}/><small>Platzhalter: {"{count}"}</small></label>
+      </div>}
+      {m.key==="autoPin"&&<div className="moduleFields">
+       <label className="discordPickerLabel">Reaktions-Emoji<input className="moduleTextInput" value={value.emoji??"📌"} maxLength={8} onChange={e=>update(m.key,{emoji:e.target.value})}/></label>
+       <label className="discordPickerLabel">Benötigte Reaktionen<input className="moduleTextInput" type="number" min="2" max="20" value={value.threshold??5} onChange={e=>update(m.key,{threshold:Number(e.target.value)})}/></label>
+      </div>}
+      {m.key==="voiceMaster"&&<div className="moduleFields">
+       <ChannelPicker label="Beitreten-zum-Erstellen-Kanal" value={value.joinChannelId} channels={textChannels} emptyLabel="Sprachkanal auswählen …" onChange={id=>update(m.key,{joinChannelId:id})}/>
+       <ChannelPicker label="Kategorie für temporäre Räume" value={value.categoryId} channels={categories} emptyLabel="Keine Kategorie" onChange={id=>update(m.key,{categoryId:id})}/>
+       <label className="discordPickerLabel">Raumname<input className="moduleTextInput" value={value.nameTemplate??"Raum von {username}"} maxLength={80} onChange={e=>update(m.key,{nameTemplate:e.target.value})}/><small>Platzhalter: {"{username}"}</small></label>
+       <label className="discordPickerLabel">Nutzerlimit (0 = unbegrenzt)<input className="moduleTextInput" type="number" min="0" max="99" value={value.userLimit??0} onChange={e=>update(m.key,{userLimit:Number(e.target.value)})}/></label>
+      </div>}
+      {m.key==="bumpReminder"&&<div className="moduleFields">
+       <ChannelPicker label="Erinnerungs-Kanal" value={value.channelId} channels={textChannels} emptyLabel="Kanal auswählen …" onChange={id=>update(m.key,{channelId:id})}/>
+       <label className="discordPickerLabel">Erinnerung nach Stunden<input className="moduleTextInput" type="number" min="1" max="24" value={value.intervalHours??2} onChange={e=>update(m.key,{intervalHours:Number(e.target.value)})}/></label>
+       <small>Erkennt die Bestätigung des Disboard-Bots nach einem erfolgreichen Bump.</small>
       </div>}
       {m.key==="logs"&&<div className="moduleFields">
        <ChannelPicker label="Log-Kanal" value={value.channelId} channels={textChannels} emptyLabel="Kanal auswählen …" onChange={id=>update(m.key,{channelId:id})}/>
