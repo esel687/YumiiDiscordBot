@@ -18,14 +18,18 @@ if (!clientId) {
   process.exit(1);
 }
 
-const modules = ["welcome", "tickets", "autorole", "selfroles", "automod", "logs"];
+const modules = ["welcome", "tickets", "autorole", "selfroles", "automod", "leave", "suggestions", "starboard", "antiInvite", "logs"];
 const moduleLabels = {
   welcome: "Willkommensnachrichten",
   tickets: "Ticketsystem",
   autorole: "Auto Role",
   selfroles: "Self Roles",
   automod: "KI-Auto-Mod",
-  logs: "Logs"
+  leave: "Abschiedsnachrichten",
+  suggestions: "Vorschläge",
+  starboard: "Starboard",
+  antiInvite: "Anti-Discord-Links",
+  logs: "Server-Logs"
 };
 
 const commands = [
@@ -50,12 +54,14 @@ const client = new Client({
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent
-  ]
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildMessageReactions
+  ],
+  partials: [require("discord.js").Partials.Message, require("discord.js").Partials.Channel, require("discord.js").Partials.Reaction]
 });
 
 function moduleEnabled(settings, name) {
-  return name === "logs" ? settings.logs === true : settings[name]?.enabled === true;
+  return name === "logs" ? settings.logs?.enabled === true || settings.logs === true : settings[name]?.enabled === true;
 }
 
 async function moderateText(text, threshold = 0.82) {
@@ -106,6 +112,14 @@ async function sendModerationLog(guild, settings, message, reason) {
   await channel.send({ embeds: [embed] }).catch(() => {});
 }
 
+async function sendServerLog(guild, settings, title, description) {
+  const config = settings.logs || {};
+  if (!moduleEnabled(settings, "logs") || !config.channelId) return;
+  const channel = await guild.channels.fetch(config.channelId).catch(() => null);
+  if (!channel?.isTextBased()) return;
+  const embed = new EmbedBuilder().setColor(0x64748b).setTitle(title).setDescription(description.slice(0, 4000)).setTimestamp();
+  await channel.send({ embeds: [embed], allowedMentions: { parse: [] } }).catch(() => {});
+}
 client.once(Events.ClientReady, async readyClient => {
   console.log(`Ready! Logged in as ${readyClient.user.tag}`);
   startControlServer(client);
@@ -125,6 +139,7 @@ client.on(Events.GuildCreate, guild => {
 
 client.on(Events.GuildMemberAdd, async member => {
   const settings = getGuildSettings(member.guild.id);
+  if (settings.logs?.memberJoin !== false) await sendServerLog(member.guild, settings, "Mitglied beigetreten", `${member.user.tag} (${member.id}) ist dem Server beigetreten.`);
 
   if (moduleEnabled(settings, "autorole") && settings.autorole.roleId) {
     const role = await member.guild.roles.fetch(settings.autorole.roleId).catch(() => null);
@@ -137,10 +152,12 @@ client.on(Events.GuildMemberAdd, async member => {
     const channel = await member.guild.channels.fetch(settings.welcome.channelId).catch(() => null);
     if (channel?.isTextBased()) {
       const message = (settings.welcome.message || "Willkommen {user} auf {server}!")
-        .replaceAll("{user}", `<@${member.id}>`)
+        .replaceAll("{user}", settings.welcome.mentionUser === false ? member.user.username : `<@${member.id}>`)
         .replaceAll("{username}", member.user.username)
         .replaceAll("{server}", member.guild.name);
-      await channel.send({ content: message }).catch(error => console.error("Welcome message failed:", error));
+      const embed = new EmbedBuilder().setColor(Number.parseInt((settings.welcome.color || "#22d3ee").slice(1), 16)).setDescription(message);
+      if (settings.welcome.title) embed.setTitle(settings.welcome.title);
+      await channel.send({ embeds: [embed], allowedMentions: settings.welcome.mentionUser === false ? { parse: [] } : { users: [member.id] } }).catch(error => console.error("Welcome message failed:", error));
     }
   }
 });
@@ -148,6 +165,28 @@ client.on(Events.GuildMemberAdd, async member => {
 client.on(Events.MessageCreate, async message => {
   if (!message.guild || message.author.bot || !message.content?.trim()) return;
   const settings = getGuildSettings(message.guild.id);
+
+  if (moduleEnabled(settings, "suggestions") && settings.suggestions.channelId === message.channelId) {
+    await message.react("👍").catch(() => {});
+    await message.react("👎").catch(() => {});
+    if (settings.suggestions.reviewChannelId) {
+      const review = await message.guild.channels.fetch(settings.suggestions.reviewChannelId).catch(() => null);
+      if (review?.isTextBased()) {
+        const embed = new EmbedBuilder().setColor(Number.parseInt((settings.suggestions.color || "#22d3ee").slice(1), 16)).setTitle(settings.suggestions.title || "Neuer Vorschlag").setDescription(message.content.slice(0, 4000)).addFields({ name: "Von", value: `${message.author.tag}`, inline: true }, { name: "Zum Vorschlag", value: `[Nachricht öffnen](${message.url})`, inline: true }).setTimestamp();
+        await review.send({ embeds: [embed], allowedMentions: { parse: [] } }).catch(() => {});
+      }
+    }
+  }
+
+  if (moduleEnabled(settings, "antiInvite") && message.channelId !== settings.antiInvite.allowedChannelId && /(?:https?:\/\/)?(?:www\.)?(?:discord\.gg|discord(?:app)?\.com\/invite)\/[\w-]+/i.test(message.content)) {
+    await message.delete().catch(() => {});
+    if (settings.antiInvite.action !== "delete") {
+      const warning = await message.channel.send({ content: `<@${message.author.id}> Discord-Einladungslinks sind hier nicht erlaubt.`, allowedMentions: { users: [message.author.id] } }).catch(() => null);
+      if (warning) setTimeout(() => warning.delete().catch(() => {}), 7000);
+    }
+    return;
+  }
+
   if (!moduleEnabled(settings, "automod")) return;
   if (!process.env.OPENAI_API_KEY) {
     if (!client.__moonbotAiKeyWarning) {
@@ -173,6 +212,53 @@ client.on(Events.MessageCreate, async message => {
   }
 });
 
+client.on(Events.GuildMemberRemove, async member => {
+  const settings = getGuildSettings(member.guild.id);
+  if (moduleEnabled(settings, "leave") && settings.leave.channelId) {
+    const channel = await member.guild.channels.fetch(settings.leave.channelId).catch(() => null);
+    if (channel?.isTextBased()) {
+      const content = (settings.leave.message || "{username} hat den Server verlassen. Tschüss!")
+        .replaceAll("{user}", member.user.username)
+        .replaceAll("{username}", member.user.username)
+        .replaceAll("{server}", member.guild.name);
+      await channel.send({ content, allowedMentions: { parse: [] } }).catch(() => {});
+    }
+  }
+  if (settings.logs?.memberLeave !== false) await sendServerLog(member.guild, settings, "Mitglied hat den Server verlassen", `${member.user.tag} (${member.id}) hat den Server verlassen.`);
+});
+
+client.on(Events.MessageDelete, async message => {
+  if (!message.guild || message.author?.bot) return;
+  const settings = getGuildSettings(message.guild.id);
+  if (settings.logs?.messageDelete === false) return;
+  await sendServerLog(message.guild, settings, "Nachricht gelöscht", `Autor: ${message.author?.tag || "Unbekannt"}\nKanal: <#${message.channelId}>\nInhalt: ${(message.content || "Nicht verfügbar").slice(0, 2500)}`);
+});
+
+client.on(Events.MessageUpdate, async (oldMessage, newMessage) => {
+  if (!newMessage.guild || newMessage.author?.bot || oldMessage.content === newMessage.content) return;
+  const settings = getGuildSettings(newMessage.guild.id);
+  if (settings.logs?.messageEdit === false) return;
+  await sendServerLog(newMessage.guild, settings, "Nachricht bearbeitet", `Autor: ${newMessage.author?.tag || "Unbekannt"}\nKanal: <#${newMessage.channelId}>\nVorher: ${(oldMessage.content || "Nicht verfügbar").slice(0, 1200)}\nNachher: ${(newMessage.content || "Nicht verfügbar").slice(0, 1200)}`);
+});
+
+client.on(Events.MessageReactionAdd, async (reaction, user) => {
+  if (user.bot) return;
+  if (reaction.partial) await reaction.fetch().catch(() => null);
+  const message = reaction.message;
+  if (!message?.guild) return;
+  const settings = getGuildSettings(message.guild.id);
+  if (!moduleEnabled(settings, "starboard") || reaction.emoji.name !== (settings.starboard.emoji || "⭐")) return;
+  if (reaction.count < (settings.starboard.threshold || 3)) return;
+  const target = await message.guild.channels.fetch(settings.starboard.channelId).catch(() => null);
+  if (!target?.isTextBased()) return;
+  const recent = await target.messages.fetch({ limit: 100 }).catch(() => null);
+  const marker = `MoonBot Starboard ${message.id}`;
+  if (recent?.some(post => post.embeds.some(embed => embed.footer?.text === marker))) return;
+  const embed = new EmbedBuilder().setColor(0xfbbf24).setAuthor({ name: message.author?.tag || "Unbekannt" }).setDescription((message.content || "Anhang oder Mediennachricht").slice(0, 3500)).addFields({ name: "Ursprung", value: `<#${message.channelId}>`, inline: true }, { name: "Nachricht", value: `[Öffnen](${message.url})`, inline: true }).setFooter({ text: marker }).setTimestamp(message.createdAt);
+  const files = [...message.attachments.values()].filter(file => file.contentType?.startsWith("image/")).slice(0, 1).map(file => file.url);
+  if (files[0]) embed.setImage(files[0]);
+  await target.send({ content: `${settings.starboard.emoji || "⭐"} **${reaction.count}**`, embeds: [embed], allowedMentions: { parse: [] } }).catch(() => {});
+});
 client.on(Events.InteractionCreate, async interaction => {
   if (!interaction.guild) return;
 
@@ -217,10 +303,11 @@ client.on(Events.InteractionCreate, async interaction => {
       }
       const embed = new EmbedBuilder()
         .setColor(0xc084fc)
-        .setTitle("Support benötigt?")
-        .setDescription("Klicke auf die Schaltfläche, um ein privates Support-Ticket zu erstellen.");
+        .setColor(Number.parseInt((settings.tickets.color || "#22d3ee").slice(1), 16))
+        .setTitle(settings.tickets.panelTitle || "Support benötigt?")
+        .setDescription(settings.tickets.panelDescription || "Klicke auf die Schaltfläche, um ein privates Support-Ticket zu erstellen.");
       const row = new ActionRowBuilder().addComponents(
-        new ButtonBuilder().setCustomId("moonbot:ticket:create").setLabel("Ticket erstellen").setStyle(ButtonStyle.Primary).setEmoji("🎫")
+        new ButtonBuilder().setCustomId("moonbot:ticket:create").setLabel(settings.tickets.buttonLabel || "Ticket erstellen").setStyle(ButtonStyle.Primary).setEmoji("🎫")
       );
       const targetChannel = settings.tickets.panelChannelId
         ? await interaction.guild.channels.fetch(settings.tickets.panelChannelId).catch(() => null)
