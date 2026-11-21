@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Bot, ShieldCheck, Ticket, Settings2, Users, ChevronRight, LockKeyhole, Sparkles, MessageCircle, Bell, Zap, Globe, CheckCircle2, ArrowRight, HelpCircle } from "lucide-react";
 type Guild = { id: string; name: string; icon: string | null; permissions: string; owner: boolean };
 type User = { id: string; username: string; avatar: string | null; guilds: Guild[] };
@@ -18,6 +18,17 @@ export default function Home() {
   const [cookiesAccepted, setCookiesAccepted] = useState(true);
   useEffect(() => { setCookiesAccepted(document.cookie.split("; ").some(cookie => cookie.startsWith("moonbot_cookie_notice=accepted"))); }, []);
   const acceptCookies = () => { document.cookie = "moonbot_cookie_notice=accepted; Max-Age=15552000; Path=/; SameSite=Lax; Secure"; setCookiesAccepted(true); };
+  const cookieBarRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const root = document.documentElement;
+    const bar = cookieBarRef.current;
+    if (!bar) { root.style.removeProperty("--cookie-bar-h"); return; }
+    const update = () => root.style.setProperty("--cookie-bar-h", `${bar.offsetHeight}px`);
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(bar);
+    return () => { observer.disconnect(); root.style.removeProperty("--cookie-bar-h"); };
+  }, [cookiesAccepted]);
   const selectedGuild = user?.guilds?.find(g => g.id === selectedGuildId) ?? user?.guilds?.[0] ?? null;
   useEffect(() => { fetch("/api/auth/me").then(r => r.json()).then(d => { setUser(d.user); if (d.user?.guilds?.length) setSelectedGuildId(d.user.guilds[0].id); }).catch(() => {}).finally(() => setLoading(false)); }, []);
   return <main className="shell">
@@ -81,6 +92,6 @@ export default function Home() {
         <footer><b>MoonBot</b><span>Einfach verwalten. Gemeinsam besser.</span><a href="/impressum">Impressum</a><small>COMMUNITY DASHBOARD</small></footer>
       </div>
     </section>
-    {!cookiesAccepted && <div className="cookieBackdrop" role="dialog" aria-modal="true" aria-labelledby="cookieTitle"><section className="cookieDialog"><div className="cookieIcon"><LockKeyhole size={22}/></div><div className="cookieCopy"><h2 id="cookieTitle">Cookies bei MoonBot</h2><p>MoonBot verwendet notwendige Cookies, damit die Discord-Anmeldung und deine Sitzung funktionieren. Wir verwenden hier keine Werbe- oder Analyse-Cookies.</p><small>Du kannst die Seite erst weiter nutzen, wenn du den Hinweis bestätigt hast.</small></div><button type="button" className="cookieAccept" onClick={acceptCookies}>Verstanden &amp; weiter</button></section></div>}
+    {!cookiesAccepted && <div className="cookieBackdrop"><section className="cookieDialog" ref={cookieBarRef} role="region" aria-labelledby="cookieTitle"><div className="cookieIcon"><LockKeyhole size={22}/></div><div className="cookieCopy"><h2 id="cookieTitle">Cookies bei MoonBot</h2><p>MoonBot verwendet notwendige Cookies, damit die Discord-Anmeldung und deine Sitzung funktionieren. Wir verwenden hier keine Werbe- oder Analyse-Cookies.</p></div><button type="button" className="cookieAccept" onClick={acceptCookies}>Verstanden &amp; weiter</button></section></div>}
   </main>;
 }
