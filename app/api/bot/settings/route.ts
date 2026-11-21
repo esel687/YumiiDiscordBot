@@ -16,6 +16,12 @@ function config() {
   const base = process.env.MOONBOT_API_URL?.replace(/\/$/, "");
   const secret = process.env.MOONBOT_API_SECRET;
   if (!base || !secret) return null;
+  try {
+    const parsed = new URL(base);
+    if (parsed.protocol !== "https:" || parsed.username || parsed.password) return null;
+  } catch {
+    return null;
+  }
   return { base, secret };
 }
 
