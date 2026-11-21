@@ -26,7 +26,7 @@ function defaults() {
     welcome: { enabled: false, channelId: "", message: "Willkommen {user} auf {server}!", title: "Willkommen!", color: "#22d3ee", mentionUser: true },
     tickets: { enabled: false, categoryId: "", supportRoleId: "", panelChannelId: "", panelTitle: "Support benötigt?", panelDescription: "Klicke auf die Schaltfläche, um ein privates Support-Ticket zu erstellen.", buttonLabel: "Ticket erstellen", color: "#22d3ee" },
     autorole: { enabled: false, roleId: "" },
-    selfroles: { enabled: false, channelId: "", roles: [] },
+    selfroles: { enabled: false, channelId: "", roles: [], panelTitle: "Deine Rollen", panelDescription: "Wähle die Rollen aus, die du haben möchtest. Entferne die Auswahl, um eine Rolle wieder abzugeben.", placeholder: "Wähle deine Rollen" },
     automod: { enabled: false, logChannelId: "", threshold: 0.82, action: "delete_warn" },
     leave: { enabled: false, channelId: "", message: "{username} hat den Server verlassen. Tschüss!" },
     suggestions: { enabled: false, channelId: "", reviewChannelId: "", title: "Neuer Vorschlag", color: "#22d3ee" },
@@ -66,7 +66,7 @@ function normalizeSettings(input) {
       color: /^#[0-9a-fA-F]{6}$/.test(value.tickets?.color || "") ? value.tickets.color : base.tickets.color
     },
     autorole: { enabled: value.autorole?.enabled === true, roleId: stringValue(value.autorole?.roleId, 24) },
-    selfroles: { enabled: value.selfroles?.enabled === true, channelId: stringValue(value.selfroles?.channelId, 24), roles },
+    selfroles: { enabled: value.selfroles?.enabled === true, channelId: stringValue(value.selfroles?.channelId, 24), roles, panelTitle: stringValue(value.selfroles?.panelTitle, 100) || base.selfroles.panelTitle, panelDescription: stringValue(value.selfroles?.panelDescription, 1000) || base.selfroles.panelDescription, placeholder: stringValue(value.selfroles?.placeholder, 100) || base.selfroles.placeholder },
     automod: {
       enabled: value.automod?.enabled === true || value.automod === true,
       logChannelId: stringValue(value.automod?.logChannelId, 24),
