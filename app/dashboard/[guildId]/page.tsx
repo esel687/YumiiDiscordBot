@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
-import { Bot, ArrowLeft, Ticket, Bell, UserPlus, Users, ShieldCheck, Save, Hash, ChevronDown, RefreshCw } from "lucide-react";
+import { Bot, ArrowLeft, Ticket, Bell, UserPlus, Users, ShieldCheck, Save, Hash, ChevronDown, ChevronRight, RefreshCw } from "lucide-react";
 
 type Guild={id:string;name:string;icon:string|null;owner:boolean};
 type User={username:string;guilds:Guild[]};
@@ -25,7 +25,7 @@ export default function ServerManagement(){
  const params=useParams<{guildId:string}>(); const guildId=params.guildId;
  const [user,setUser]=useState<User|null>(null); const [settings,setSettings]=useState<any>(null);
  const [resources,setResources]=useState<Resources|null>(null); const [error,setError]=useState(""); const [resourceError,setResourceError]=useState("");
- const [saving,setSaving]=useState(false); const [loading,setLoading]=useState(true); const [refreshing,setRefreshing]=useState(false);
+ const [saving,setSaving]=useState(false); const [loading,setLoading]=useState(true); const [refreshing,setRefreshing]=useState(false); const [activeModule,setActiveModule]=useState<string|null>(null);
  const guild=user?.guilds?.find(g=>g.id===guildId);
  const textChannels=useMemo(()=>resources?.channels.filter(c=>[0,5,15,16].includes(c.type))??[],[resources]);
  const categories=useMemo(()=>resources?.channels.filter(c=>c.type===4)??[],[resources]);
@@ -48,7 +48,8 @@ export default function ServerManagement(){
    {!resources&&!resourceError&&<div className="moduleNotice">Lade Kanäle und Rollen von Discord …</div>}
    {!settings&&!error&&<div className="moduleNotice">Lade Servereinstellungen …</div>}
    {settings&&modules.map(m=>{const Icon=m.icon;const value=settings[m.key]??{};return <article className="manageModule" key={m.key}>
-    <div className="manageModuleHead"><span className="manageIcon"><Icon/></span><div><h3>{m.name}</h3><p>{m.desc}</p></div><button className={value.enabled?"moduleToggle on":"moduleToggle"} onClick={()=>update(m.key,{enabled:!value.enabled})}>{value.enabled?"Aktiv":"Aus"}</button></div>
+    <div className="manageModuleHead moduleClickableHead" role="button" tabIndex={0} aria-expanded={activeModule===m.key} onClick={()=>setActiveModule(activeModule===m.key?null:m.key)} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setActiveModule(activeModule===m.key?null:m.key);}}}><span className="manageIcon"><Icon/></span><div><h3>{m.name}</h3><p>{m.desc}</p></div><span className="moduleManageLabel">{activeModule===m.key?"Schließen":"Verwalten"} <ChevronRight size={15}/></span><button className={value.enabled?"moduleToggle on":"moduleToggle"} onClick={e=>{e.stopPropagation();update(m.key,{enabled:!value.enabled});}}>{value.enabled?"Aktiv":"Aus"}</button></div>
+    {activeModule===m.key&&<div className="moduleEditor"><div className="moduleEditorTitle"><strong>{m.name} verwalten</strong><span>Hier kannst du die Einstellungen für diesen Server bearbeiten.</span></div>
     {m.key==="tickets"&&<div className="moduleFields">
       <ChannelPicker label="Ticket-Kategorie" value={value.categoryId} channels={categories} emptyLabel="Kategorie auswählen …" onChange={id=>update(m.key,{categoryId:id})}/>
       <RolePicker label="Support-Rolle" value={value.supportRoleId} roles={roles} placeholder="Rolle auswählen …" onChange={id=>update(m.key,{supportRoleId:id})}/>
@@ -68,6 +69,7 @@ export default function ServerManagement(){
     {m.key==="automod"&&<div className="moduleFields">
       <ChannelPicker label="Moderations-Log-Kanal" value={value.logChannelId} channels={textChannels} emptyLabel="Kanal auswählen …" onChange={id=>update(m.key,{logChannelId:id})}/>
       <label className="discordPickerLabel">Erkennungs-Schwelle <select className="moduleTextInput" value={String(value.threshold??0.82)} onChange={e=>update(m.key,{threshold:Number(e.target.value)})}><option value="0.65">Niedrig – mehr Erkennungen</option><option value="0.82">Normal</option><option value="0.92">Hoch – weniger Erkennungen</option></select></label>
+    </div>}
     </div>}
    </article>})}
    {settings&&<div className="manageSaveRow"><p>Änderungen werden nur für diesen Discord-Server gespeichert.</p><button className="heroCta" onClick={save} disabled={saving}><Save size={16}/>{saving?"Speichert …":"Änderungen speichern"}</button></div>}
