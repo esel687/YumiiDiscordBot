@@ -302,7 +302,6 @@ client.on(Events.InteractionCreate, async interaction => {
         return interaction.reply({ content: "Aktiviere zuerst das Ticketsystem im MoonBot-Dashboard.", ephemeral: true });
       }
       const embed = new EmbedBuilder()
-        .setColor(0xc084fc)
         .setColor(Number.parseInt((settings.tickets.color || "#22d3ee").slice(1), 16))
         .setTitle(settings.tickets.panelTitle || "Support benötigt?")
         .setDescription(settings.tickets.panelDescription || "Klicke auf die Schaltfläche, um ein privates Support-Ticket zu erstellen.");
