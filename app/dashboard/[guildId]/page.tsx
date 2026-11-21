@@ -82,6 +82,10 @@ export default function ServerManagement(){
       {m.key==="selfroles"&&<div className="moduleFields">
        <ChannelPicker label="Rollen-Auswahl-Kanal" value={value.channelId} channels={textChannels} emptyLabel="Kanal auswählen …" onChange={id=>update(m.key,{channelId:id})}/>
        <label className="discordPickerLabel">Auswählbare Rollen <span className="discordPicker multiRolePicker"><select multiple value={(value.roles??[]).map((r:any)=>r.id)} onChange={e=>{const selected=Array.from(e.target.selectedOptions).map(o=>o.value);update(m.key,{roles:selected.map(id=>{const role=roles.find(r=>r.id===id);return {id,label:role?.name??"Rolle"};})});}}>{roles.map(role=><option key={role.id} value={role.id}>{role.name}</option>)}</select></span><small>Mehrere Rollen auswählen: STRG (Windows) oder CMD (Mac) gedrückt halten.</small></label>
+       <label className="discordPickerLabel">Panel-Titel<input className="moduleTextInput" value={value.panelTitle??"Deine Rollen"} maxLength={100} onChange={e=>update(m.key,{panelTitle:e.target.value})}/></label>
+       <label className="discordPickerLabel">Beschreibung<textarea className="moduleTextInput" rows={3} value={value.panelDescription??""} maxLength={1000} onChange={e=>update(m.key,{panelDescription:e.target.value})}/></label>
+       <label className="discordPickerLabel">Auswahl-Platzhalter<input className="moduleTextInput" value={value.placeholder??"Wähle deine Rollen"} maxLength={100} onChange={e=>update(m.key,{placeholder:e.target.value})}/></label>
+       <div className="discordPreview"><div className="discordPreviewTop"><span>VORSCHAU · DISCORD</span><span>LIVE</span></div><div className="discordPreviewMessage"><div className="discordPreviewAvatar">M</div><div><b>MoonBot</b><small> BOT</small><div className="discordEmbed"><strong>{value.panelTitle||"Deine Rollen"}</strong><p>{value.panelDescription||"Wähle die Rollen aus, die du haben möchtest."}</p><div className="discordFakeSelect">{(value.roles??[]).map((r:any)=><span key={r.id}>{r.label}</span>)}{!(value.roles??[]).length&&"Noch keine Rollen ausgewählt"}</div></div></div></div></div>
       </div>}
       {m.key==="leave"&&<div className="moduleFields">
        <ChannelPicker label="Abschieds-Kanal" value={value.channelId} channels={textChannels} emptyLabel="Kanal auswählen …" onChange={id=>update(m.key,{channelId:id})}/>
@@ -111,6 +115,7 @@ export default function ServerManagement(){
       {m.key==="automod"&&<div className="moduleFields">
        <div className="moduleNotice" role="status">{aiConfigured===true?"OpenAI-KI verbunden. Nachrichten werden automatisch geprüft.":aiConfigured===false?"OpenAI-KI noch nicht verbunden. Hinterlege OPENAI_API_KEY in den Umgebungsvariablen deines Bot-Hostings.":"KI-Verbindungsstatus wird geladen …"}</div>
        <ChannelPicker label="Moderations-Log-Kanal" value={value.logChannelId} channels={textChannels} emptyLabel="Kanal auswählen …" onChange={id=>update(m.key,{logChannelId:id})}/>
+       <label className="discordPickerLabel">Aktion <select className="moduleTextInput" value={value.action??"delete_warn"} onChange={e=>update(m.key,{action:e.target.value})}><option value="delete_warn">Nachricht löschen und warnen</option><option value="delete">Nur Nachricht löschen</option></select></label>
        <label className="discordPickerLabel">Erkennungs-Schwelle <select className="moduleTextInput" value={String(value.threshold??0.82)} onChange={e=>update(m.key,{threshold:Number(e.target.value)})}><option value="0.65">Niedrig – mehr Erkennungen</option><option value="0.82">Normal</option><option value="0.92">Hoch – weniger Erkennungen</option></select></label>
       </div>}
       </div>
