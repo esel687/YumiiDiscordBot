@@ -1,0 +1,14 @@
+"use client";
+import { useEffect, useState } from "react";
+import { Bot, ArrowLeft, ArrowRight, LockKeyhole, Server, ShieldCheck } from "lucide-react";
+type Guild={id:string;name:string;icon:string|null;owner:boolean};
+type User={username:string;guilds:Guild[]};
+export default function Dashboard(){
+ const [user,setUser]=useState<User|null>(null); const [loading,setLoading]=useState(true);
+ useEffect(()=>{fetch("/api/auth/me",{cache:"no-store"}).then(r=>r.json()).then(d=>setUser(d.user)).catch(()=>{}).finally(()=>setLoading(false));},[]);
+ if(loading)return <main className="dashboardShell"><p className="moduleNotice">Dashboard wird geladen …</p></main>;
+ if(!user)return <main className="dashboardShell"><a className="brand" href="/"><span className="brandIcon"><Bot/></span><span>Moon<span className="accent">Bot</span></span></a><section className="dashboardIntro"><h1>Bitte melde dich an</h1><p>Du benötigst eine Discord-Anmeldung, um deine Server zu sehen.</p><a className="heroCta" href="/api/auth/discord"><LockKeyhole size={16}/> Mit Discord anmelden</a></section></main>;
+ return <main className="dashboardShell"><header className="dashboardTop"><a className="brand" href="/"><span className="brandIcon"><Bot/></span><span>Moon<span className="accent">Bot</span></span></a><div className="dashboardTopRight"><span>{user.username}</span><form action="/api/auth/logout" method="post"><button className="logoutButton">Abmelden</button></form></div></header><section className="dashboardIntro"><a className="backLink" href="/"><ArrowLeft size={15}/> Zur Startseite</a><div className="eyebrow"><ShieldCheck size={14}/> DEINE COMMUNITYS</div><h1>Dein Dashboard</h1><p>Wähle einen Discord-Server aus, den du verwalten darfst.</p></section>
+ {user.guilds?.length ? <section className="dashboardServers"><div className="sectionHead"><div><h2>Deine Server</h2><p>{user.guilds.length} Server mit Verwaltungsrechten</p></div><span className="serverCount">{user.guilds.length} SERVER</span></div><div className="serverGrid">{user.guilds.map(g=><a key={g.id} className="serverCard serverLink" href={"/dashboard/"+g.id}><span className="serverAvatar">{g.icon?<img src={"https://cdn.discordapp.com/icons/"+g.id+"/"+g.icon+".png?size=96"} alt=""/>:g.name.slice(0,1).toUpperCase()}</span><span className="serverInfo"><strong>{g.name}</strong><small>{g.owner?"Server-Inhaber":"Administrator / Server verwalten"}</small></span><span className="serverCheck">Verwalten <ArrowRight size={14}/></span></a>)}</div></section>:<section className="emptyServers">Es wurden keine Server mit Administrator- oder Serververwaltungsrechten gefunden. Prüfe deine Discord-Rechte und melde dich erneut an.</section>}
+ <footer className="publicFooter"><b>MoonBot</b><span>Deine Server. Deine Einstellungen.</span><a href="/impressum">Impressum</a></footer></main>;
+}
