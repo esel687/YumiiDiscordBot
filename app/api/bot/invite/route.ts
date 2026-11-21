@@ -3,13 +3,8 @@ import { NextResponse } from "next/server";
 export const runtime = "nodejs";
 
 export async function GET() {
-  const clientId = process.env.DISCORD_CLIENT_ID;
-  if (!clientId) {
-    return NextResponse.json(
-      { error: "DISCORD_CLIENT_ID ist in den Vercel-Umgebungsvariablen nicht gesetzt." },
-      { status: 500 }
-    );
-  }
+  // MoonBot's Discord Application ID (provided by the project owner).
+  const clientId = "1573092807059439726";
 
   // Permissions required by the currently implemented MoonBot modules:
   // View Channels, Manage Channels, Send Messages, Manage Messages,
