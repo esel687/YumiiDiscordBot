@@ -72,7 +72,8 @@ const client = new Client({
     GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
-    GatewayIntentBits.GuildMessageReactions
+    GatewayIntentBits.GuildMessageReactions,
+    GatewayIntentBits.GuildVoiceStates
   ],
   partials: [require("discord.js").Partials.Message, require("discord.js").Partials.Channel, require("discord.js").Partials.Reaction]
 });
@@ -211,7 +212,7 @@ client.on(Events.MessageCreate, async message => {
     setTimeout(() => message.delete().catch(() => {}), delay);
   }
 
-  if (moduleEnabled(config, "bumpReminder") && message.author.id === "302050872383242240" && /bump done/i.test(message.content) && config.bumpReminder.channelId) {
+  if (moduleEnabled(config, "bumpReminder") && message.author.id === "302050872383242240" && /bump done/i.test([message.content, ...message.embeds.map(embed => `${embed.title || ""} ${embed.description || ""}`)].join(" ")) && config.bumpReminder.channelId) {
     const target = await message.guild.channels.fetch(config.bumpReminder.channelId).catch(() => null);
     if (target?.isTextBased()) {
       setTimeout(() => target.send({ content: "⏰ Zeit für den nächsten Server-Bump!", allowedMentions: { parse: [] } }).catch(() => {}), config.bumpReminder.intervalHours * 3600000);
