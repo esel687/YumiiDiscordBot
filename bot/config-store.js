@@ -23,8 +23,8 @@ function writeAll(data) {
 
 function defaults() {
   return {
-    welcome: { enabled: false, channelId: "", message: "Willkommen {user} auf {server}!" },
-    tickets: { enabled: false, categoryId: "", supportRoleId: "", panelChannelId: "" },
+    welcome: { enabled: false, channelId: "", message: "Willkommen {user} auf {server}!", title: "Willkommen!", color: "#22d3ee", mentionUser: true },
+    tickets: { enabled: false, categoryId: "", supportRoleId: "", panelChannelId: "", panelTitle: "Support benötigt?", panelDescription: "Klicke auf die Schaltfläche, um ein privates Support-Ticket zu erstellen.", buttonLabel: "Ticket erstellen", color: "#22d3ee" },
     autorole: { enabled: false, roleId: "" },
     selfroles: { enabled: false, channelId: "", roles: [] },
     automod: { enabled: false, logChannelId: "", threshold: 0.82, action: "delete_warn" },
@@ -69,7 +69,7 @@ function normalizeSettings(input) {
       threshold: typeof value.automod?.threshold === "number" ? Math.min(0.99, Math.max(0.5, value.automod.threshold)) : base.automod.threshold,
       action: value.automod?.action === "delete" ? "delete" : "delete_warn"
     },
-    logs: value.logs === true
+    leave: { enabled: value.leave?.enabled === true, channelId: stringValue(value.leave?.channelId, 24), message: stringValue(value.leave?.message, 500) || base.leave.message },\n    suggestions: { enabled: value.suggestions?.enabled === true, channelId: stringValue(value.suggestions?.channelId, 24), reviewChannelId: stringValue(value.suggestions?.reviewChannelId, 24), title: stringValue(value.suggestions?.title, 100) || base.suggestions.title, color: /^#[0-9a-fA-F]{6}$/.test(value.suggestions?.color || "") ? value.suggestions.color : base.suggestions.color },\n    starboard: { enabled: value.starboard?.enabled === true, channelId: stringValue(value.starboard?.channelId, 24), threshold: Math.min(20, Math.max(1, Number(value.starboard?.threshold) || base.starboard.threshold)), emoji: stringValue(value.starboard?.emoji, 8) || base.starboard.emoji },\n    antiInvite: { enabled: value.antiInvite?.enabled === true, action: value.antiInvite?.action === "delete" ? "delete" : "delete_warn", allowedChannelId: stringValue(value.antiInvite?.allowedChannelId, 24) },\n    logs: { enabled: value.logs?.enabled === true || value.logs === true, channelId: stringValue(value.logs?.channelId, 24), messageDelete: value.logs?.messageDelete !== false, messageEdit: value.logs?.messageEdit !== false, memberJoin: value.logs?.memberJoin !== false, memberLeave: value.logs?.memberLeave !== false }
   };
 }
 
@@ -93,10 +93,10 @@ function setGuildSettings(guildId, settings) {
 
 function setGuildModule(guildId, moduleName, enabled) {
   const current = getGuildSettings(guildId);
-  if (!["welcome", "tickets", "autorole", "selfroles", "automod", "logs"].includes(moduleName)) {
+  if (!["welcome", "tickets", "autorole", "selfroles", "automod", "leave", "suggestions", "starboard", "antiInvite", "logs"].includes(moduleName)) {
     throw new Error("Unknown module");
   }
-  if (moduleName === "logs") current.logs = enabled;
+  if (moduleName === "logs") current.logs.enabled = enabled;
   else current[moduleName].enabled = enabled;
   return setGuildSettings(guildId, current);
 }
