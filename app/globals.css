@@ -353,3 +353,5 @@ html,body{min-height:100%;background-color:#080510}
 .discordFakeButton{display:inline-block;margin-top:10px;padding:7px 12px;border-radius:4px;background:#5865f2;color:white;font-size:11px;font-weight:700}
 .discordFakeSelect{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
 .discordFakeSelect span{padding:4px 8px;border-radius:5px;background:#404249;color:#dbdee1;font-size:10px}
+
+.brandIcon img{width:100%;height:100%;object-fit:cover;border-radius:inherit}.publicOrb img{width:100%;height:100%;object-fit:contain;border-radius:inherit}
