@@ -355,3 +355,91 @@ html,body{min-height:100%;background-color:#080510}
 .discordFakeSelect span{padding:4px 8px;border-radius:5px;background:#404249;color:#dbdee1;font-size:10px}
 
 .brandIcon img{width:100%;height:100%;object-fit:cover;border-radius:inherit}.publicOrb img{width:100%;height:100%;object-fit:contain;border-radius:inherit}
+
+
+/* MoonBot brand system — midnight navy, violet, electric cyan and moonlight */
+:root{
+ --bg:#08071c;--panel:#100d2b;--line:#30245e;--text:#f7f5ff;--muted:#aaa4d0;
+ --cyan:#21e4ed;--purple:#9b5cff;--blue:#6f83ff;
+ color-scheme:dark;
+}
+html,body{background-color:#08071c;color:#f7f5ff}
+body{
+ background:
+ radial-gradient(ellipse at 82% 0%,#44208055 0%,transparent 34%),
+ radial-gradient(ellipse at 8% 42%,#142b6b44 0%,transparent 38%),
+ linear-gradient(145deg,#08071c 0%,#0d0a25 52%,#08071b 100%);
+}
+.sidebar{background:linear-gradient(180deg,#0d0a25,#09081b);border-color:#282052;box-shadow:8px 0 34px #08051d99}
+.brand,.publicFooter b{color:#fff}
+.brandIcon{background:linear-gradient(145deg,#251052,#4b22a0);box-shadow:0 0 18px #8b5cf655,0 0 28px #20dfea22}
+.accent,.hero b,.publicHero h1 b{color:#22e2ed}
+.sideLabel,.moduleSidebarTitle{color:#8f83c4}
+.nav{color:#c2bce5}
+.nav.active,.nav:hover{background:linear-gradient(100deg,#25144e,#142b58);color:#4cecf1;box-shadow:inset 0 0 0 1px #8061df88,0 0 18px #5637bc33}
+.sideFoot,.moduleSidebar,.moduleManagePanel,.moduleSettings,.manageModule{border-color:#33275f;background:linear-gradient(150deg,#15103a,#0d0b25);color:#e4e0ff}
+.sideFoot small,.moduleConfigTop small,.moduleFootnote{color:#a8a1d0}
+.sideFoot i,.good{background:#20dce8;color:#20dce8!important}
+.topbar,.publicNav,.dashboardTop{border-color:#30245e}
+.topbar span{color:#8d85b8}
+.login,.userPill,.logoutButton,.resourceNotice button{
+ background:linear-gradient(110deg,#25134e,#173a69);border:1px solid #7655d8;color:#dffcff;
+ box-shadow:0 0 14px #5b45ca33;
+}
+.hero,.publicHero{
+ background:radial-gradient(circle at 82% 25%,#6d36c655,transparent 29%),linear-gradient(115deg,#171044,#101033 58%,#18265a);
+ border-color:#6046a8;box-shadow:0 0 30px #5b3ab833,0 12px 35px #02000899;
+}
+.eyebrow{color:#28e3ed}
+.hero p,.sectionHead p,.publicHero>p,.dashboardIntro>p{color:#c2bde2}
+.heroLogo,.publicOrb{background:linear-gradient(145deg,#24114d99,#142a5c66);border:1px solid #6c56bc88;color:#25e4ed;box-shadow:0 0 25px #6c43d955,0 0 55px #17dce533}
+.hero:after{background:#25dce933}
+.status,.serverCount{color:#6df4f1;background:#151642;border:1px solid #51449a}
+.stats article,.modules>a,.modules>article,.featureGrid article,.steps article,.faqGrid article,.publicFeatureGrid article,.serverCard,.selectedServer,.emptyServers,.publicAbout,.loginBanner{
+ background:linear-gradient(145deg,#17123b,#0f0d29 78%);border-color:#34285f;color:#f7f5ff;
+ box-shadow:0 8px 25px #02001488;
+}
+.stats article>svg,.modules>a>svg:first-child,.modules>article>svg:first-child,.publicFeatureGrid article>svg{color:#27e3ed;filter:drop-shadow(0 0 8px #21dfea77)}
+.stats article span,.stats small,.modules p,.featureGrid p,.steps p,.faqGrid p,.publicFeatureGrid p,.publicAbout p{color:#aaa6d0}
+.stats article:hover,.modules>a:hover,.modules>article:hover,.serverCard:hover,.serverCard.selected{border-color:#25e4edaa;box-shadow:0 0 22px #20dce52b,0 12px 30px #02001499}
+.modules em{border-color:#57429c;background:#20164b;color:#bca4ff}
+.heroCta,.moduleToggle.on,.moduleSave,.cookieAccept{
+ border-color:#27e1e9;background:linear-gradient(105deg,#4b24a0,#174c83);color:#f3ffff;
+ box-shadow:0 0 17px #22dce944;
+}
+.heroCta:hover,.cookieAccept:hover{box-shadow:0 0 24px #22dce977,0 0 42px #7650df55}
+.publicSecondary,.publicNav nav a,.publicDash,.backLink{color:#c9c3ed}
+.publicAbout{border-color:#55429a;background:linear-gradient(105deg,#1c1447,#111c43)}
+.publicFooter{border-color:#30245e;color:#9b95c5}
+.publicFooter a{color:#c8c1ed}
+.serverAvatar{background:linear-gradient(145deg,#632cc1,#146d9b);color:#fff}
+.serverInfo small,.selectedServer span,.selectedServer small,.emptyServers{color:#b9b2dc}
+.serverCheck,.moduleManageLabel,.modulePanelHeader h2{color:#2be2eb}
+.selectedServer,.emptyServers{border-color:#57449b;background:linear-gradient(100deg,#1d1648,#111b3d)}
+.moduleSettingsHead h3,.moduleConfigTop b,.modulePanelHeader h2,.moduleEditorTitle strong{color:#f5f3ff}
+.moduleSettingsHead p,.moduleConfigTop small,.moduleEditorTitle span{color:#aaa5d1}
+.moduleConfig{border-color:#30265b}
+.moduleToggle,.moduleRemove{border-color:#4b3c83;background:#17123b;color:#d1c9f4}
+.moduleFields label,.discordPickerLabel{color:#c6c0e8}
+.moduleFields input,.moduleTextInput,.discordPicker{border-color:#403575;background:#09091f;color:#f7f5ff}
+.moduleFields input:focus,.moduleTextInput:focus,.discordPicker:focus-within{border-color:#22e4ed;box-shadow:0 0 0 2px #22dce522}
+.discordPicker select{color:#f7f5ff}.discordPicker select option{background:#100d2b;color:#f7f5ff}
+.aiStatus{border-color:#51418e;background:#17123b;color:#2be2eb}
+.moduleNotice,.resourceNotice{border-color:#57449b;background:#17123b;color:#dcd6ff}
+.moduleNavItem{color:#c5bee8}
+.moduleNavItem:hover{background:#ffffff0a;color:#fff}
+.moduleNavItem.active{background:linear-gradient(100deg,#34206c,#142c59);border-color:#7154ce;color:#fff}
+.moduleNavItem.active>svg{color:#2be2eb}
+.moduleStatus.enabled{background:#2be2a8;box-shadow:0 0 0 3px #2be2a822}
+.moduleManagePanel{background:linear-gradient(145deg,#17123b,#0f0d29)}
+.modulePanelHeader{border-color:#34285f}
+.manageSaveRow{border-color:#51418e;background:#17123b}
+.discordPicker>svg:last-child{color:#b8b0df}
+.rolePicker>svg:first-child{color:#a98bff}
+.discordPreview{border-color:#354052;background:#313338;color:#dbdee1}
+.cookieDialog{border-color:#5b48a4;background:linear-gradient(120deg,#17123b,#0d0b25 72%,#1b1645)}
+.cookieIcon{border-color:#7558d7;background:#24164f;color:#27e3ed}
+.cookieCopy h2{color:#f7f5ff}.cookieCopy p{color:#c4bee3}.cookieCopy small{color:#9e96c9}
+.discordFakeButton{background:#5865f2}
+.brandIcon img{object-fit:cover}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
