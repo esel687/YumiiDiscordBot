@@ -67,7 +67,7 @@ function startControlServer() {
     return send(res, 405, { error: "Method not allowed" });
   });
 
-  const port = Number(process.env.MOONBOT_API_PORT || process.env.PORT || 3001);
+  const port = Number(process.env.SERVER_PORT || process.env.MOONBOT_API_PORT || process.env.PORT || 3001);
   server.listen(port, "0.0.0.0", () => {
     console.log(`MoonBot control API listening on port ${port}`);
   });
