@@ -214,7 +214,12 @@ client.on(Events.InteractionCreate, async interaction => {
       const row = new ActionRowBuilder().addComponents(
         new ButtonBuilder().setCustomId("moonbot:ticket:create").setLabel("Ticket erstellen").setStyle(ButtonStyle.Primary).setEmoji("🎫")
       );
-      return interaction.reply({ embeds: [embed], components: [row] });
+      const targetChannel = settings.tickets.panelChannelId
+        ? await interaction.guild.channels.fetch(settings.tickets.panelChannelId).catch(() => null)
+        : interaction.channel;
+      if (!targetChannel?.isTextBased()) return interaction.reply({ content: "Der eingestellte Ticket-Panel-Kanal wurde nicht gefunden.", ephemeral: true });
+      await targetChannel.send({ embeds: [embed], components: [row] });
+      return interaction.reply({ content: `Ticket-Panel wurde in ${targetChannel} veröffentlicht.`, ephemeral: true });
     }
 
     if (subcommand === "selfroles-panel") {
@@ -232,7 +237,12 @@ client.on(Events.InteractionCreate, async interaction => {
         .setColor(0xc084fc)
         .setTitle("Deine Rollen")
         .setDescription("Wähle die Rollen aus, die du haben möchtest. Entferne die Auswahl, um eine Rolle wieder abzugeben.");
-      return interaction.reply({ embeds: [embed], components: [row] });
+      const targetChannel = settings.selfroles.channelId
+        ? await interaction.guild.channels.fetch(settings.selfroles.channelId).catch(() => null)
+        : interaction.channel;
+      if (!targetChannel?.isTextBased()) return interaction.reply({ content: "Der eingestellte Self-Roles-Kanal wurde nicht gefunden.", ephemeral: true });
+      await targetChannel.send({ embeds: [embed], components: [row] });
+      return interaction.reply({ content: `Self-Roles-Panel wurde in ${targetChannel} veröffentlicht.`, ephemeral: true });
     }
   }
 
@@ -286,7 +296,8 @@ client.on(Events.InteractionCreate, async interaction => {
     const canManage = interaction.memberPermissions?.has(PermissionFlagsBits.ManageChannels);
     if (!isOwner && !canManage) return interaction.reply({ content: "Nur die Person, die das Ticket erstellt hat, oder das Support-Team kann es schließen.", ephemeral: true });
     await interaction.deferReply();
-    await channel.permissionOverwrites.edit(interaction.guild.roles.everyone.id, { ViewChannel: false }).catch(() => {});
+    const ticketOwnerId = channel.topic?.startsWith("moonbot-ticket:") ? channel.topic.slice("moonbot-ticket:".length) : null;
+    if (ticketOwnerId) await channel.permissionOverwrites.edit(ticketOwnerId, { SendMessages: false }).catch(() => {});
     await channel.setName(`closed-${channel.name}`.slice(0, 95)).catch(() => {});
     return interaction.editReply("Ticket wurde geschlossen. Der Kanal ist jetzt gesperrt.");
   }
