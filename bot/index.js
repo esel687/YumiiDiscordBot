@@ -18,7 +18,7 @@ if (!clientId) {
   process.exit(1);
 }
 
-const modules = ["welcome", "tickets", "autorole", "selfroles", "automod", "leave", "suggestions", "starboard", "antiInvite", "logs"];
+const modules = ["welcome", "tickets", "autorole", "selfroles", "automod", "leave", "suggestions", "starboard", "antiInvite", "antiSpam", "antiCaps", "antiLinks", "keywordFilter", "slowmode", "counting", "polls", "giveaways", "logs"];
 const moduleLabels = {
   welcome: "Willkommensnachrichten",
   tickets: "Ticketsystem",
@@ -29,6 +29,14 @@ const moduleLabels = {
   suggestions: "Vorschläge",
   starboard: "Starboard",
   antiInvite: "Anti-Discord-Links",
+  antiSpam: "Anti-Spam",
+  antiCaps: "Anti-Caps",
+  antiLinks: "Anti-Links",
+  keywordFilter: "Wortfilter",
+  slowmode: "Auto-Slowmode",
+  counting: "Zählspiel",
+  polls: "Umfragen",
+  giveaways: "Giveaways",
   logs: "Server-Logs"
 };
 
@@ -45,6 +53,8 @@ const commands = [
       .addBooleanOption(option => option.setName("enabled").setDescription("Aktivieren?").setRequired(true)))
     .addSubcommand(sub => sub.setName("ticket-panel").setDescription("Sendet ein Ticket-Erstellungs-Panel in diesen Kanal"))
     .addSubcommand(sub => sub.setName("selfroles-panel").setDescription("Sendet ein Self-Roles-Auswahlmenü in diesen Kanal"))
+    .addSubcommand(sub => sub.setName("poll").setDescription("Erstellt eine Umfrage").addStringOption(option => option.setName("frage").setDescription("Deine Frage").setRequired(true).setMaxLength(250)))
+    .addSubcommand(sub => sub.setName("giveaway").setDescription("Startet ein Giveaway").addStringOption(option => option.setName("preis").setDescription("Was wird verlost?").setRequired(true).setMaxLength(150)).addIntegerOption(option => option.setName("minuten").setDescription("Laufzeit in Minuten").setRequired(true).setMinValue(1).setMaxValue(10080)))
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
     .toJSON()
 ];
@@ -59,6 +69,9 @@ const client = new Client({
   ],
   partials: [require("discord.js").Partials.Message, require("discord.js").Partials.Channel, require("discord.js").Partials.Reaction]
 });
+
+const recentMessages = new Map();
+const countingLocks = new Set();
 
 function moduleEnabled(settings, name) {
   return name === "logs" ? settings.logs?.enabled === true || settings.logs === true : settings[name]?.enabled === true;
@@ -158,6 +171,88 @@ client.on(Events.GuildMemberAdd, async member => {
       const embed = new EmbedBuilder().setColor(Number.parseInt((settings.welcome.color || "#22d3ee").slice(1), 16)).setDescription(message);
       if (settings.welcome.title) embed.setTitle(settings.welcome.title);
       await channel.send({ embeds: [embed], allowedMentions: settings.welcome.mentionUser === false ? { parse: [] } : { users: [member.id] } }).catch(error => console.error("Welcome message failed:", error));
+    }
+  }
+});
+
+
+client.on(Events.MessageCreate, async message => {
+  if (!message.guild || message.author.bot || !message.content?.trim()) return;
+  const settings = getGuildSettings(message.guild.id);
+  const config = settings;
+
+  // Anti-spam: short rolling window per member and channel.
+  if (moduleEnabled(config, "antiSpam")) {
+    const key = `${message.guild.id}:${message.channelId}:${message.author.id}`;
+    const now = Date.now();
+    const recent = (recentMessages.get(key) || []).filter(time => now - time < config.antiSpam.intervalSeconds * 1000);
+    recent.push(now);
+    recentMessages.set(key, recent);
+    if (recent.length > config.antiSpam.maxMessages) {
+      await message.delete().catch(() => {});
+      if (config.antiSpam.action !== "delete") {
+        const warning = await message.channel.send({ content: `<@${message.author.id}> Bitte sende nicht so viele Nachrichten hintereinander.`, allowedMentions: { users: [message.author.id] } }).catch(() => null);
+        if (warning) setTimeout(() => warning.delete().catch(() => {}), 7000);
+      }
+      return;
+    }
+  }
+
+  // Anti-caps: ignore short messages and messages without letters.
+  if (moduleEnabled(config, "antiCaps") && message.content.length >= config.antiCaps.minLength) {
+    const letters = message.content.replace(/[^a-zA-ZäöüÄÖÜß]/g, "");
+    if (letters.length >= config.antiCaps.minLength && letters.replace(/[^A-ZÄÖÜ]/g, "").length / letters.length * 100 >= config.antiCaps.percentage) {
+      await message.delete().catch(() => {});
+      if (config.antiCaps.action !== "delete") {
+        const warning = await message.channel.send({ content: `<@${message.author.id}> Bitte vermeide Nachrichten in GROSSBUCHSTABEN.`, allowedMentions: { users: [message.author.id] } }).catch(() => null);
+        if (warning) setTimeout(() => warning.delete().catch(() => {}), 7000);
+      }
+      return;
+    }
+  }
+
+  const linkPattern = /https?:\/\/\S+/i;
+  if (moduleEnabled(config, "antiLinks") && linkPattern.test(message.content) && message.channelId !== config.antiLinks.allowedChannelId) {
+    await message.delete().catch(() => {});
+    if (config.antiLinks.action !== "delete") {
+      const warning = await message.channel.send({ content: `<@${message.author.id}> Links sind hier nicht erlaubt.`, allowedMentions: { users: [message.author.id] } }).catch(() => null);
+      if (warning) setTimeout(() => warning.delete().catch(() => {}), 7000);
+    }
+    return;
+  }
+
+  if (moduleEnabled(config, "keywordFilter") && config.keywordFilter.words.some(word => word && message.content.toLocaleLowerCase().includes(word.toLocaleLowerCase()))) {
+    await message.delete().catch(() => {});
+    if (config.keywordFilter.action !== "delete") {
+      const warning = await message.channel.send({ content: `<@${message.author.id}> Deine Nachricht enthält einen hier nicht erlaubten Begriff.`, allowedMentions: { users: [message.author.id] } }).catch(() => null);
+      if (warning) setTimeout(() => warning.delete().catch(() => {}), 7000);
+    }
+    const log = config.keywordFilter.logChannelId ? await message.guild.channels.fetch(config.keywordFilter.logChannelId).catch(() => null) : null;
+    if (log?.isTextBased()) await log.send({ content: `Wortfilter: Nachricht von ${message.author.tag} in <#${message.channelId}> wurde entfernt.`, allowedMentions: { parse: [] } }).catch(() => {});
+    return;
+  }
+
+  if (moduleEnabled(config, "slowmode") && message.channelId === config.slowmode.channelId) {
+    const seconds = config.slowmode.seconds;
+    if (message.channel.rateLimitPerUser !== seconds) await message.channel.setRateLimitPerUser(seconds, "MoonBot Auto-Slowmode").catch(() => {});
+  }
+
+  if (moduleEnabled(config, "counting") && message.channelId === config.counting.channelId) {
+    const lock = `${message.guild.id}:${message.channelId}`;
+    if (countingLocks.has(lock)) return;
+    countingLocks.add(lock);
+    try {
+      const expected = Number(config.counting.lastNumber || 0) + 1;
+      const actual = Number(message.content.trim());
+      if (!Number.isInteger(actual) || actual !== expected) {
+        await message.delete().catch(() => {});
+      } else {
+        const updated = { ...config, counting: { ...config.counting, lastNumber: actual } };
+        require("./config-store").setGuildSettings(message.guild.id, updated);
+        await message.react("✅").catch(() => {});
+      }
+    } finally {
+      countingLocks.delete(lock);
     }
   }
 });
@@ -269,6 +364,36 @@ client.on(Events.InteractionCreate, async interaction => {
 
     const settings = getGuildSettings(interaction.guildId);
     const subcommand = interaction.options.getSubcommand();
+
+    if (subcommand === "poll") {
+      if (!moduleEnabled(settings, "polls")) return interaction.reply({ content: "Aktiviere zuerst das Umfragen-Modul.", ephemeral: true });
+      const question = interaction.options.getString("frage", true);
+      const target = settings.polls.channelId ? await interaction.guild.channels.fetch(settings.polls.channelId).catch(() => null) : interaction.channel;
+      if (!target?.isTextBased()) return interaction.reply({ content: "Der Umfragen-Kanal wurde nicht gefunden.", ephemeral: true });
+      const poll = await target.send({ embeds: [new EmbedBuilder().setColor(0x22d3ee).setTitle("📊 Umfrage").setDescription(question).setFooter({ text: `Gestartet von ${interaction.user.tag}` }).setTimestamp()] });
+      await poll.react("👍").catch(() => {}); await poll.react("👎").catch(() => {});
+      return interaction.reply({ content: `Umfrage erstellt: ${poll.url}`, ephemeral: true });
+    }
+
+    if (subcommand === "giveaway") {
+      if (!moduleEnabled(settings, "giveaways")) return interaction.reply({ content: "Aktiviere zuerst das Giveaways-Modul.", ephemeral: true });
+      const prize = interaction.options.getString("preis", true);
+      const minutes = interaction.options.getInteger("minuten", true);
+      const target = settings.giveaways.channelId ? await interaction.guild.channels.fetch(settings.giveaways.channelId).catch(() => null) : interaction.channel;
+      if (!target?.isTextBased()) return interaction.reply({ content: "Der Giveaway-Kanal wurde nicht gefunden.", ephemeral: true });
+      const giveaway = await target.send({ embeds: [new EmbedBuilder().setColor(0xfbbf24).setTitle("🎉 Giveaway").setDescription(`**Gewinn:** ${prize}\\nReagiere mit 🎉, um teilzunehmen!`).setFooter({ text: `Endet in ${minutes} Minuten` }).setTimestamp(Date.now() + minutes * 60000)] });
+      await giveaway.react("🎉").catch(() => {});
+      await interaction.reply({ content: `Giveaway gestartet: ${giveaway.url}`, ephemeral: true });
+      setTimeout(async () => {
+        const fetched = await giveaway.fetch().catch(() => null);
+        const reaction = fetched?.reactions.cache.get("🎉");
+        const users = reaction ? await reaction.users.fetch().catch(() => null) : null;
+        const entrants = users ? [...users.values()].filter(user => !user.bot) : [];
+        const winner = entrants.length ? entrants[Math.floor(Math.random() * entrants.length)] : null;
+        await target.send(winner ? `🎉 Glückwunsch <@${winner.id}>! Du hast **${prize}** gewonnen.` : `Das Giveaway für **${prize}** hatte keine Teilnehmenden.`).catch(() => {});
+      }, minutes * 60000);
+      return;
+    }
 
     if (subcommand === "status") {
       const embed = new EmbedBuilder()
