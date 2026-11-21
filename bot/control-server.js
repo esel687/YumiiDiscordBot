@@ -40,7 +40,7 @@ function readBody(req) {
   });
 }
 
-function startControlServer() {
+function startControlServer(client) {
   const server = http.createServer(async (req, res) => {
     if (req.method === "GET" && req.url === "/health") {
       return send(res, 200, { ok: true, aiConfigured: Boolean(process.env.OPENAI_API_KEY) });
@@ -49,6 +49,31 @@ function startControlServer() {
     const match = /^\/guilds\/(\d{17,20})\/settings$/.exec((req.url || "").split("?")[0]);
     if (!match) return send(res, 404, { error: "Not found" });
     const guildId = match[1];
+    if (req.method === "GET" && (req.url || "").split("?")[0] === `/guilds/${guildId}/resources`) {
+      const guild = await client.guilds.fetch(guildId).catch(() => null);
+      if (!guild) return send(res, 404, { error: "Bot ist nicht auf diesem Server oder der Server wurde nicht gefunden." });
+      try {
+        const [channels, roles] = await Promise.all([guild.channels.fetch(), guild.roles.fetch()]);
+        const channelItems = [...channels.values()]
+          .filter(channel => channel && !channel.isThread())
+          .map(channel => ({
+            id: channel.id,
+            name: channel.name,
+            type: channel.type,
+            parentId: channel.parentId || "",
+            position: channel.position ?? 0
+          }))
+          .sort((a, b) => a.position - b.position || a.name.localeCompare(b.name));
+        const roleItems = [...roles.values()]
+          .filter(role => role && role.id !== guild.id && !role.managed)
+          .sort((a, b) => b.position - a.position)
+          .map(role => ({ id: role.id, name: role.name, color: role.hexColor, position: role.position }));
+        return send(res, 200, { channels: channelItems, roles: roleItems });
+      } catch (error) {
+        console.error("Could not load Discord server resources:", error);
+        return send(res, 502, { error: "Discord-Kanäle und Rollen konnten nicht geladen werden." });
+      }
+    }
     if (req.method === "GET") {
       return send(res, 200, {
         settings: getGuildSettings(guildId),
