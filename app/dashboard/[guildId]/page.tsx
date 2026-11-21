@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
-import { Bot, ArrowLeft, Ticket, Bell, UserPlus, Users, ShieldCheck, Save, Hash, ChevronDown, ChevronRight, RefreshCw } from "lucide-react";
+import { Bot, ArrowLeft, Ticket, Bell, UserPlus, Users, ShieldCheck, Save, Hash, ChevronDown, ChevronRight, RefreshCw, MessageSquare, LogIn, LogOut, Star, Link2, ClipboardList } from "lucide-react";
 
 type Guild={id:string;name:string;icon:string|null;owner:boolean};
 type User={username:string;guilds:Guild[]};
@@ -42,7 +42,7 @@ export default function ServerManagement(){
   <header className="dashboardTop"><a className="brand" href="/"><span className="brandIcon"><Bot/></span><span>Moon<span className="accent">Bot</span></span></a><div className="dashboardTopRight"><span>{user.username}</span><form action="/api/auth/logout" method="post"><button className="logoutButton">Abmelden</button></form></div></header>
   <section className="dashboardIntro"><a className="backLink" href="/dashboard"><ArrowLeft size={15}/> Alle Server</a><div className="selectedServerHero"><span className="serverAvatar">{guild.icon?<img src={"https://cdn.discordapp.com/icons/"+guild.id+"/"+guild.icon+".png?size=96"} alt=""/>:guild.name.slice(0,1).toUpperCase()}</span><div><div className="eyebrow">SERVERVERWALTUNG</div><h1>{guild.name}</h1><p>Wähle Kanäle und Rollen direkt aus deinem Discord-Server aus.</p></div></div></section>
   <section className="manageSection">
-   <div className="sectionHead"><div><h2>Serververwaltung</h2><p>Wähle links ein Modul aus, um es zu konfigurieren.</p></div><span className="serverCount">5 MODULE</span></div>
+   <div className="sectionHead"><div><h2>Serververwaltung</h2><p>Wähle links ein Modul aus, um es zu konfigurieren.</p></div><span className="serverCount">{modules.length} MODULE</span></div>
    {error&&<div className="moduleNotice" role="alert">{error}</div>}
    {resourceError&&<div className="moduleNotice resourceNotice"><div>{resourceError}</div><button onClick={loadResources} disabled={refreshing}><RefreshCw size={14}/> Erneut laden</button><small>MoonBot muss online sein und Zugriff auf die Serverkanäle und Rollen haben.</small></div>}
    {!resources&&!resourceError&&<div className="moduleNotice">Lade Kanäle und Rollen von Discord …</div>}
@@ -68,6 +68,31 @@ export default function ServerManagement(){
       {m.key==="selfroles"&&<div className="moduleFields">
        <ChannelPicker label="Rollen-Auswahl-Kanal" value={value.channelId} channels={textChannels} emptyLabel="Kanal auswählen …" onChange={id=>update(m.key,{channelId:id})}/>
        <label className="discordPickerLabel">Auswählbare Rollen <span className="discordPicker multiRolePicker"><select multiple value={(value.roles??[]).map((r:any)=>r.id)} onChange={e=>{const selected=Array.from(e.target.selectedOptions).map(o=>o.value);update(m.key,{roles:selected.map(id=>{const role=roles.find(r=>r.id===id);return {id,label:role?.name??"Rolle"};})});}}>{roles.map(role=><option key={role.id} value={role.id}>{role.name}</option>)}</select></span><small>Mehrere Rollen auswählen: STRG (Windows) oder CMD (Mac) gedrückt halten.</small></label>
+      </div>}
+      {m.key==="leave"&&<div className="moduleFields">
+       <ChannelPicker label="Abschieds-Kanal" value={value.channelId} channels={textChannels} emptyLabel="Kanal auswählen …" onChange={id=>update(m.key,{channelId:id})}/>
+       <label className="discordPickerLabel">Abschiedsnachricht<input className="moduleTextInput" value={value.message??""} maxLength={500} onChange={e=>update(m.key,{message:e.target.value})}/><small>Platzhalter: {"{user}"}, {"{username}"}, {"{server}"}</small></label>
+       <div className="discordPreview"><div className="discordPreviewTop"><span>VORSCHAU · DISCORD</span><span>LIVE</span></div><div className="discordPreviewMessage"><div className="discordPreviewAvatar">M</div><div><b>MoonBot</b><small> BOT</small><p>{(value.message||"{username} hat den Server verlassen. Tschüss!").replaceAll("{user}","@Mitglied").replaceAll("{username}","Mitglied").replaceAll("{server}",guild.name)}</p></div></div></div>
+      </div>}
+      {m.key==="suggestions"&&<div className="moduleFields">
+       <ChannelPicker label="Vorschlags-Kanal" value={value.channelId} channels={textChannels} emptyLabel="Kanal auswählen …" onChange={id=>update(m.key,{channelId:id})}/>
+       <ChannelPicker label="Team-/Review-Kanal (optional)" value={value.reviewChannelId} channels={textChannels} emptyLabel="Kein separater Kanal" onChange={id=>update(m.key,{reviewChannelId:id})}/>
+       <label className="discordPickerLabel">Embed-Titel<input className="moduleTextInput" value={value.title??"Neuer Vorschlag"} maxLength={100} onChange={e=>update(m.key,{title:e.target.value})}/></label>
+       <label className="discordPickerLabel">Embed-Farbe<input type="color" className="moduleTextInput" value={value.color??"#22d3ee"} onChange={e=>update(m.key,{color:e.target.value})}/></label>
+       <div className="discordPreview"><div className="discordPreviewTop"><span>VORSCHAU · DISCORD</span><span>LIVE</span></div><div className="discordPreviewMessage"><div className="discordPreviewAvatar">M</div><div><b>MoonBot</b><small> BOT</small><div className="discordEmbed" style={{borderLeftColor:value.color||"#22d3ee"}}><strong>{value.title||"Neuer Vorschlag"}</strong><p>Hier steht der Vorschlag aus deiner Community.</p><span>👍 0　👎 0</span></div></div></div></div>
+      </div>}
+      {m.key==="starboard"&&<div className="moduleFields">
+       <ChannelPicker label="Starboard-Kanal" value={value.channelId} channels={textChannels} emptyLabel="Kanal auswählen …" onChange={id=>update(m.key,{channelId:id})}/>
+       <label className="discordPickerLabel">Benötigte Reaktionen<input type="number" min="1" max="20" className="moduleTextInput" value={value.threshold??3} onChange={e=>update(m.key,{threshold:Number(e.target.value)})}/></label>
+       <label className="discordPickerLabel">Emoji<input className="moduleTextInput" value={value.emoji??"⭐"} maxLength={8} onChange={e=>update(m.key,{emoji:e.target.value})}/></label>
+      </div>}
+      {m.key==="antiInvite"&&<div className="moduleFields">
+       <ChannelPicker label="Ausnahme-Kanal (Einladungslinks erlaubt)" value={value.allowedChannelId} channels={textChannels} emptyLabel="Keine Ausnahme" onChange={id=>update(m.key,{allowedChannelId:id})}/>
+       <label className="discordPickerLabel">Aktion<select className="moduleTextInput" value={value.action??"delete_warn"} onChange={e=>update(m.key,{action:e.target.value})}><option value="delete_warn">Link löschen und warnen</option><option value="delete">Nur Link löschen</option></select></label>
+      </div>}
+      {m.key==="logs"&&<div className="moduleFields">
+       <ChannelPicker label="Log-Kanal" value={value.channelId} channels={textChannels} emptyLabel="Kanal auswählen …" onChange={id=>update(m.key,{channelId:id})}/>
+       {([["messageDelete","Gelöschte Nachrichten"],["messageEdit","Bearbeitete Nachrichten"],["memberJoin","Beitritte"],["memberLeave","Austritte"]] as const).map(([key,label])=><label className="discordPickerLabel" key={key}><span><input type="checkbox" checked={value[key]!==false} onChange={e=>update(m.key,{[key]:e.target.checked})}/> {label}</span></label>)}
       </div>}
       {m.key==="automod"&&<div className="moduleFields">
        <div className="moduleNotice" role="status">{aiConfigured===true?"OpenAI-KI verbunden. Nachrichten werden automatisch geprüft.":aiConfigured===false?"OpenAI-KI noch nicht verbunden. Hinterlege OPENAI_API_KEY in den Umgebungsvariablen deines Bot-Hostings.":"KI-Verbindungsstatus wird geladen …"}</div>
