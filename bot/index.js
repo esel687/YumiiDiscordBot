@@ -106,7 +106,7 @@ async function sendModerationLog(guild, settings, message, reason) {
 
 client.once(Events.ClientReady, async readyClient => {
   console.log(`Ready! Logged in as ${readyClient.user.tag}`);
-  startControlServer();
+  startControlServer(client);
   const rest = new REST({ version: "10" }).setToken(token);
   try {
     await rest.put(Routes.applicationCommands(clientId), { body: commands });
