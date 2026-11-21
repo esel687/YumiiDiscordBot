@@ -70,11 +70,22 @@ export async function GET(request: NextRequest) {
         const permissions = BigInt(g.permissions);
         return g.owner || (permissions & 0x20n) === 0x20n || (permissions & 0x8n) === 0x8n;
       })
-      .map(({ id, name, icon, permissions, owner }) => ({
-        id, name, icon, permissions, owner,
-      }));
+      .sort((a, b) => Number(b.owner) - Number(a.owner))
+      .map(({ id, name, icon, owner }) => ({ id, name, icon, owner }));
 
-    const sessionToken = await createSession({ ...user, guilds });
+    // Keep the cookie comfortably below common browser cookie-size limits.
+    const sessionUser = {
+      id: user.id,
+      username: user.username,
+      avatar: user.avatar,
+      guilds: [...guilds],
+    };
+    let sessionToken = await createSession(sessionUser);
+    while (sessionToken.length > 3500 && sessionUser.guilds.length > 0) {
+      sessionUser.guilds.pop();
+      sessionToken = await createSession(sessionUser);
+    }
+
     const response = NextResponse.redirect(new URL("/", request.url));
 
     // Set the cookie on the exact response returned to the browser.
