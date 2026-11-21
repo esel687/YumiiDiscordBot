@@ -40,6 +40,13 @@ function defaults() {
     counting: { enabled: false, channelId: "", startNumber: 1, lastNumber: 0 },
     polls: { enabled: false, channelId: "" },
     giveaways: { enabled: false, channelId: "" },
+    antiMassMention: { enabled: false, maxMentions: 5, action: "delete_warn" },
+    autoThread: { enabled: false, channelId: "", archiveMinutes: 1440 },
+    messageCleanup: { enabled: false, channelId: "", delaySeconds: 30 },
+    memberCounter: { enabled: false, channelId: "", nameTemplate: "Mitglieder: {count}" },
+    autoPin: { enabled: false, emoji: "📌", threshold: 5 },
+    voiceMaster: { enabled: false, joinChannelId: "", categoryId: "", nameTemplate: "Raum von {username}", userLimit: 0 },
+    bumpReminder: { enabled: false, channelId: "", intervalHours: 2 },
     logs: { enabled: false, channelId: "", messageDelete: true, messageEdit: true, memberJoin: true, memberLeave: true }
   };
 }
@@ -142,6 +149,43 @@ function normalizeSettings(input) {
       enabled: value.giveaways?.enabled === true,
       channelId: stringValue(value.giveaways?.channelId, 24)
     },
+    antiMassMention: {
+      enabled: value.antiMassMention?.enabled === true,
+      maxMentions: Math.min(20, Math.max(2, Number(value.antiMassMention?.maxMentions) || 5)),
+      action: value.antiMassMention?.action === "delete" ? "delete" : "delete_warn"
+    },
+    autoThread: {
+      enabled: value.autoThread?.enabled === true,
+      channelId: stringValue(value.autoThread?.channelId, 24),
+      archiveMinutes: [60, 1440, 4320, 10080].includes(Number(value.autoThread?.archiveMinutes)) ? Number(value.autoThread.archiveMinutes) : 1440
+    },
+    messageCleanup: {
+      enabled: value.messageCleanup?.enabled === true,
+      channelId: stringValue(value.messageCleanup?.channelId, 24),
+      delaySeconds: Math.min(86400, Math.max(5, Number(value.messageCleanup?.delaySeconds) || 30))
+    },
+    memberCounter: {
+      enabled: value.memberCounter?.enabled === true,
+      channelId: stringValue(value.memberCounter?.channelId, 24),
+      nameTemplate: stringValue(value.memberCounter?.nameTemplate, 80) || "Mitglieder: {count}"
+    },
+    autoPin: {
+      enabled: value.autoPin?.enabled === true,
+      emoji: stringValue(value.autoPin?.emoji, 8) || "📌",
+      threshold: Math.min(20, Math.max(2, Number(value.autoPin?.threshold) || 5))
+    },
+    voiceMaster: {
+      enabled: value.voiceMaster?.enabled === true,
+      joinChannelId: stringValue(value.voiceMaster?.joinChannelId, 24),
+      categoryId: stringValue(value.voiceMaster?.categoryId, 24),
+      nameTemplate: stringValue(value.voiceMaster?.nameTemplate, 80) || "Raum von {username}",
+      userLimit: Math.min(99, Math.max(0, Number(value.voiceMaster?.userLimit) || 0))
+    },
+    bumpReminder: {
+      enabled: value.bumpReminder?.enabled === true,
+      channelId: stringValue(value.bumpReminder?.channelId, 24),
+      intervalHours: Math.min(24, Math.max(1, Number(value.bumpReminder?.intervalHours) || 2))
+    },
     logs: {
       enabled: value.logs?.enabled === true || value.logs === true,
       channelId: stringValue(value.logs?.channelId, 24),
@@ -173,7 +217,7 @@ function setGuildSettings(guildId, settings) {
 
 function setGuildModule(guildId, moduleName, enabled) {
   const current = getGuildSettings(guildId);
-  if (!["welcome", "tickets", "autorole", "selfroles", "automod", "leave", "suggestions", "starboard", "antiInvite", "antiSpam", "antiCaps", "antiLinks", "keywordFilter", "slowmode", "counting", "polls", "giveaways", "logs"].includes(moduleName)) {
+  if (!["welcome", "tickets", "autorole", "selfroles", "automod", "leave", "suggestions", "starboard", "antiInvite", "antiSpam", "antiCaps", "antiLinks", "keywordFilter", "slowmode", "counting", "polls", "giveaways", "antiMassMention", "autoThread", "messageCleanup", "memberCounter", "autoPin", "voiceMaster", "bumpReminder", "logs"].includes(moduleName)) {
     throw new Error("Unknown module");
   }
   current[moduleName].enabled = enabled;
