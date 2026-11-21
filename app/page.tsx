@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { Bot, ShieldCheck, Ticket, Settings2, Users, ChevronRight, LockKeyhole, Sparkles, MessageCircle, Bell, Zap, Globe, CheckCircle2, ArrowRight, HelpCircle } from "lucide-react";
-type Guild = { id: string; name: string; icon: string | null; permissions: string; owner: boolean };
+type Guild = { id: string; name: string; icon: string | null; permissions?: string; owner: boolean };
 type User = { id: string; username: string; avatar: string | null; guilds: Guild[] };
 const modules = [
   { icon: Ticket, title: "Ticket-System", text: "Organisiere Support-Anfragen und behalte offene Anliegen im Blick.", status: "In Planung" },
@@ -16,7 +16,26 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [selectedGuildId, setSelectedGuildId] = useState("");
   const [cookiesAccepted, setCookiesAccepted] = useState(true);
+  const [authError, setAuthError] = useState<string | null>(null);
   useEffect(() => { setCookiesAccepted(document.cookie.split("; ").some(cookie => cookie.startsWith("moonbot_cookie_notice=accepted"))); }, []);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get("error");
+    const messages: Record<string, string> = {
+      oauth: "Anmeldung abgebrochen oder Sicherheitsprüfung fehlgeschlagen. Bitte erneut versuchen.",
+      config: "Discord-Anmeldung ist serverseitig nicht vollständig konfiguriert.",
+      token: "Discord hat den Anmeldecode abgelehnt (Redirect-URI oder Client-Secret prüfen).",
+      user: "Discord-Benutzerdaten konnten nicht geladen werden.",
+      session: "Sitzung konnte nicht erstellt werden (SESSION_SECRET prüfen).",
+    };
+    if (error && messages[error]) {
+      setAuthError(messages[error]);
+      params.delete("error");
+      const query = params.toString();
+      const nextUrl = window.location.pathname + (query ? `?${query}` : "") + window.location.hash;
+      window.history.replaceState({}, "", nextUrl);
+    }
+  }, []);
   const acceptCookies = () => { document.cookie = "moonbot_cookie_notice=accepted; Max-Age=15552000; Path=/; SameSite=Lax; Secure"; setCookiesAccepted(true); };
   const cookieBarRef = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -47,6 +66,7 @@ export default function Home() {
         {loading ? <small>Lädt …</small> : user ? <div className="userPill">{user.username}<form action="/api/auth/logout" method="post"><button>Abmelden</button></form></div> : <a className="login" href="/api/auth/discord"><LockKeyhole size={16}/> Mit Discord anmelden</a>}
       </header>
       <div className="content">
+        {authError && <div role="alert" className="authError"><strong>Discord-Anmeldung fehlgeschlagen</strong><span>{authError}</span></div>}
         <section className="hero" id="home"><div><div className="eyebrow"><Sparkles size={14}/> DEIN SERVER. DEINE KONTROLLE.</div><h1>Mehr Kontrolle für deinen <b>Discord-Server.</b></h1><p>MoonBot soll dir helfen, deine Community an einem Ort einfacher zu verwalten.</p><a className="heroCta" href="/api/auth/discord"><LockKeyhole size={16}/> {user ? "Mit Discord verbunden" : "Jetzt mit Discord anmelden"} <ArrowRight size={16}/></a></div><div className="heroLogo"><Bot size={74}/></div></section>
 
         <div className="sectionHead"><div><h2>Dein Dashboard</h2><p>Ein zentraler Überblick für deine Community.</p></div><span className="status">● Dashboard erreichbar</span></div>
