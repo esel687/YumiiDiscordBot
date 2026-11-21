@@ -323,15 +323,15 @@ client.on(Events.InteractionCreate, async interaction => {
       }
       const menu = new StringSelectMenuBuilder()
         .setCustomId("moonbot:selfroles")
-        .setPlaceholder("Wähle deine Rollen")
+        .setPlaceholder(settings.selfroles.placeholder || "Wähle deine Rollen")
         .setMinValues(0)
         .setMaxValues(settings.selfroles.roles.length)
         .addOptions(settings.selfroles.roles.map(role => ({ label: role.label, value: role.id })));
       const row = new ActionRowBuilder().addComponents(menu);
       const embed = new EmbedBuilder()
         .setColor(0xc084fc)
-        .setTitle("Deine Rollen")
-        .setDescription("Wähle die Rollen aus, die du haben möchtest. Entferne die Auswahl, um eine Rolle wieder abzugeben.");
+        .setTitle(settings.selfroles.panelTitle || "Deine Rollen")
+        .setDescription(settings.selfroles.panelDescription || "Wähle die Rollen aus, die du haben möchtest. Entferne die Auswahl, um eine Rolle wieder abzugeben.");
       const targetChannel = settings.selfroles.channelId
         ? await interaction.guild.channels.fetch(settings.selfroles.channelId).catch(() => null)
         : interaction.channel;
