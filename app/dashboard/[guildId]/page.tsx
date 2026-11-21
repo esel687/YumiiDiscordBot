@@ -24,18 +24,18 @@ function RolePicker({label,value,roles,onChange,placeholder}:{label:string;value
 export default function ServerManagement(){
  const params=useParams<{guildId:string}>(); const guildId=params.guildId;
  const [user,setUser]=useState<User|null>(null); const [settings,setSettings]=useState<any>(null);
- const [resources,setResources]=useState<Resources|null>(null); const [error,setError]=useState(""); const [resourceError,setResourceError]=useState("");
+ const [resources,setResources]=useState<Resources|null>(null); const [error,setError]=useState(""); const [resourceError,setResourceError]=useState(""); const [aiConfigured,setAiConfigured]=useState<boolean|null>(null);
  const [saving,setSaving]=useState(false); const [loading,setLoading]=useState(true); const [refreshing,setRefreshing]=useState(false); const [activeModule,setActiveModule]=useState<string>("tickets");
  const guild=user?.guilds?.find(g=>g.id===guildId);
  const textChannels=useMemo(()=>resources?.channels.filter(c=>[0,5,15,16].includes(c.type))??[],[resources]);
  const categories=useMemo(()=>resources?.channels.filter(c=>c.type===4)??[],[resources]);
  const roles=resources?.roles??[];
  useEffect(()=>{fetch("/api/auth/me",{cache:"no-store"}).then(r=>r.json()).then(d=>setUser(d.user??null)).catch(()=>setError("Sitzung konnte nicht geladen werden.")).finally(()=>setLoading(false));},[]);
- useEffect(()=>{if(!guildId||!user)return;fetch("/api/bot/settings?guildId="+encodeURIComponent(guildId),{cache:"no-store"}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||"Einstellungen konnten nicht geladen werden.");setSettings(d.settings);}).catch(e=>setError(e.message));},[guildId,user]);
+ useEffect(()=>{if(!guildId||!user)return;fetch("/api/bot/settings?guildId="+encodeURIComponent(guildId),{cache:"no-store"}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||"Einstellungen konnten nicht geladen werden.");setSettings(d.settings);setAiConfigured(d.aiConfigured===true);}).catch(e=>setError(e.message));},[guildId,user]);
  const loadResources=async()=>{if(!guildId)return;setRefreshing(true);setResourceError("");try{const r=await fetch("/api/bot/resources?guildId="+encodeURIComponent(guildId),{cache:"no-store"});const d=await r.json();if(!r.ok)throw new Error(d.error||"Serverdaten konnten nicht geladen werden.");setResources(d);}catch(e:any){setResourceError(e.message||"Serverdaten konnten nicht geladen werden.");}finally{setRefreshing(false);}};
  useEffect(()=>{if(user&&guildId)loadResources();},[user,guildId]);
  const update=(key:string,patch:any)=>setSettings((s:any)=>({...s,[key]:{...s[key],...patch}}));
- const save=async()=>{if(!settings)return;setSaving(true);setError("");try{const r=await fetch("/api/bot/settings?guildId="+encodeURIComponent(guildId),{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({settings})});const d=await r.json();if(!r.ok)throw new Error(d.error||"Speichern fehlgeschlagen.");setSettings(d.settings);}catch(e:any){setError(e.message||"Speichern fehlgeschlagen.");}finally{setSaving(false);}};
+ const save=async()=>{if(!settings)return;setSaving(true);setError("");try{const r=await fetch("/api/bot/settings?guildId="+encodeURIComponent(guildId),{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({settings})});const d=await r.json();if(!r.ok)throw new Error(d.error||"Speichern fehlgeschlagen.");setSettings(d.settings);setAiConfigured(d.aiConfigured===true);}catch(e:any){setError(e.message||"Speichern fehlgeschlagen.");}finally{setSaving(false);}};
  if(loading)return <main className="dashboardShell"><p className="moduleNotice">Server wird geladen …</p></main>;
  if(!user||!guild)return <main className="dashboardShell"><a className="backLink" href="/dashboard"><ArrowLeft size={15}/> Zur Serverübersicht</a><section className="emptyServers">Dieser Server ist nicht in deiner Sitzung enthalten oder du hast keine Verwaltungsrechte. <a href="/api/auth/discord">Erneut mit Discord anmelden</a>.</section></main>;
  return <main className="dashboardShell">
@@ -70,6 +70,7 @@ export default function ServerManagement(){
        <label className="discordPickerLabel">Auswählbare Rollen <span className="discordPicker multiRolePicker"><select multiple value={(value.roles??[]).map((r:any)=>r.id)} onChange={e=>{const selected=Array.from(e.target.selectedOptions).map(o=>o.value);update(m.key,{roles:selected.map(id=>{const role=roles.find(r=>r.id===id);return {id,label:role?.name??"Rolle"};})});}}>{roles.map(role=><option key={role.id} value={role.id}>{role.name}</option>)}</select></span><small>Mehrere Rollen auswählen: STRG (Windows) oder CMD (Mac) gedrückt halten.</small></label>
       </div>}
       {m.key==="automod"&&<div className="moduleFields">
+       <div className="moduleNotice" role="status">{aiConfigured===true?"OpenAI-KI verbunden. Nachrichten werden automatisch geprüft.":aiConfigured===false?"OpenAI-KI noch nicht verbunden. Hinterlege OPENAI_API_KEY in den Umgebungsvariablen deines Bot-Hostings.":"KI-Verbindungsstatus wird geladen …"}</div>
        <ChannelPicker label="Moderations-Log-Kanal" value={value.logChannelId} channels={textChannels} emptyLabel="Kanal auswählen …" onChange={id=>update(m.key,{logChannelId:id})}/>
        <label className="discordPickerLabel">Erkennungs-Schwelle <select className="moduleTextInput" value={String(value.threshold??0.82)} onChange={e=>update(m.key,{threshold:Number(e.target.value)})}><option value="0.65">Niedrig – mehr Erkennungen</option><option value="0.82">Normal</option><option value="0.92">Hoch – weniger Erkennungen</option></select></label>
       </div>}
