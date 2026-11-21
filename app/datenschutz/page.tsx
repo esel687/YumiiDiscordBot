@@ -13,11 +13,11 @@ export default function Datenschutz() {
       <p style={{ ...p, padding: 16, border: "1px solid #b45309", borderRadius: 10, background: "#451a0333" }}><strong>Bitte vor dem öffentlichen Einsatz prüfen:</strong> Diese Erklärung ist ein technischer Entwurf auf Grundlage des derzeit eingesehenen Projektcodes und keine Rechtsberatung. Der tatsächliche Verantwortliche, die Rechtsgrundlagen, Hosting-Anbieter, Serverstandorte, Auftragsverarbeitungsverträge und konkreten Löschfristen müssen anhand des realen Betriebs bestätigt werden. Nicht zutreffende Angaben müssen angepasst werden.</p>
 
       <section style={section}><h2 style={h}>1. Verantwortlicher für die Datenverarbeitung</h2>
-        <p style={p}>Verantwortlicher im Sinne der DSGVO ist die Person oder Organisation, die tatsächlich über Zwecke und Mittel der Verarbeitung personenbezogener Daten entscheidet. Hier müssen die korrekten Angaben des tatsächlichen Verantwortlichen eingetragen werden:</p>
-        <p style={p}>[Vollständiger Name / rechtlich korrekte Anbieterbezeichnung]<br/>[Vollständige ladungsfähige Anschrift]<br/>E-Mail: [Kontakt-E-Mail]</p>
-        <p style={p}>Phillip Fräßdorf ist als Ansprechpartner und Vertreter für MoonBot benannt. Datenschutzanfragen können an ihn gerichtet werden:</p>
+        <p style={p}>Nach den Angaben des Betreibers entscheidet dieser selbst über Zwecke und Mittel der Verarbeitung personenbezogener Daten durch MoonBot. Damit ist der Betreiber grundsätzlich der Verantwortliche im Sinne der DSGVO. Vor Veröffentlichung müssen hier seine vollständigen, rechtlich korrekten Angaben ergänzt werden:</p>
+        <p style={p}>Betreiber von MoonBot / Verantwortlicher: [Vollständiger Name bzw. rechtlich korrekte Anbieterbezeichnung]<br/>Anschrift: [Vollständige ladungsfähige Anschrift]<br/>E-Mail: [Kontakt-E-Mail]</p>
+        <p style={p}>Phillip Fräßdorf unterstützt den Betreiber bei rechtlichen Angelegenheiten und ist als Kontaktperson für Datenschutzanfragen benannt:</p>
         <p style={p}>Phillip Fräßdorf<br/>Hugo-Heimann-Straße 1/B<br/>12353 Berlin, Deutschland<br/>E-Mail: <a href="mailto:phillip.fraessdorf@icloud.com" style={{ color: "#67e8f9" }}>phillip.fraessdorf@icloud.com</a></p>
-        <p style={p}>Die Benennung als Ansprechpartner allein macht ihn nicht automatisch zum Verantwortlichen im Sinne der DSGVO. Die Angaben oben müssen mit der tatsächlichen Zuständigkeit übereinstimmen.</p>
+        <p style={p}>Die Unterstützung durch Phillip ändert nicht automatisch die datenschutzrechtliche Verantwortlichkeit. Diese richtet sich danach, wer tatsächlich über Zwecke und Mittel der Datenverarbeitung entscheidet. Die Rollen und Kontaktdaten müssen vor Veröffentlichung rechtlich geprüft und vollständig ergänzt werden.</p>
       </section>
 
       <section style={section}><h2 style={h}>2. Welche Daten verarbeitet werden</h2>
