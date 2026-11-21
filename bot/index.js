@@ -18,7 +18,7 @@ if (!clientId) {
   process.exit(1);
 }
 
-const modules = ["welcome", "tickets", "autorole", "selfroles", "automod", "leave", "suggestions", "starboard", "antiInvite", "antiSpam", "antiCaps", "antiLinks", "keywordFilter", "slowmode", "counting", "polls", "giveaways", "logs"];
+const modules = ["welcome", "tickets", "autorole", "selfroles", "automod", "leave", "suggestions", "starboard", "antiInvite", "antiSpam", "antiCaps", "antiLinks", "keywordFilter", "slowmode", "counting", "polls", "giveaways", "antiMassMention", "autoThread", "messageCleanup", "memberCounter", "autoPin", "voiceMaster", "bumpReminder", "logs"];
 const moduleLabels = {
   welcome: "Willkommensnachrichten",
   tickets: "Ticketsystem",
@@ -37,6 +37,13 @@ const moduleLabels = {
   counting: "Zählspiel",
   polls: "Umfragen",
   giveaways: "Giveaways",
+  antiMassMention: "Anti-Mass-Mention",
+  autoThread: "Auto-Thread",
+  messageCleanup: "Nachrichten-Auto-Löschung",
+  memberCounter: "Mitgliederzähler",
+  autoPin: "Auto-Pin",
+  voiceMaster: "Voice Master",
+  bumpReminder: "Bump-Erinnerung",
   logs: "Server-Logs"
 };
 
@@ -72,6 +79,7 @@ const client = new Client({
 
 const recentMessages = new Map();
 const countingLocks = new Set();
+const temporaryVoiceChannels = new Set();
 
 function moduleEnabled(settings, name) {
   return name === "logs" ? settings.logs?.enabled === true || settings.logs === true : settings[name]?.enabled === true;
@@ -152,6 +160,10 @@ client.on(Events.GuildCreate, guild => {
 
 client.on(Events.GuildMemberAdd, async member => {
   const settings = getGuildSettings(member.guild.id);
+  if (moduleEnabled(settings, "memberCounter") && settings.memberCounter.channelId) {
+    const counter = await member.guild.channels.fetch(settings.memberCounter.channelId).catch(() => null);
+    if (counter) await counter.setName((settings.memberCounter.nameTemplate || "Mitglieder: {count}").replaceAll("{count}", String(member.guild.memberCount))).catch(() => {});
+  }
   if (settings.logs?.memberJoin !== false) await sendServerLog(member.guild, settings, "Mitglied beigetreten", `${member.user.tag} (${member.id}) ist dem Server beigetreten.`);
 
   if (moduleEnabled(settings, "autorole") && settings.autorole.roleId) {
@@ -180,6 +192,31 @@ client.on(Events.MessageCreate, async message => {
   if (!message.guild || message.author.bot || !message.content?.trim()) return;
   const settings = getGuildSettings(message.guild.id);
   const config = settings;
+
+  if (moduleEnabled(config, "antiMassMention") && message.mentions.users.size > config.antiMassMention.maxMentions) {
+    await message.delete().catch(() => {});
+    if (config.antiMassMention.action !== "delete") {
+      const warning = await message.channel.send({ content: `<@${message.author.id}> Zu viele Erwähnungen in einer Nachricht sind nicht erlaubt.`, allowedMentions: { users: [message.author.id] } }).catch(() => null);
+      if (warning) setTimeout(() => warning.delete().catch(() => {}), 7000);
+    }
+    return;
+  }
+
+  if (moduleEnabled(config, "autoThread") && message.channelId === config.autoThread.channelId && !message.hasThread) {
+    await message.startThread({ name: `Diskussion: ${message.author.username}`.slice(0, 100), autoArchiveDuration: config.autoThread.archiveMinutes, reason: "MoonBot Auto-Thread" }).catch(() => {});
+  }
+
+  if (moduleEnabled(config, "messageCleanup") && message.channelId === config.messageCleanup.channelId) {
+    const delay = config.messageCleanup.delaySeconds * 1000;
+    setTimeout(() => message.delete().catch(() => {}), delay);
+  }
+
+  if (moduleEnabled(config, "bumpReminder") && message.author.id === "302050872383242240" && /bump done/i.test(message.content) && config.bumpReminder.channelId) {
+    const target = await message.guild.channels.fetch(config.bumpReminder.channelId).catch(() => null);
+    if (target?.isTextBased()) {
+      setTimeout(() => target.send({ content: "⏰ Zeit für den nächsten Server-Bump!", allowedMentions: { parse: [] } }).catch(() => {}), config.bumpReminder.intervalHours * 3600000);
+    }
+  }
 
   // Anti-spam: short rolling window per member and channel.
   if (moduleEnabled(config, "antiSpam")) {
@@ -309,6 +346,10 @@ client.on(Events.MessageCreate, async message => {
 
 client.on(Events.GuildMemberRemove, async member => {
   const settings = getGuildSettings(member.guild.id);
+  if (moduleEnabled(settings, "memberCounter") && settings.memberCounter.channelId) {
+    const counter = await member.guild.channels.fetch(settings.memberCounter.channelId).catch(() => null);
+    if (counter) await counter.setName((settings.memberCounter.nameTemplate || "Mitglieder: {count}").replaceAll("{count}", String(member.guild.memberCount))).catch(() => {});
+  }
   if (moduleEnabled(settings, "leave") && settings.leave.channelId) {
     const channel = await member.guild.channels.fetch(settings.leave.channelId).catch(() => null);
     if (channel?.isTextBased()) {
@@ -320,6 +361,35 @@ client.on(Events.GuildMemberRemove, async member => {
     }
   }
   if (settings.logs?.memberLeave !== false) await sendServerLog(member.guild, settings, "Mitglied hat den Server verlassen", `${member.user.tag} (${member.id}) hat den Server verlassen.`);
+});
+
+
+client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
+  const guild = newState.guild || oldState.guild;
+  const settings = getGuildSettings(guild.id);
+  if (moduleEnabled(settings, "voiceMaster") && newState.channelId === settings.voiceMaster.joinChannelId) {
+    const member = newState.member;
+    const name = (settings.voiceMaster.nameTemplate || "Raum von {username}").replaceAll("{username}", member.user.username).slice(0, 100);
+    const room = await guild.channels.create({
+      name,
+      type: ChannelType.GuildVoice,
+      parent: settings.voiceMaster.categoryId || undefined,
+      userLimit: settings.voiceMaster.userLimit || undefined,
+      permissionOverwrites: [
+        { id: member.id, allow: [PermissionsBitField.Flags.ManageChannels, PermissionsBitField.Flags.MoveMembers] }
+      ],
+      reason: "MoonBot Voice Master"
+    }).catch(error => { console.error("Voice Master room creation failed:", error); return null; });
+    if (room) {
+      temporaryVoiceChannels.add(room.id);
+      await member.voice.setChannel(room).catch(() => {});
+    }
+  }
+  if (oldState.channelId && temporaryVoiceChannels.has(oldState.channelId) && oldState.channel?.members.size === 0) {
+    const id = oldState.channelId;
+    temporaryVoiceChannels.delete(id);
+    await oldState.channel.delete("MoonBot temporary voice room is empty").catch(() => {});
+  }
 });
 
 client.on(Events.MessageDelete, async message => {
@@ -342,6 +412,10 @@ client.on(Events.MessageReactionAdd, async (reaction, user) => {
   const message = reaction.message;
   if (!message?.guild) return;
   const settings = getGuildSettings(message.guild.id);
+
+  if (moduleEnabled(settings, "autoPin") && reaction.emoji.name === settings.autoPin.emoji && reaction.count >= settings.autoPin.threshold) {
+    if (!message.pinned) await message.pin("MoonBot Auto-Pin").catch(() => {});
+  }
   if (!moduleEnabled(settings, "starboard") || reaction.emoji.name !== (settings.starboard.emoji || "⭐")) return;
   if (reaction.count < (settings.starboard.threshold || 3)) return;
   const target = await message.guild.channels.fetch(settings.starboard.channelId).catch(() => null);
