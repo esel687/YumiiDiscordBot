@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
-import { Bot, ArrowLeft, Ticket, Bell, UserPlus, Users, ShieldCheck, Save, Hash, ChevronDown, ChevronRight, RefreshCw, MessageSquare, LogIn, LogOut, Star, Link2, ClipboardList } from "lucide-react";
+import { Bot, ArrowLeft, Ticket, Bell, UserPlus, Users, ShieldCheck, Save, Hash, ChevronDown, ChevronRight, RefreshCw, MessageSquare, LogIn, LogOut, Star, Link2, ClipboardList, Ban, Filter, Timer, Gift, Vote, CaseSensitive, VolumeX } from "lucide-react";
 
 type Guild={id:string;name:string;icon:string|null;owner:boolean};
 type User={username:string;guilds:Guild[]};
@@ -18,6 +18,14 @@ const modules=[
   {key:"suggestions",name:"Vorschläge",icon:MessageSquare,desc:"Sammle Community-Ideen mit Abstimmungen."},
   {key:"starboard",name:"Starboard",icon:Star,desc:"Zeige besonders beliebte Nachrichten."},
   {key:"antiInvite",name:"Anti-Discord-Links",icon:Link2,desc:"Erkennt und moderiert fremde Discord-Einladungen."},
+  {key:"antiSpam",name:"Anti-Spam",icon:Ban,desc:"Bremst Nachrichten-Spam pro Mitglied."},
+  {key:"antiCaps",name:"Anti-Caps",icon:CaseSensitive,desc:"Erkennt übermäßig viele Großbuchstaben."},
+  {key:"antiLinks",name:"Anti-Links",icon:Filter,desc:"Moderiert externe Links in ausgewählten Kanälen."},
+  {key:"keywordFilter",name:"Wortfilter",icon:VolumeX,desc:"Entfernt Nachrichten mit festgelegten Begriffen."},
+  {key:"slowmode",name:"Auto-Slowmode",icon:Timer,desc:"Setzt automatisch den Slowmode in einem Kanal."},
+  {key:"counting",name:"Zählspiel",icon:Hash,desc:"Ein gemeinsamer Zahlen-Channel mit fortlaufender Reihenfolge."},
+  {key:"polls",name:"Umfragen",icon:Vote,desc:"Erstelle Abstimmungen direkt per Slash-Befehl."},
+  {key:"giveaways",name:"Giveaways",icon:Gift,desc:"Starte zeitgesteuerte Verlosungen per Slash-Befehl."},
   {key:"logs",name:"Server-Logs",icon:ClipboardList,desc:"Protokolliert wichtige Serverereignisse."}
 ];
 function ChannelPicker({label,value,channels,emptyLabel,onChange}:{label:string;value:string;channels:DiscordChannel[];emptyLabel:string;onChange:(id:string)=>void}){
@@ -107,6 +115,45 @@ export default function ServerManagement(){
       {m.key==="antiInvite"&&<div className="moduleFields">
        <ChannelPicker label="Ausnahme-Kanal (Einladungslinks erlaubt)" value={value.allowedChannelId} channels={textChannels} emptyLabel="Keine Ausnahme" onChange={id=>update(m.key,{allowedChannelId:id})}/>
        <label className="discordPickerLabel">Aktion<select className="moduleTextInput" value={value.action??"delete_warn"} onChange={e=>update(m.key,{action:e.target.value})}><option value="delete_warn">Link löschen und warnen</option><option value="delete">Nur Link löschen</option></select></label>
+      </div>}
+
+      {m.key==="antiSpam"&&<div className="moduleFields">
+       <label className="discordPickerLabel">Maximale Nachrichten<input className="moduleTextInput" type="number" min="2" max="15" value={value.maxMessages??5} onChange={e=>update(m.key,{maxMessages:Number(e.target.value)})}/></label>
+       <label className="discordPickerLabel">Zeitfenster in Sekunden<input className="moduleTextInput" type="number" min="2" max="30" value={value.intervalSeconds??6} onChange={e=>update(m.key,{intervalSeconds:Number(e.target.value)})}/></label>
+       <label className="discordPickerLabel">Aktion<select className="moduleTextInput" value={value.action??"delete_warn"} onChange={e=>update(m.key,{action:e.target.value})}><option value="delete_warn">Löschen und warnen</option><option value="delete">Nur löschen</option></select></label>
+      </div>}
+      {m.key==="antiCaps"&&<div className="moduleFields">
+       <label className="discordPickerLabel">Mindestlänge<input className="moduleTextInput" type="number" min="5" max="100" value={value.minLength??12} onChange={e=>update(m.key,{minLength:Number(e.target.value)})}/></label>
+       <label className="discordPickerLabel">Großbuchstaben-Anteil (%)<input className="moduleTextInput" type="number" min="50" max="100" value={value.percentage??75} onChange={e=>update(m.key,{percentage:Number(e.target.value)})}/></label>
+       <label className="discordPickerLabel">Aktion<select className="moduleTextInput" value={value.action??"delete_warn"} onChange={e=>update(m.key,{action:e.target.value})}><option value="delete_warn">Löschen und warnen</option><option value="delete">Nur löschen</option></select></label>
+      </div>}
+      {m.key==="antiLinks"&&<div className="moduleFields">
+       <ChannelPicker label="Ausnahme-Kanal (Links erlaubt)" value={value.allowedChannelId} channels={textChannels} emptyLabel="Keine Ausnahme" onChange={id=>update(m.key,{allowedChannelId:id})}/>
+       <label className="discordPickerLabel">Aktion<select className="moduleTextInput" value={value.action??"delete_warn"} onChange={e=>update(m.key,{action:e.target.value})}><option value="delete_warn">Löschen und warnen</option><option value="delete">Nur löschen</option></select></label>
+      </div>}
+      {m.key==="keywordFilter"&&<div className="moduleFields">
+       <label className="discordPickerLabel">Gesperrte Begriffe<textarea className="moduleTextInput" rows={4} placeholder="Ein Begriff pro Zeile" value={(value.words??[]).join("\n")} onChange={e=>update(m.key,{words:e.target.value.split(/\r?\n/).map((word:string)=>word.trim()).filter(Boolean)})}/><small>Bis zu 100 Begriffe.</small></label>
+       <ChannelPicker label="Filter-Log-Kanal" value={value.logChannelId} channels={textChannels} emptyLabel="Kein Log-Kanal" onChange={id=>update(m.key,{logChannelId:id})}/>
+       <label className="discordPickerLabel">Aktion<select className="moduleTextInput" value={value.action??"delete_warn"} onChange={e=>update(m.key,{action:e.target.value})}><option value="delete_warn">Löschen und warnen</option><option value="delete">Nur löschen</option></select></label>
+      </div>}
+      {m.key==="slowmode"&&<div className="moduleFields">
+       <ChannelPicker label="Slowmode-Kanal" value={value.channelId} channels={textChannels} emptyLabel="Kanal auswählen …" onChange={id=>update(m.key,{channelId:id})}/>
+       <label className="discordPickerLabel">Sekunden zwischen Nachrichten<input className="moduleTextInput" type="number" min="0" max="21600" value={value.seconds??5} onChange={e=>update(m.key,{seconds:Number(e.target.value)})}/></label>
+      </div>}
+      {m.key==="counting"&&<div className="moduleFields">
+       <ChannelPicker label="Zähl-Kanal" value={value.channelId} channels={textChannels} emptyLabel="Kanal auswählen …" onChange={id=>update(m.key,{channelId:id})}/>
+       <label className="discordPickerLabel">Startzahl<input className="moduleTextInput" type="number" min="1" value={value.startNumber??1} onChange={e=>update(m.key,{startNumber:Number(e.target.value),lastNumber:0})}/></label>
+       <div className="discordPreview"><div className="discordPreviewTop"><span>VORSCHAU · DISCORD</span><span>LIVE</span></div><div className="discordPreviewMessage"><div className="discordPreviewAvatar">M</div><div><b>MoonBot</b><small> BOT</small><p>🔢 Schreibe die Zahl {value.startNumber||1} als Nächstes.</p></div></div></div>
+      </div>}
+      {m.key==="polls"&&<div className="moduleFields">
+       <ChannelPicker label="Umfragen-Kanal" value={value.channelId} channels={textChannels} emptyLabel="Aktuellen Kanal verwenden" onChange={id=>update(m.key,{channelId:id})}/>
+       <div className="discordPreview"><div className="discordPreviewTop"><span>VORSCHAU · DISCORD</span><span>LIVE</span></div><div className="discordPreviewMessage"><div className="discordPreviewAvatar">M</div><div><b>MoonBot</b><small> BOT</small><div className="discordEmbed"><strong>📊 Umfrage</strong><p>Soll dieses Feature hinzugefügt werden?</p><p>👍 Ja　👎 Nein</p></div></div></div></div>
+       <small>Erstellen mit <code>/moonbot poll</code>.</small>
+      </div>}
+      {m.key==="giveaways"&&<div className="moduleFields">
+       <ChannelPicker label="Giveaway-Kanal" value={value.channelId} channels={textChannels} emptyLabel="Aktuellen Kanal verwenden" onChange={id=>update(m.key,{channelId:id})}/>
+       <div className="discordPreview"><div className="discordPreviewTop"><span>VORSCHAU · DISCORD</span><span>LIVE</span></div><div className="discordPreviewMessage"><div className="discordPreviewAvatar">M</div><div><b>MoonBot</b><small> BOT</small><div className="discordEmbed"><strong>🎉 Giveaway</strong><p>Gewinn: Beispielpreis</p><p>Reagiere mit 🎉, um teilzunehmen!</p></div></div></div></div>
+       <small>Starten mit <code>/moonbot giveaway</code>. Die Laufzeit wird beim Start angegeben.</small>
       </div>}
       {m.key==="logs"&&<div className="moduleFields">
        <ChannelPicker label="Log-Kanal" value={value.channelId} channels={textChannels} emptyLabel="Kanal auswählen …" onChange={id=>update(m.key,{channelId:id})}/>
