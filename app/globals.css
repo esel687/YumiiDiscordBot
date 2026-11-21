@@ -278,3 +278,23 @@ html,body{min-height:100%;background-color:#080510}
 .manageModule{padding:19px;margin:13px 0;border:1px solid #432653;border-radius:14px;background:linear-gradient(145deg,#1b1028,#110b1a)}.manageModuleHead{display:flex;align-items:center;gap:14px}.manageIcon{width:42px;height:42px;display:grid;place-items:center;border:1px solid #a23bb9;border-radius:12px;background:#39134b;color:#f0abfc;flex-shrink:0}.manageModuleHead>div{flex:1}.manageModuleHead h3{margin:0 0 5px;font:600 15px 'Space Grotesk'}.manageModuleHead p,.manageHint{margin:0;color:#bba6c9;font-size:11px;line-height:1.6}.manageSaveRow{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-top:20px;padding:18px;border:1px solid #74358c;border-radius:13px;background:#24102f}.manageSaveRow p{color:#c5aaca;font-size:11px}.manageSaveRow .heroCta{margin:0;cursor:pointer}
 @media(max-width:700px){.publicNav nav{display:none}.publicHero{padding:35px 25px;margin:25px 0 35px}.publicOrb{opacity:.18;right:-35px}.publicHero>div,.publicHero>p,.publicHeroActions{position:relative;z-index:1}.publicFeatureGrid{grid-template-columns:1fr 1fr}.publicAbout{align-items:flex-start;flex-direction:column}.publicAbout .heroCta{margin:0}.publicFooter{flex-wrap:wrap}.dashboardTop{height:68px}.dashboardTopRight{gap:8px}.selectedServerHero{align-items:flex-start}.manageSaveRow{align-items:flex-start;flex-direction:column}}
 @media(max-width:460px){.publicShell,.dashboardShell{padding-left:14px;padding-right:14px}.publicActions{gap:7px}.publicActions .login,.publicDash{font-size:10px;padding:8px}.publicHero h1{font-size:33px}.publicFeatureGrid{grid-template-columns:1fr}.dashboardTopRight>span{display:none}.publicFooter{gap:12px}}
+
+
+/* Native Discord resource pickers */
+.discordPickerLabel{display:flex;flex-direction:column;gap:7px;min-width:0;color:#c7b2d4;font-size:11px}
+.discordPicker{display:flex;align-items:center;gap:9px;min-width:0;padding:0 11px;border:1px solid #49305c;border-radius:9px;background:#0d0815;color:#f0abfc}
+.discordPicker:focus-within{border-color:#d946ef;box-shadow:0 0 0 2px #c026d522}
+.discordPicker select{width:100%;min-width:0;min-height:42px;appearance:none;border:0;outline:0;background:transparent;color:#fff0ff;font:12px 'DM Sans';cursor:pointer}
+.discordPicker select option{background:#170d21;color:#fff0ff}
+.discordPicker>svg:last-child{flex-shrink:0;color:#bba6c9;pointer-events:none}
+.rolePicker>svg:first-child{color:#d8a4f0}
+.moduleTextInput{width:100%;min-width:0;min-height:42px;padding:10px 11px;border:1px solid #49305c;border-radius:9px;background:#0d0815;color:#fff0ff;font:12px 'DM Sans';outline:none}
+.moduleTextInput:focus{border-color:#d946ef;box-shadow:0 0 0 2px #c026d522}
+.discordPickerLabel small{color:#a88fb8;font-size:10px;line-height:1.5}
+.multiRolePicker{padding:7px}
+.multiRolePicker select{min-height:120px}
+.multiRolePicker select option{padding:7px;border-radius:5px}
+.resourceNotice{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+.resourceNotice button{display:inline-flex;align-items:center;gap:6px;padding:8px 11px;border:1px solid #74358c;border-radius:8px;color:#f0abfc;background:#291033;font-size:11px}
+.resourceNotice small{flex-basis:100%;color:#c5aaca}
+@media(max-width:620px){.discordPicker{padding:0 9px}.discordPicker select{font-size:11px}}
