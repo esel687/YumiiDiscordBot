@@ -242,7 +242,7 @@ client.on(Events.MessageCreate, async message => {
     if (countingLocks.has(lock)) return;
     countingLocks.add(lock);
     try {
-      const expected = Number(config.counting.lastNumber || 0) + 1;
+      const expected = Number(config.counting.lastNumber || 0) > 0 ? Number(config.counting.lastNumber) + 1 : Number(config.counting.startNumber || 1);
       const actual = Number(message.content.trim());
       if (!Number.isInteger(actual) || actual !== expected) {
         await message.delete().catch(() => {});
