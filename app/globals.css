@@ -1057,3 +1057,31 @@ input,select,textarea{font-size:16px}
 .publicNav>.publicActions{order:2!important;margin:0 0 0 auto!important;flex:0 1 auto!important;min-width:0}
 .publicNav nav.publicMenu,.publicNav nav.publicMenu.isOpen{left:10px!important;right:auto!important;top:calc(100% + 8px)!important;width:min(310px,calc(100vw - 20px))!important}
 }
+
+
+/* Mobile header: compact logo with extra room for account controls */
+@media(max-width:640px){
+  .publicNav>.brand{
+    left:46%!important;
+    gap:6px!important;
+    max-width:calc(100% - 150px)!important;
+    overflow:hidden!important;
+  }
+  .publicNav>.brand .brandIcon{
+    width:29px!important;
+    height:29px!important;
+    flex:0 0 29px!important;
+    border-radius:9px!important;
+  }
+  .publicNav>.brand>span:last-child{
+    font-size:16px!important;
+    line-height:1!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+}
+@media(max-width:390px){
+  .publicNav>.brand{left:45%!important;max-width:calc(100% - 138px)!important}
+  .publicNav>.brand .brandIcon{width:26px!important;height:26px!important;flex-basis:26px!important}
+  .publicNav>.brand>span:last-child{font-size:14px!important}
+}
