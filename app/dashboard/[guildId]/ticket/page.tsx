@@ -250,7 +250,7 @@ export default function TicketDashboardPage() {
   return (
     <main className="dashboardShell ticket-page">
       <div className="ticket-topline">
-        <button className="ticket-back" onClick={() => router.push("/dashboard/" + guildId + "?module=overview")}><ArrowLeft size={16}/> Zur Serververwaltung</button>
+        <button className="ticket-back" onClick={() => window.location.assign("/dashboard/" + guildId + "?module=overview")}><ArrowLeft size={16}/> Zur Serververwaltung</button>
         <a className="ticket-doc" href="#" onClick={event => event.preventDefault()}><BookOpen size={16}/> Dokumentation</a>
       </div>
       <header className="ticket-page-head">
