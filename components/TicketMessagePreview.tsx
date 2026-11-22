@@ -13,7 +13,7 @@ type Panel = { id: string; name: string; panelMessage: Message; welcomeMessage: 
 type Props = { panel: Panel; serverName?: string; guildId: string; onTest: (kind: string, categoryId: string, withAnswers: boolean) => Promise<void>; testing?: boolean };
 
 function InlineMarkdown({ text }: { text: string }) {
-  const parts = text.split(/(\*\*[^*]+\*\*|__[^_]+__|~~[^~]+~~|\*[^*]+\*|`[^`]+`|<@[!&]?\d+>|<#\d+>|https?:\/\/[^\s]+)/g);
+  const parts = text.split(/(\\*\\*[^*]+\\*\\*|__[^_]+__|~~[^~]+~~|\\*[^*]+\\*|`[^`]+`|<@[!&]?\\d+>|<#\\d+>|#[A-Za-z0-9_-]+|@[A-Za-z0-9_-]+|https?:\\/\\/[^\\s]+)/g);
   return <>{parts.map((part, i) => {
     if (/^\*\*.+\*\*$/.test(part)) return <strong key={i}><InlineMarkdown text={part.slice(2,-2)}/></strong>;
     if (/^__.+__$/.test(part)) return <u key={i}>{part.slice(2,-2)}</u>;
@@ -88,3 +88,5 @@ export default function TicketMessagePreview({ panel, serverName, guildId, onTes
     </>}
   </aside>;
 }
+    if (/^<#\\d+>$/.test(part) || /^#[A-Za-z0-9_-]+$/.test(part)) return <span className="ticket-preview-chip" key={i}>#Kanal</span>;
+    if (/^@[A-Za-z0-9_-]+$/.test(part)) return <span className="ticket-preview-chip" key={i}>{part}</span>;
