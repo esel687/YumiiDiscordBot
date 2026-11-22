@@ -4,6 +4,16 @@ import { ArrowLeft, CheckCircle2, Globe2, LayoutDashboard, Smartphone, UserRound
 const updates = [
   {
     date: "22. November 2026",
+    title: "Navigation verbessert",
+    tag: "Verbesserung",
+    icon: LayoutDashboard,
+    items: [
+      "Der Changelog ist jetzt direkt über einen eigenen Button in der oberen Navigation erreichbar.",
+      "Nicht angemeldete Besucher sehen keinen Dashboard-Button mehr; der Dashboard-Zugang bleibt nach dem Discord-Login verfügbar."
+    ]
+  },
+  {
+    date: "22. November 2026",
     title: "Website & Dashboard verbessert",
     tag: "Verbesserung",
     icon: LayoutDashboard,
