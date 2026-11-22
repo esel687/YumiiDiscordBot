@@ -138,9 +138,12 @@ function startControlServer(client) {
           const botMember = guild.members.me;
           const permissions = channel.permissionsFor(botMember);
           if (!permissions?.has(["SendMessages", "EmbedLinks", "ViewChannel"])) return send(res, 403, { ok: false, error: "Der Bot hat in diesem Kanal keine Berechtigung zum Senden von Nachrichten und Embeds." });
-          const embed = new EmbedBuilder().setColor(0x36d6d0)
-            .setTitle(panel.panelMessage.title || panel.name)
-            .setDescription((panel.panelMessage.description || "").replaceAll("{server}", guild.name).replaceAll("{panel}", panel.name));
+          const panelPlaceholders = { server: guild.name, panel: panel.name };
+          const panelTitle = renderTicketPlaceholders(panel.panelMessage.title || panel.name, panelPlaceholders);
+          const panelDescription = renderTicketPlaceholders(panel.panelMessage.description || "", panelPlaceholders);
+          const embed = new EmbedBuilder().setColor(0x36d6d0);
+          if (panelTitle) embed.setTitle(panelTitle);
+          if (panelDescription) embed.setDescription(panelDescription);
           if (panel.panelMessage.thumbnailUrl) embed.setThumbnail(panel.panelMessage.thumbnailUrl);
           if (panel.panelMessage.imageUrl) embed.setImage(panel.panelMessage.imageUrl);
           let components;
