@@ -37,7 +37,12 @@ async function forward(request: NextRequest, context: RouteContext) {
     let body: string | undefined;
     if (!["GET", "HEAD"].includes(request.method)) {
       headers["content-type"] = "application/json";
-      body = await request.text();\n      if (path[0] === "test-preview") {\n        let parsed: Record<string, unknown> = {};\n        try { parsed = JSON.parse(body || "{}"); } catch { return NextResponse.json({ ok: false, error: "Ungültige Vorschau-Daten." }, { status: 400 }); }\n        body = JSON.stringify({ ...parsed, userId: session.id });\n      }
+      body = await request.text();
+      if (path[0] === "test-preview") {
+        let parsed: Record<string, unknown> = {};
+        try { parsed = JSON.parse(body || "{}"); } catch { return NextResponse.json({ ok: false, error: "Ungültige Vorschau-Daten." }, { status: 400 }); }
+        body = JSON.stringify({ ...parsed, userId: session.id });
+      }
     }
     const response = await fetch(base + "/guilds/" + guildId + "/ticket" + suffix, {
       method: request.method,
