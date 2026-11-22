@@ -47,7 +47,7 @@ function startControlServer(client) {
       return send(res, 200, { ok: true, aiConfigured: Boolean(process.env.OPENAI_API_KEY) });
     }
     if (!authorized(req)) return send(res, 401, { error: "Unauthorized" });
-    const match = /^\/guilds\/(\d{17,20})\/(settings|resources|actions\\/ticket-panel)$/.exec((req.url || "").split("?")[0]);
+    const match = /^\/guilds\/(\d{17,20})\/(settings|resources|actions\/ticket-panel)$/.exec((req.url || "").split("?")[0]);
     if (!match) return send(res, 404, { error: "Not found" });
     const guildId = match[1];
     if (req.method === "POST" && (req.url || "").split("?")[0] === `/guilds/${guildId}/actions/ticket-panel`) {
