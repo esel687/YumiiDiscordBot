@@ -18,33 +18,14 @@ if (!clientId) {
   process.exit(1);
 }
 
-const modules = ["welcome", "tickets", "autorole", "selfroles", "automod", "leave", "suggestions", "starboard", "antiInvite", "antiSpam", "antiCaps", "antiLinks", "keywordFilter", "slowmode", "counting", "polls", "giveaways", "antiMassMention", "autoThread", "messageCleanup", "memberCounter", "autoPin", "voiceMaster", "bumpReminder", "logs"];
+const modules = ["welcome", "tickets", "autorole", "selfroles", "automod", "voiceMaster"];
 const moduleLabels = {
   welcome: "Willkommensnachrichten",
   tickets: "Ticketsystem",
   autorole: "Auto Role",
   selfroles: "Self Roles",
   automod: "KI-Auto-Mod",
-  leave: "Abschiedsnachrichten",
-  suggestions: "Vorschläge",
-  starboard: "Starboard",
-  antiInvite: "Anti-Discord-Links",
-  antiSpam: "Anti-Spam",
-  antiCaps: "Anti-Caps",
-  antiLinks: "Anti-Links",
-  keywordFilter: "Wortfilter",
-  slowmode: "Auto-Slowmode",
-  counting: "Zählspiel",
-  polls: "Umfragen",
-  giveaways: "Giveaways",
-  antiMassMention: "Anti-Mass-Mention",
-  autoThread: "Auto-Thread",
-  messageCleanup: "Nachrichten-Auto-Löschung",
-  memberCounter: "Mitgliederzähler",
-  autoPin: "Auto-Pin",
-  voiceMaster: "Temp Voice",
-  bumpReminder: "Bump-Erinnerung",
-  logs: "Server-Logs"
+  voiceMaster: "Temp Voice"
 };
 
 const commands = [
@@ -60,8 +41,6 @@ const commands = [
       .addBooleanOption(option => option.setName("enabled").setDescription("Aktivieren?").setRequired(true)))
     .addSubcommand(sub => sub.setName("ticket-panel").setDescription("Sendet ein Ticket-Erstellungs-Panel in diesen Kanal"))
     .addSubcommand(sub => sub.setName("selfroles-panel").setDescription("Sendet ein Self-Roles-Auswahlmenü in diesen Kanal"))
-    .addSubcommand(sub => sub.setName("poll").setDescription("Erstellt eine Umfrage").addStringOption(option => option.setName("frage").setDescription("Deine Frage").setRequired(true).setMaxLength(250)))
-    .addSubcommand(sub => sub.setName("giveaway").setDescription("Startet ein Giveaway").addStringOption(option => option.setName("preis").setDescription("Was wird verlost?").setRequired(true).setMaxLength(150)).addIntegerOption(option => option.setName("minuten").setDescription("Laufzeit in Minuten").setRequired(true).setMinValue(1).setMaxValue(10080)))
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
     .toJSON()
 ];
