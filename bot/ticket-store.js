@@ -135,7 +135,7 @@ function updatePanel(guildId, panelId, patch) {
   const panel = data.panels[panelId];
   if (!panel || panel.guildId !== guildId) return null;
   const allowed = [
-    "name", "channelId", "openLimitPerUser", "pingTeam", "channelNamePattern", "channelNamePreset",
+    "name", "channelId", "messageId", "openLimitPerUser", "pingTeam", "channelNamePattern", "channelNamePreset",
     "showWorkload", "onlyTeamCanClose", "closeRequestNeedsClaim", "creatorsCanAddUsers",
     "onCreatorLeave", "panelMessage", "welcomeMessage"
   ];
