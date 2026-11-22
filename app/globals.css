@@ -317,6 +317,7 @@ html,body{min-height:100%;background-color:#080510}
 .moduleWorkspace{display:grid;grid-template-columns:245px minmax(0,1fr);gap:20px;align-items:start;margin-top:18px}
 .moduleSidebar{position:sticky;top:18px;max-height:calc(100vh - 36px);overflow-y:auto;padding:12px;border:1px solid #432653;border-radius:15px;background:linear-gradient(160deg,#1b1028,#100a18)}
 .moduleSidebarTitle{padding:8px 10px 12px;color:#a88ab8;font-size:10px;font-weight:800;letter-spacing:1.4px}
+.moduleSidebarTitle.moduleSidebarDivider{margin-top:16px;padding-top:15px;border-top:1px solid #49305c;color:#7f91a8}
 .moduleNavItem{width:100%;display:flex;align-items:center;gap:11px;padding:12px 10px;margin:3px 0;border:1px solid transparent;border-radius:10px;background:transparent;color:#c9b2d8;text-align:left;font-size:12px;cursor:pointer;transition:background .16s,border-color .16s,color .16s}
 .moduleNavItem span{flex:1}
 .moduleNavItem:hover{background:#ffffff09;color:#fff}
