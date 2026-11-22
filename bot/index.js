@@ -2,7 +2,7 @@ require("dotenv").config();
 const {
   Client, Events, GatewayIntentBits, REST, Routes, SlashCommandBuilder,
   PermissionFlagsBits, EmbedBuilder, ChannelType, PermissionsBitField,
-  ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder
+  ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, UserSelectMenuBuilder
 } = require("discord.js");
 const { getGuildSettings, setGuildModule } = require("./config-store");
 const { startControlServer } = require("./control-server");
@@ -500,6 +500,7 @@ async function createConfiguredTicket(interaction, panelId, categoryId) {
       new ButtonBuilder().setCustomId("ticket:claim:" + ticket.id).setLabel("Ticket übernehmen").setStyle(ButtonStyle.Secondary),
       new ButtonBuilder().setCustomId("ticket:close:" + ticket.id).setLabel("Ticket schließen").setStyle(ButtonStyle.Danger)
     );
+    if (panel.creatorsCanAddUsers) controls.addComponents(new ButtonBuilder().setCustomId("ticket:add:" + ticket.id).setLabel("Person hinzufügen").setStyle(ButtonStyle.Secondary));
     const teamPing = panel.pingTeam && category.pingTeamOverride !== "no"
       ? (category.teamRoleIds || []).map(id => "<@&" + id + ">").join(" ")
       : "";
@@ -540,6 +541,32 @@ client.on(Events.InteractionCreate, async interaction => {
     ticketStore.updateTicket(ticket.id, { claimedBy: interaction.user.id });
     await interaction.channel.send({ content: "<@" + interaction.user.id + "> hat dieses Ticket übernommen.", allowedMentions: { users: [interaction.user.id] } });
     return interaction.editReply("Du hast das Ticket übernommen.");
+  }
+
+  if (interaction.isButton() && interaction.customId.startsWith("ticket:add:")) {
+    const ticketId = interaction.customId.slice("ticket:add:".length);
+    const ticket = ticketStore.getTicketByChannel(interaction.channelId);
+    const panel = ticket ? ticketStore.getPanel(interaction.guildId, ticket.panelId) : null;
+    if (!ticket || ticket.id !== ticketId || !panel?.creatorsCanAddUsers || ticket.creatorId !== interaction.user.id) {
+      return interaction.reply({ content: "Nur der Ticket-Ersteller darf hier Personen hinzufügen.", ephemeral: true });
+    }
+    const picker = new UserSelectMenuBuilder().setCustomId("ticket:add-select:" + ticket.id).setPlaceholder("Personen auswählen").setMinValues(1).setMaxValues(5);
+    return interaction.reply({ content: "Wähle die Personen aus, die Zugriff auf dieses Ticket erhalten sollen.", components: [new ActionRowBuilder().addComponents(picker)], ephemeral: true });
+  }
+
+  if (interaction.isUserSelectMenu() && interaction.customId.startsWith("ticket:add-select:")) {
+    const ticketId = interaction.customId.slice("ticket:add-select:".length);
+    const ticket = ticketStore.getTicketByChannel(interaction.channelId);
+    const panel = ticket ? ticketStore.getPanel(interaction.guildId, ticket.panelId) : null;
+    if (!ticket || ticket.id !== ticketId || !panel?.creatorsCanAddUsers || ticket.creatorId !== interaction.user.id) {
+      return interaction.update({ content: "Du darfst diesem Ticket keine Personen hinzufügen.", components: [] });
+    }
+    for (const userId of interaction.values) {
+      await interaction.channel.permissionOverwrites.edit(userId, { ViewChannel: true, SendMessages: true, ReadMessageHistory: true });
+    }
+    const addedUserIds = [...new Set([...(ticket.addedUserIds || []), ...interaction.values])];
+    ticketStore.updateTicket(ticket.id, { addedUserIds });
+    return interaction.update({ content: "Die ausgewählten Personen haben jetzt Zugriff auf das Ticket.", components: [] });
   }
 
   if (interaction.isButton() && interaction.customId.startsWith("ticket:close:")) {
