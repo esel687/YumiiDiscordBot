@@ -1,7 +1,8 @@
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const baseUrl = process.env.MOONBOT_API_URL?.replace(/\\/$/, "");
+  const configuredUrl = process.env.MOONBOT_API_URL;
+  const baseUrl = configuredUrl?.endsWith("/") ? configuredUrl.slice(0, -1) : configuredUrl;
   if (!baseUrl) {
     return Response.json({ status: "unknown", message: "Statusverbindung ist noch nicht eingerichtet." }, { status: 200 });
   }
