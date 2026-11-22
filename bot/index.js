@@ -18,13 +18,16 @@ if (!clientId) {
   process.exit(1);
 }
 
-const modules = ["welcome", "tickets", "autorole", "selfroles", "automod", "voiceMaster"];
+const modules = ["welcome", "tickets", "autorole", "selfroles", "automod", "antiSpam", "antiLinks", "giveaways", "voiceMaster"];
 const moduleLabels = {
   welcome: "Willkommensnachrichten",
   tickets: "Ticketsystem",
   autorole: "Auto Role",
   selfroles: "Self Roles",
   automod: "KI-Auto-Mod",
+  antiSpam: "Anti Spam",
+  antiLinks: "Anti Links",
+  giveaways: "Giveaways",
   voiceMaster: "Temp Voice"
 };
 
@@ -41,6 +44,9 @@ const commands = [
       .addBooleanOption(option => option.setName("enabled").setDescription("Aktivieren?").setRequired(true)))
     .addSubcommand(sub => sub.setName("ticket-panel").setDescription("Sendet ein Ticket-Erstellungs-Panel in diesen Kanal"))
     .addSubcommand(sub => sub.setName("selfroles-panel").setDescription("Sendet ein Self-Roles-Auswahlmenü in diesen Kanal"))
+    .addSubcommand(sub => sub.setName("giveaway").setDescription("Startet ein Giveaway")
+      .addStringOption(option => option.setName("preis").setDescription("Was wird verlost?").setRequired(true).setMaxLength(150))
+      .addIntegerOption(option => option.setName("minuten").setDescription("Laufzeit in Minuten").setRequired(true).setMinValue(1).setMaxValue(10080)))
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
     .toJSON()
 ];
