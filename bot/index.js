@@ -42,7 +42,7 @@ const moduleLabels = {
   messageCleanup: "Nachrichten-Auto-Löschung",
   memberCounter: "Mitgliederzähler",
   autoPin: "Auto-Pin",
-  voiceMaster: "Voice Master",
+  voiceMaster: "Temp Voice",
   bumpReminder: "Bump-Erinnerung",
   logs: "Server-Logs"
 };
