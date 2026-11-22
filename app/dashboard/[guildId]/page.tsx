@@ -2,7 +2,7 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import AccountMenu from "../../../components/AccountMenu";
-import { Bot, ArrowLeft, Ticket, Bell, UserPlus, Users, ShieldCheck, Save, Hash, ChevronDown, ChevronRight, RefreshCw, MessageSquare, LogIn, LogOut, Star, Link2, ClipboardList, Ban, Filter, Timer, Gift, Vote, CaseSensitive, VolumeX, AtSign, GitBranch, Trash2, UsersRound, Pin, Headphones, BellRing } from "lucide-react";
+import { Bot, ArrowLeft, Ticket, Bell, UserPlus, Users, ShieldCheck, Save, Send, Hash, ChevronDown, ChevronRight, RefreshCw, MessageSquare, LogIn, LogOut, Star, Link2, ClipboardList, Ban, Filter, Timer, Gift, Vote, CaseSensitive, VolumeX, AtSign, GitBranch, Trash2, UsersRound, Pin, Headphones, BellRing } from "lucide-react";
 
 type Guild={id:string;name:string;icon:string|null;owner:boolean};
 type User={id:string;username:string;global_name:string|null;avatar:string|null;guilds:Guild[]};
@@ -30,7 +30,7 @@ export default function ServerManagement(){
  const params=useParams<{guildId:string}>(); const guildId=params.guildId;
  const [user,setUser]=useState<User|null>(null); const [settings,setSettings]=useState<any>(null);
  const [resources,setResources]=useState<Resources|null>(null); const [error,setError]=useState(""); const [resourceError,setResourceError]=useState(""); const [aiConfigured,setAiConfigured]=useState<boolean|null>(null);
- const [saving,setSaving]=useState(false); const [loading,setLoading]=useState(true); const [refreshing,setRefreshing]=useState(false); const [activeModule,setActiveModule]=useState<string>("tickets");
+ const [saving,setSaving]=useState(false); const [publishingPanel,setPublishingPanel]=useState(false); const [panelNotice,setPanelNotice]=useState(""); const [loading,setLoading]=useState(true); const [refreshing,setRefreshing]=useState(false); const [activeModule,setActiveModule]=useState<string>("tickets");
  const guild=user?.guilds?.find(g=>g.id===guildId);
  const textChannels=useMemo(()=>resources?.channels.filter(c=>[0,5,15,16].includes(c.type))??[],[resources]);
  const categories=useMemo(()=>resources?.channels.filter(c=>c.type===4)??[],[resources]);
@@ -42,6 +42,13 @@ export default function ServerManagement(){
  useEffect(()=>{if(user&&guildId)loadResources();},[user,guildId]);
  const update=(key:string,patch:any)=>setSettings((s:any)=>({...s,[key]:{...s[key],...patch}}));
  const save=async()=>{if(!settings)return;setSaving(true);setError("");try{const r=await fetch("/api/bot/settings?guildId="+encodeURIComponent(guildId),{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({settings})});const d=await r.json();if(!r.ok)throw new Error(d.error||"Speichern fehlgeschlagen.");setSettings(d.settings);setAiConfigured(d.aiConfigured===true);}catch(e:any){setError(e.message||"Speichern fehlgeschlagen.");}finally{setSaving(false);}};
+ const publishTicketPanel=async()=>{if(!settings)return;setPublishingPanel(true);setPanelNotice("");setError("");try{
+  const saved=await fetch("/api/bot/settings?guildId="+encodeURIComponent(guildId),{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({settings})});
+  const savedData=await saved.json();if(!saved.ok)throw new Error(savedData.error||"Einstellungen konnten nicht gespeichert werden.");setSettings(savedData.settings);
+  const response=await fetch("/api/bot/ticket-panel?guildId="+encodeURIComponent(guildId),{method:"POST"});
+  const data=await response.json();if(!response.ok)throw new Error(data.error||"Ticket-Panel konnte nicht veröffentlicht werden.");
+  setPanelNotice("Ticket-Panel wurde erfolgreich in Discord veröffentlicht.");
+ }catch(e:any){setPanelNotice(e.message||"Ticket-Panel konnte nicht veröffentlicht werden.");}finally{setPublishingPanel(false);}};
  if(loading)return <main className="dashboardShell"><p className="moduleNotice">Server wird geladen …</p></main>;
  if(!user||!guild)return <main className="dashboardShell"><a className="backLink" href="/dashboard"><ArrowLeft size={15}/> Zur Serverübersicht</a><section className="emptyServers">Dieser Server ist nicht in deiner Sitzung enthalten oder du hast keine Verwaltungsrechte. <a href="/api/auth/discord">Erneut mit Discord anmelden</a>.</section></main>;
  return <main className="dashboardShell">
@@ -70,6 +77,7 @@ export default function ServerManagement(){
        <label className="discordPickerLabel">Button-Beschriftung<input className="moduleTextInput" value={value.buttonLabel??"Ticket erstellen"} maxLength={80} onChange={e=>update(m.key,{buttonLabel:e.target.value})}/></label>
        <label className="discordPickerLabel">Embed-Farbe<input type="color" className="moduleTextInput" value={value.color??"#22d3ee"} onChange={e=>update(m.key,{color:e.target.value})}/></label>
        <div className="discordPreview"><div className="discordPreviewTop"><span>VORSCHAU · DISCORD</span><span>LIVE</span></div><div className="discordPreviewMessage"><div className="discordPreviewAvatar">M</div><div><b>MoonBot</b><small> BOT</small><div className="discordEmbed" style={{borderLeftColor:value.color||"#22d3ee"}}><strong>{value.panelTitle||"Support benötigt?"}</strong><p>{value.panelDescription||"Klicke auf die Schaltfläche, um ein privates Support-Ticket zu erstellen."}</p><span className="discordFakeButton">🎫 {value.buttonLabel||"Ticket erstellen"}</span></div></div></div></div>
+       <div className="moduleActionRow"><button className="heroCta" onClick={publishTicketPanel} disabled={publishingPanel||saving||!value.enabled||!value.panelChannelId}><Send size={16}/>{publishingPanel?"Wird veröffentlicht …":"Ticket-Panel in Discord veröffentlichen"}</button>{panelNotice&&<p className="moduleNotice" role="status">{panelNotice}</p>}</div>
       </div>}
       {m.key==="welcome"&&<div className="moduleFields">
        <ChannelPicker label="Willkommens-Kanal" value={value.channelId} channels={textChannels} emptyLabel="Kanal auswählen …" onChange={id=>update(m.key,{channelId:id})}/>
