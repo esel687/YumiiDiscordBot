@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 
 type Guild = { id: string; name: string; icon: string | null; owner: boolean };
-type User = { username: string; guilds: Guild[] };
+type User = { id: string; username: string; global_name: string | null; avatar: string | null; guilds: Guild[] };
 
 function ServerCard({ guild, installed }: { guild: Guild; installed: boolean }) {
   return (
@@ -109,7 +109,7 @@ export default function Dashboard() {
           <span>Moon<span className="accent">Bot</span></span>
         </a>
         <div className="dashboardTopRight">
-          <span>{user.username}</span>
+          <span className="welcomeUser"><img className="accountAvatar" src={user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.${user.avatar.startsWith("a_") ? "gif" : "png"}?size=64` : `https://cdn.discordapp.com/embed/avatars/0.png`} alt=""/><span>{user.global_name || user.username}</span></span>
           <a className="heroCta" href="/api/bot/invite"><Plus size={14} /> Bot hinzufügen</a>
           <form action="/api/auth/logout" method="post">
             <button className="logoutButton">Abmelden</button>
