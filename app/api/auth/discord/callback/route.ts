@@ -59,6 +59,7 @@ export async function GET(request: NextRequest) {
     const user = await userResponse.json() as {
       id: string;
       username: string;
+      global_name: string | null;
       avatar: string | null;
     };
     const allGuilds = guildResponse.ok
@@ -77,6 +78,7 @@ export async function GET(request: NextRequest) {
     const sessionUser = {
       id: user.id,
       username: user.username,
+      global_name: user.global_name,
       avatar: user.avatar,
       guilds: [...guilds],
     };
