@@ -415,6 +415,16 @@ client.on(Events.MessageReactionAdd, async (reaction, user) => {
   if (files[0]) embed.setImage(files[0]);
   await target.send({ content: `${settings.starboard.emoji || "⭐"} **${reaction.count}**`, embeds: [embed], allowedMentions: { parse: [] } }).catch(() => {});
 });
+async function isTicketTeamMember(interaction, category) {
+  if (interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) return true;
+  const member = await interaction.guild.members.fetch(interaction.user.id).catch(() => null);
+  if (!member) return false;
+  return Boolean(
+    category?.teamRoleIds?.some(id => member.roles.cache.has(id)) ||
+    category?.teamUserIds?.includes(interaction.user.id)
+  );
+}
+
 async function createConfiguredTicket(interaction, panelId, categoryId) {
   await interaction.deferReply({ ephemeral: true });
   try {
@@ -519,12 +529,11 @@ client.on(Events.InteractionCreate, async interaction => {
   if (interaction.isButton() && interaction.customId.startsWith("ticket:claim:")) {
     await interaction.deferReply({ ephemeral: true });
     const ticketId = interaction.customId.slice("ticket:claim:".length);
+    if (!ticketStore.getGuildData(interaction.guildId).settings.enabled) return interaction.editReply("Das Ticket-System ist aktuell deaktiviert.");
     const ticket = ticketStore.getTicketByChannel(interaction.channelId);
     const panel = ticket ? ticketStore.getPanel(interaction.guildId, ticket.panelId) : null;
     const category = panel?.categories.find(item => item.id === ticket.categoryId);
-    const isTeam = interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild) ||
-      category?.teamRoleIds?.some(id => interaction.member.roles?.cache?.has(id)) ||
-      category?.teamUserIds?.includes(interaction.user.id);
+    const isTeam = await isTicketTeamMember(interaction, category);
     if (!ticket || ticket.id !== ticketId) return interaction.editReply("Dieses Ticket wurde nicht gefunden.");
     if (!isTeam) return interaction.editReply("Nur das zuständige Team darf Tickets übernehmen.");
     if (ticket.claimedBy) return interaction.editReply("Dieses Ticket wurde bereits übernommen.");
@@ -535,13 +544,12 @@ client.on(Events.InteractionCreate, async interaction => {
 
   if (interaction.isButton() && interaction.customId.startsWith("ticket:close:")) {
     const ticketId = interaction.customId.slice("ticket:close:".length);
+    if (!ticketStore.getGuildData(interaction.guildId).settings.enabled) return interaction.reply({ content: "Das Ticket-System ist aktuell deaktiviert.", ephemeral: true });
     const ticket = ticketStore.getTicketByChannel(interaction.channelId);
     const panel = ticket ? ticketStore.getPanel(interaction.guildId, ticket.panelId) : null;
     const category = panel?.categories.find(item => item.id === ticket.categoryId);
     if (!ticket || ticket.id !== ticketId) return interaction.reply({ content: "Dieses Ticket wurde nicht gefunden.", ephemeral: true });
-    const isTeam = interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild) ||
-      category?.teamRoleIds?.some(id => interaction.member.roles?.cache?.has(id)) ||
-      category?.teamUserIds?.includes(interaction.user.id);
+    const isTeam = await isTicketTeamMember(interaction, category);
     if (!isTeam && panel.onlyTeamCanClose) return interaction.reply({ content: "Nur das Team darf dieses Ticket schließen.", ephemeral: true });
     if (!isTeam && panel.closeRequestNeedsClaim && !ticket.claimedBy) return interaction.reply({ content: "Das Ticket muss zuerst von einem Teammitglied übernommen werden.", ephemeral: true });
     await interaction.deferReply({ ephemeral: true });
