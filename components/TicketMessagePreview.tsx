@@ -63,7 +63,7 @@ export default function TicketMessagePreview({ panel, serverName, guildId, onTes
   const categories=panel.categories || [];
   const category=categories.find(c=>c.id===categoryId) || categories[0];
   const message=kind==="panel" ? panel.panelMessage : (kind==="category" && category?.customWelcome ? category.customWelcome : panel.welcomeMessage);
-  const placeholders={ user:"@Beispielnutzer", username:"Beispielnutzer", category:category?.name || "Allgemein", ticket:"0001", server:serverName || "Dein Discord-Server", panel:panel.name, answers: (category?.formQuestions || []).map(q=>q.label+": Beispielantwort").join("\n") || "Beispielantworten aus dem Formular" };
+  const placeholders={ user:"@Beispielnutzer", username:"Beispielnutzer", category:category?.name || "Allgemein", ticket:"0001", server:serverName || "Dein Discord-Server", panel:panel.name, answers: withAnswers ? ((category?.formQuestions || []).map(q=>q.label+": Beispielantwort").join("\n") || "Beispielantworten aus dem Formular") : "Beispielantworten aus dem Formular" };
   const title=useMemo(()=>renderTicketPlaceholders(message?.title || "",placeholders),[message?.title,categoryId,category?.name,panel.name,serverName,withAnswers]);
   const description=useMemo(()=>renderTicketPlaceholders(message?.description || "",placeholders),[message?.description,categoryId,category?.name,panel.name,serverName,withAnswers]);
   const customCategories=categories.filter(c=>c.customWelcome);
@@ -78,7 +78,7 @@ export default function TicketMessagePreview({ panel, serverName, guildId, onTes
         <div className="ticket-preview-embed"><div className="ticket-preview-embed-content">
           {title && <strong className="ticket-preview-title"><Markdown value={title}/></strong>}
           {description && <Markdown value={description}/>}
-          {!title && !description && !message?.thumbnailUrl && !message?.imageUrl && <span className="ticket-preview-empty">Noch kein Inhalt</span>}
+          {!title && !description && <span className="ticket-preview-empty">Noch kein Inhalt</span>}
           {kind!=="panel" && withAnswers && category?.formQuestions?.length ? <div className="ticket-preview-form-examples">{category.formQuestions.map((q,i)=><p key={i}><strong>{q.label || "Frage"}</strong><br/>Beispielantwort</p>)}</div> : null}
           <PreviewImage src={message?.imageUrl} label="Bild"/>
         </div>{message?.thumbnailUrl && <PreviewImage src={message.thumbnailUrl} label="Thumbnail"/>}</div>
