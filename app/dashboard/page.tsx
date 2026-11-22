@@ -110,7 +110,6 @@ export default function Dashboard() {
         </a>
         <div className="dashboardTopRight">
           <span className="welcomeUser"><img className="accountAvatar" src={user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.${user.avatar.startsWith("a_") ? "gif" : "png"}?size=64` : `https://cdn.discordapp.com/embed/avatars/0.png`} alt=""/><span>{user.global_name || user.username}</span></span>
-          <a className="heroCta" href="/api/bot/invite"><Plus size={14} /> Bot hinzufügen</a>
           <form action="/api/auth/logout" method="post">
             <button className="logoutButton">Abmelden</button>
           </form>
