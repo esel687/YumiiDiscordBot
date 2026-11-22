@@ -11,6 +11,15 @@ const FALLBACK_LANGUAGES: [string, string][] = [
   ["nb","Norsk Bokmål"],["ro","Română"],["sk","Slovenčina"],["sl","Slovenščina"],
   ["sv","Svenska"],["tr","Türkçe"],["uk","Українська"],["vi","Tiếng Việt"]
 ];
+const LANGUAGE_FLAGS: Record<string,string> = {
+ de:"🇩🇪", en:"🇬🇧", "en-US":"🇺🇸", "en-GB":"🇬🇧", fr:"🇫🇷", es:"🇪🇸", it:"🇮🇹",
+ nl:"🇳🇱", pl:"🇵🇱", "pt-BR":"🇧🇷", "pt-PT":"🇵🇹", ru:"🇷🇺", ja:"🇯🇵",
+ zh:"🇨🇳", "zh-CN":"🇨🇳", "zh-TW":"🇹🇼", ko:"🇰🇷", ar:"🇸🇦", bg:"🇧🇬",
+ cs:"🇨🇿", da:"🇩🇰", el:"🇬🇷", et:"🇪🇪", fi:"🇫🇮", hu:"🇭🇺", id:"🇮🇩",
+ lt:"🇱🇹", lv:"🇱🇻", nb:"🇳🇴", ro:"🇷🇴", sk:"🇸🇰", sl:"🇸🇮", sv:"🇸🇪",
+ tr:"🇹🇷", uk:"🇺🇦", vi:"🇻🇳"
+};
+const getLanguageFlag = (code: string) => LANGUAGE_FLAGS[code] || LANGUAGE_FLAGS[code.split("-")[0]] || "🌐";
 const originalText = new WeakMap<Text,string>();
 const trackedNodes = new Set<Text>();
 const translationCache = new Map<string,string>();
@@ -88,8 +97,8 @@ export default function LanguageTools() {
  if(!ready)return null;
  const currentName=languages.find(([code])=>code===language)?.[1]??language;
  return <div className="moonLanguage" data-no-translate>
-  <button className="moonLanguageButton" onClick={()=>setOpen(v=>!v)} aria-expanded={open}>🌐 <span>{currentName}</span> <span>⌄</span></button>
-  {open&&<div className="moonLanguageMenu"><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Sprache suchen …" aria-label="Sprache suchen"/><div className="moonLanguageList">{languages.filter(([,name])=>name.toLowerCase().includes(query.toLowerCase())).map(([code,name])=><button key={code} className="moonLanguageOption" onClick={()=>{setLanguage(code);setOpen(false);setQuery("");}}>{name}{language===code?" ✓":""}</button>)}</div></div>}
+  <button className="moonLanguageButton" onClick={()=>setOpen(v=>!v)} aria-expanded={open}>🌐 <span>{getLanguageFlag(language)} {currentName}</span> <span>⌄</span></button>
+  {open&&<div className="moonLanguageMenu"><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Sprache suchen …" aria-label="Sprache suchen"/><div className="moonLanguageList">{languages.filter(([,name])=>name.toLowerCase().includes(query.toLowerCase())).map(([code,name])=><button key={code} className="moonLanguageOption" onClick={()=>{setLanguage(code);setOpen(false);setQuery("");}}>{getLanguageFlag(code)} {name}{language===code?" ✓":""}</button>)}</div></div>}
   {error&&<span className="moonLanguageStatus">{error}. DEEPL_AUTH_KEY in Vercel erforderlich.</span>}
  </div>;
 }
