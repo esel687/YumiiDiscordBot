@@ -15,26 +15,7 @@ const modules=[
   {key:"autorole",name:"Auto Role",icon:UserPlus,desc:"Weise neuen Mitgliedern automatisch eine Rolle zu."},
   {key:"selfroles",name:"Self Roles",icon:Users,desc:"Mitglieder können ihre Rollen selbst auswählen."},
   {key:"automod",name:"KI-Auto-Mod",icon:ShieldCheck,desc:"Unterstützt die Moderation beim Erkennen problematischer Nachrichten."},
-  {key:"leave",name:"Abschiedsnachrichten",icon:LogOut,desc:"Verabschiede Mitglieder automatisch."},
-  {key:"suggestions",name:"Vorschläge",icon:MessageSquare,desc:"Sammle Community-Ideen mit Abstimmungen."},
-  {key:"starboard",name:"Starboard",icon:Star,desc:"Zeige besonders beliebte Nachrichten."},
-  {key:"antiInvite",name:"Anti-Discord-Links",icon:Link2,desc:"Erkennt und moderiert fremde Discord-Einladungen."},
-  {key:"antiSpam",name:"Anti-Spam",icon:Ban,desc:"Bremst Nachrichten-Spam pro Mitglied."},
-  {key:"antiCaps",name:"Anti-Caps",icon:CaseSensitive,desc:"Erkennt übermäßig viele Großbuchstaben."},
-  {key:"antiLinks",name:"Anti-Links",icon:Filter,desc:"Moderiert externe Links in ausgewählten Kanälen."},
-  {key:"keywordFilter",name:"Wortfilter",icon:VolumeX,desc:"Entfernt Nachrichten mit festgelegten Begriffen."},
-  {key:"slowmode",name:"Auto-Slowmode",icon:Timer,desc:"Setzt automatisch den Slowmode in einem Kanal."},
-  {key:"counting",name:"Zählspiel",icon:Hash,desc:"Ein gemeinsamer Zahlen-Channel mit fortlaufender Reihenfolge."},
-  {key:"polls",name:"Umfragen",icon:Vote,desc:"Erstelle Abstimmungen direkt per Slash-Befehl."},
-  {key:"giveaways",name:"Giveaways",icon:Gift,desc:"Starte zeitgesteuerte Verlosungen per Slash-Befehl."},
-  {key:"antiMassMention",name:"Anti-Mass-Mention",icon:AtSign,desc:"Verhindert Nachrichten mit zu vielen Erwähnungen."},
-  {key:"autoThread",name:"Auto-Thread",icon:GitBranch,desc:"Erstellt automatisch Diskussions-Threads."},
-  {key:"messageCleanup",name:"Nachrichten-Auto-Löschung",icon:Trash2,desc:"Entfernt Nachrichten nach einer festgelegten Zeit."},
-  {key:"memberCounter",name:"Mitgliederzähler",icon:UsersRound,desc:"Hält einen Kanalnamen mit der Mitgliederzahl aktuell."},
-  {key:"autoPin",name:"Auto-Pin",icon:Pin,desc:"Pinnt Nachrichten ab einer Reaktionszahl."},
-  {key:"voiceMaster",name:"Temp Voice",icon:Headphones,desc:"Erstellt automatisch persönliche Sprachkanäle, wenn Mitglieder den festgelegten Startkanal betreten."},
-  {key:"bumpReminder",name:"Bump-Erinnerung",icon:BellRing,desc:"Erinnert nach einem erfolgreichen Disboard-Bump."},
-  {key:"logs",name:"Server-Logs",icon:ClipboardList,desc:"Protokolliert wichtige Serverereignisse."}
+  {key:"voiceMaster",name:"Temp Voice",icon:Headphones,desc:"Erstellt automatisch persönliche Sprachkanäle, wenn Mitglieder den festgelegten Startkanal betreten."}
 ];
 function ChannelPicker({label,value,channels,emptyLabel,onChange}:{label:string;value:string;channels:DiscordChannel[];emptyLabel:string;onChange:(id:string)=>void}){
   return <label className="discordPickerLabel">{label}<span className="discordPicker"><Hash size={15}/><select value={value||""} onChange={e=>onChange(e.target.value)}><option value="">{emptyLabel}</option>{channels.map(channel=><option key={channel.id} value={channel.id}>#{channel.name}</option>)}</select><ChevronDown size={15}/></span></label>;
