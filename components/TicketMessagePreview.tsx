@@ -13,17 +13,17 @@ type Panel = { id: string; name: string; panelMessage: Message; welcomeMessage: 
 type Props = { panel: Panel; serverName?: string; guildId: string; onTest: (kind: string, categoryId: string, withAnswers: boolean) => Promise<void>; testing?: boolean };
 
 function InlineMarkdown({ text }: { text: string }) {
-  const parts = text.split(/(\\*\\*[^*]+\\*\\*|__[^_]+__|~~[^~]+~~|\\*[^*]+\\*|`[^`]+`|<@[!&]?\\d+>|<#\\d+>|https?:\\/\\/[^\\s]+)/g);
+  const parts = text.split(/(\*\*[^*]+\*\*|__[^_]+__|~~[^~]+~~|\*[^*]+\*|`[^`]+`|<@[!&]?\d+>|<#\d+>|https?:\/\/[^\s]+)/g);
   return <>{parts.map((part, i) => {
-    if (/^\\*\\*.+\\*\\*$/.test(part)) return <strong key={i}><InlineMarkdown text={part.slice(2,-2)}/></strong>;
+    if (/^\*\*.+\*\*$/.test(part)) return <strong key={i}><InlineMarkdown text={part.slice(2,-2)}/></strong>;
     if (/^__.+__$/.test(part)) return <u key={i}>{part.slice(2,-2)}</u>;
     if (/^~~.+~~$/.test(part)) return <s key={i}>{part.slice(2,-2)}</s>;
-    if (/^\\*.+\\*$/.test(part)) return <em key={i}>{part.slice(1,-1)}</em>;
+    if (/^\*.+\*$/.test(part)) return <em key={i}>{part.slice(1,-1)}</em>;
     if (/^`.+`$/.test(part)) return <code className="ticket-preview-inline-code" key={i}>{part.slice(1,-1)}</code>;
-    if (/^<@!?\\d+>$/.test(part)) return <span className="ticket-preview-chip" key={i}>@Nutzer</span>;
-    if (/^<@&\\d+>$/.test(part)) return <span className="ticket-preview-chip" key={i}>@Rolle</span>;
-    if (/^<#\\d+>$/.test(part)) return <span className="ticket-preview-chip" key={i}>#kanal</span>;
-    if (/^https?:\\/\\//.test(part)) return <a key={i} href={part} target="_blank" rel="noreferrer">{part}</a>;
+    if (/^<@!?\d+>$/.test(part)) return <span className="ticket-preview-chip" key={i}>@Nutzer</span>;
+    if (/^<@&\d+>$/.test(part)) return <span className="ticket-preview-chip" key={i}>@Rolle</span>;
+    if (/^<#\d+>$/.test(part)) return <span className="ticket-preview-chip" key={i}>#kanal</span>;
+    if (/^https?:\/\//.test(part)) return <a key={i} href={part} target="_blank" rel="noreferrer">{part}</a>;
     return <span key={i}>{part}</span>;
   })}</>;
 }
@@ -39,10 +39,10 @@ function Markdown({ value }: { value: string }) {
     if (line.trim().startsWith("```")) { flush(); if (inCode) { blocks.push(<pre key={"c"+index}><code>{code.join("\n")}</code></pre>); code=[]; inCode=false; } else inCode=true; return; }
     if (inCode) { code.push(line); return; }
     if (!line.trim()) { flush(); return; }
-    const heading = /^(#{1,3})\\s+(.+)$/.exec(line);
+    const heading = /^(#{1,3})\s+(.+)$/.exec(line);
     if (heading) { flush(); const Tag = heading[1].length===1 ? "h3" : heading[1].length===2 ? "h4" : "h5"; blocks.push(<Tag key={"h"+index}><InlineMarkdown text={heading[2]}/></Tag>); return; }
-    if (/^>\\s?/.test(line)) { flush(); blocks.push(<blockquote key={"q"+index}><InlineMarkdown text={line.replace(/^>\\s?/,"")}/></blockquote>); return; }
-    if (/^\\s*[-*]\\s+/.test(line)) { flush(); blocks.push(<div className="ticket-preview-list" key={"l"+index}>• <InlineMarkdown text={line.replace(/^\\s*[-*]\\s+/,"")}/></div>); return; }
+    if (/^>\s?/.test(line)) { flush(); blocks.push(<blockquote key={"q"+index}><InlineMarkdown text={line.replace(/^>\s?/,"")}/></blockquote>); return; }
+    if (/^\s*[-*]\s+/.test(line)) { flush(); blocks.push(<div className="ticket-preview-list" key={"l"+index}>• <InlineMarkdown text={line.replace(/^\s*[-*]\s+/,"")}/></div>); return; }
     paragraph.push(line);
   });
   flush();
