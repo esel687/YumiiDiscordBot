@@ -54,6 +54,8 @@ function startControlServer(client) {
       const guildId = ticketMatch[1];
       const parts = (ticketMatch[2] || "").split("/").filter(Boolean);
       try {
+        const memberGuild = await client.guilds.fetch(guildId).catch(() => null);
+        if (!memberGuild) return send(res, 404, { ok: false, error: "MoonBot ist nicht auf diesem Discord-Server." });
         if (parts.length === 0 && req.method === "GET") return send(res, 200, { ok: true, data: ticketStore.getGuildData(guildId) });
         if (parts.length === 0 && req.method === "PATCH") {
           const body = await readBody(req);
