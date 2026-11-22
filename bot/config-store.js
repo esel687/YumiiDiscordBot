@@ -19,7 +19,10 @@ function defaults() {
     autorole: { enabled: false, roleId: "" },
     selfroles: { enabled: false, channelId: "", roles: [], panelTitle: "Deine Rollen", panelDescription: "Wähle die Rollen aus, die du haben möchtest. Entferne die Auswahl, um eine Rolle wieder abzugeben.", placeholder: "Wähle deine Rollen" },
     automod: { enabled: false, logChannelId: "", threshold: 0.82, action: "delete_warn" },
-    voiceMaster: { enabled: false, joinChannelId: "", categoryId: "", nameTemplate: "Raum von {username}", userLimit: 0 }
+    voiceMaster: { enabled: false, joinChannelId: "", categoryId: "", nameTemplate: "Raum von {username}", userLimit: 0 },
+    antiSpam: { enabled: false, maxMessages: 5, intervalSeconds: 6, action: "delete_warn" },
+    antiLinks: { enabled: false, allowedChannelId: "", action: "delete_warn" },
+    giveaways: { enabled: false, channelId: "" }
   };
 }
 function normalizeSettings(input) {
@@ -67,6 +70,21 @@ function normalizeSettings(input) {
       categoryId: stringValue(value.voiceMaster?.categoryId, 24),
       nameTemplate: stringValue(value.voiceMaster?.nameTemplate, 80) || base.voiceMaster.nameTemplate,
       userLimit: Math.min(99, Math.max(0, Number(value.voiceMaster?.userLimit) || 0))
+    },
+    antiSpam: {
+      enabled: value.antiSpam?.enabled === true,
+      maxMessages: Math.min(15, Math.max(2, Number(value.antiSpam?.maxMessages) || base.antiSpam.maxMessages)),
+      intervalSeconds: Math.min(30, Math.max(2, Number(value.antiSpam?.intervalSeconds) || base.antiSpam.intervalSeconds)),
+      action: value.antiSpam?.action === "delete" ? "delete" : "delete_warn"
+    },
+    antiLinks: {
+      enabled: value.antiLinks?.enabled === true,
+      allowedChannelId: stringValue(value.antiLinks?.allowedChannelId, 24),
+      action: value.antiLinks?.action === "delete" ? "delete" : "delete_warn"
+    },
+    giveaways: {
+      enabled: value.giveaways?.enabled === true,
+      channelId: stringValue(value.giveaways?.channelId, 24)
     }
   };
 }
@@ -81,7 +99,7 @@ function setGuildSettings(guildId, settings) {
 }
 function setGuildModule(guildId, moduleName, enabled) {
   const current = getGuildSettings(guildId);
-  if (!["welcome", "tickets", "autorole", "selfroles", "automod", "voiceMaster"].includes(moduleName)) throw new Error("Unknown module");
+  if (!["welcome", "tickets", "autorole", "selfroles", "automod", "voiceMaster", "antiSpam", "antiLinks", "giveaways"].includes(moduleName)) throw new Error("Unknown module");
   current[moduleName].enabled = enabled;
   return setGuildSettings(guildId, current);
 }
