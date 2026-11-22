@@ -1042,3 +1042,18 @@ input,select,textarea{font-size:16px}
   .publicNav .publicMenuToggle{width:40px;height:40px;flex-basis:40px}
   .publicNav .publicActions .login{gap:5px;padding:8px 9px;font-size:10px}
 }
+
+
+/* Header alignment: hamburger left, MoonBot logo centered, account actions right */
+.publicNav{position:relative;display:flex;align-items:center;justify-content:space-between;min-height:76px;padding-left:clamp(14px,3vw,34px);padding-right:clamp(14px,3vw,34px)}
+.publicNav>.publicMenuToggle{order:0!important;flex:0 0 44px!important;margin:0!important}
+.publicNav>.brand{position:absolute!important;left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;z-index:2;order:1!important;margin:0!important;white-space:nowrap}
+.publicNav>.publicActions{order:2!important;margin-left:auto!important;position:relative;z-index:3}
+.publicNav nav.publicMenu,.publicNav nav.publicMenu.isOpen{left:clamp(14px,3vw,34px)!important;right:auto!important;top:calc(100% + 8px)!important}
+@media(max-width:640px){
+.publicNav{min-height:66px!important;height:66px!important;flex-wrap:nowrap!important;padding:8px 12px!important;gap:8px!important}
+.publicNav>.publicMenuToggle{order:0!important;margin:0!important;flex:0 0 42px!important;width:42px!important;height:42px!important}
+.publicNav>.brand{position:absolute!important;left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;order:1!important;padding:0!important}
+.publicNav>.publicActions{order:2!important;margin:0 0 0 auto!important;flex:0 1 auto!important;min-width:0}
+.publicNav nav.publicMenu,.publicNav nav.publicMenu.isOpen{left:10px!important;right:auto!important;top:calc(100% + 8px)!important;width:min(310px,calc(100vw - 20px))!important}
+}
