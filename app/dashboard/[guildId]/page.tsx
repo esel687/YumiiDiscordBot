@@ -67,7 +67,7 @@ export default function ServerManagement(){
     <div className="moduleWorkspaceMain">
      {modules.filter(m=>m.key===activeModule).map(m=>{const Icon=m.icon;const value=settings[m.key]??{};return <article className="moduleManagePanel" key={m.key}>
       <div className="modulePanelHeader"><span className="manageIcon"><Icon/></span><div><h2>{m.name}</h2><p>{m.desc}</p></div><button className={value.enabled?"moduleToggle on":"moduleToggle"} onClick={()=>update(m.key,{enabled:!value.enabled})}>{value.enabled?"Aktiv":"Aus"}</button></div>
-      <div className="moduleEditor"><div className="moduleEditorTitle"><strong>Modul-Einstellungen</strong><span>Konfiguriere das Modul für {guild.name}.</span></div>
+      <div className="moduleEditor"><div className="moduleEditorTitle"><strong>Einrichtung</strong><span>In drei einfachen Schritten: Modul einschalten, Einstellungen auswählen und unten speichern. Du kannst alles später jederzeit ändern.</span><div className="moduleSetupSteps"><span><b>1</b> Aktivieren</span><span><b>2</b> Anpassen</span><span><b>3</b> Speichern</span></div></div>
       {m.key==="tickets"&&<div className="moduleFields">
        <ChannelPicker label="Ticket-Kategorie" value={value.categoryId} channels={categories} emptyLabel="Kategorie auswählen …" onChange={id=>update(m.key,{categoryId:id})}/>
        <RolePicker label="Support-Rolle" value={value.supportRoleId} roles={roles} placeholder="Rolle auswählen …" onChange={id=>update(m.key,{supportRoleId:id})}/>
@@ -200,7 +200,7 @@ export default function ServerManagement(){
       </div>}
       </div>
      </article>;})}
-     <div className="manageSaveRow"><p>Änderungen werden nur für diesen Discord-Server gespeichert.</p><button className="heroCta" onClick={save} disabled={saving}><Save size={16}/>{saving?"Speichert …":"Änderungen speichern"}</button></div>
+     <div className="manageSaveRow"><p><b>Fast geschafft!</b><br/>Deine Änderungen gelten nur für {guild.name}. Klicke auf Speichern, damit MoonBot sie übernimmt.</p><button className="heroCta" onClick={save} disabled={saving}><Save size={16}/>{saving?"Speichert …":"Änderungen speichern"}</button></div>
     </div>
    </div>}
   </section>
