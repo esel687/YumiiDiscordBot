@@ -492,3 +492,20 @@ body{
 .moonLanguageOption{padding:9px 10px;text-align:left;border-radius:7px;color:#e8e4ff;font-size:12px}
 .moonLanguageOption:hover{background:#34206c}
 .moonLanguageStatus{position:absolute;right:0;bottom:52px;width:min(300px,85vw);padding:10px;border:1px solid #a45b42;border-radius:9px;background:#291522;color:#ffe1d6;font-size:11px}
+
+
+/* Account profile dropdown */
+.accountMenu{position:relative;display:flex;align-items:center;z-index:30}
+.accountMenuTrigger{display:flex;align-items:center;gap:10px;padding:5px 10px 5px 5px;border:1px solid rgba(148,163,184,.18);border-radius:999px;background:rgba(15,23,42,.72);color:inherit;font:inherit;cursor:pointer;transition:border-color .2s,background .2s}
+.accountMenuTrigger:hover{border-color:rgba(45,212,191,.65);background:rgba(20,35,55,.95)}
+.accountMenuTrigger .accountAvatar{width:34px;height:34px;border-radius:50%;object-fit:cover}
+.accountMenuPopover{position:absolute;right:0;top:calc(100% + 12px);width:min(290px,calc(100vw - 32px));padding:16px;border:1px solid rgba(148,163,184,.22);border-radius:16px;background:#101b2d;color:#f8fafc;box-shadow:0 18px 55px rgba(0,0,0,.42);display:grid;gap:13px}
+.accountMenuPopover strong{font-size:14px;line-height:1.45}
+.accountMenuAction,.accountMenuLogout,.accountMenuCancel{width:100%;border:0;border-radius:10px;padding:11px 13px;font:inherit;font-weight:650;cursor:pointer}
+.accountMenuAction,.accountMenuLogout{background:#0f766e;color:white}
+.accountMenuAction:hover,.accountMenuLogout:hover{background:#0d9488}
+.accountMenuChoices{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.accountMenuCancel{background:rgba(148,163,184,.15);color:#e2e8f0}
+.accountMenuCancel:hover{background:rgba(148,163,184,.25)}
+.accountMenuChoices form{margin:0}
+@media(max-width:560px){.accountMenuTrigger span{display:none}.accountMenuPopover{right:0}}
