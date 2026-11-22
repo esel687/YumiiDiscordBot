@@ -11,23 +11,37 @@ export async function GET() {
   }
 
   const token = process.env.DISCORD_TOKEN;
+  const botUserId = process.env.DISCORD_CLIENT_ID || "1573092807059439726";
   if (!token) {
     return NextResponse.json({ error: "DISCORD_TOKEN fehlt." }, { status: 503 });
   }
 
-  try {
-    const response = await fetch("https://discord.com/api/v10/users/@me/guilds", {
-      headers: { Authorization: `Bot ${token}` },
-      cache: "no-store"
-    });
+  // Discord's bot token cannot list guilds through /users/@me/guilds.
+  // Check whether the bot user is a member of each server the signed-in
+  // user can manage. Keep concurrency low to avoid Discord rate limits.
+  const manageableGuilds = session.guilds ?? [];
+  const installedIds: string[] = [];
+  const batchSize = 5;
 
-    if (!response.ok) {
-      console.error("MoonBot guild lookup failed:", response.status);
-      return NextResponse.json({ error: "Discord-Serverliste konnte nicht geladen werden." }, { status: 502 });
+  try {
+    for (let index = 0; index < manageableGuilds.length; index += batchSize) {
+      const batch = manageableGuilds.slice(index, index + batchSize);
+      const results = await Promise.all(batch.map(async guild => {
+        const response = await fetch(
+          `https://discord.com/api/v10/guilds/${guild.id}/members/${botUserId}`,
+          {
+            headers: { Authorization: `Bot ${token}` },
+            cache: "no-store"
+          }
+        );
+        if (response.status === 200) return guild.id;
+        if (response.status === 404) return null;
+        throw new Error(`Discord guild membership check failed: ${response.status}`);
+      }));
+      installedIds.push(...results.filter((id): id is string => Boolean(id)));
     }
 
-    const guilds = await response.json() as Array<{ id: string }>;
-    return NextResponse.json({ guildIds: guilds.map(guild => guild.id) }, {
+    return NextResponse.json({ guildIds: installedIds }, {
       headers: { "Cache-Control": "private, no-store, max-age=0" }
     });
   } catch (error) {
