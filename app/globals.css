@@ -914,7 +914,7 @@ input,select,textarea{font-size:16px}
 .ticket-preview-discord{padding:15px 12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;min-width:0}
 .ticket-preview-author{display:flex;align-items:center;gap:7px;margin-bottom:12px;font-size:13px}
 .ticket-preview-avatar{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--cyan);color:var(--bg);font-weight:800}
-.ticket-preview-author span{padding:2px 4px;border-radius:4px;background:var(--purple);color:#fff;font-size:9px;font-weight:800}
+.ticket-preview-author span{padding:2px 4px;border-radius:4px;background:var(--purple);color:var(--text);font-size:9px;font-weight:800}
 .ticket-preview-author time{color:var(--muted);font-size:10px}
 .ticket-preview-embed{display:flex;gap:10px;max-width:100%;padding:11px;border-left:4px solid var(--cyan);border-radius:4px;background:var(--panel)}
 .ticket-preview-embed-content{flex:1;min-width:0;overflow-wrap:anywhere;font-size:12px;line-height:1.5}
