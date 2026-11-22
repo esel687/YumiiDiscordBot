@@ -11,7 +11,6 @@ export async function GET() {
   }
 
   const token = process.env.DISCORD_TOKEN;
-  const botUserId = process.env.DISCORD_CLIENT_ID || "1573092807059439726";
   if (!token) {
     return NextResponse.json({ error: "DISCORD_TOKEN fehlt." }, { status: 503 });
   }
