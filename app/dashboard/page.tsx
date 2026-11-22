@@ -5,6 +5,7 @@ import {
   Bot, ArrowLeft, ArrowRight, LockKeyhole, ShieldCheck, Plus,
   CheckCircle2, RefreshCw
 } from "lucide-react";
+import AccountMenu from "../../components/AccountMenu";
 
 type Guild = { id: string; name: string; icon: string | null; owner: boolean };
 type User = { id: string; username: string; global_name: string | null; avatar: string | null; guilds: Guild[] };
@@ -81,6 +82,7 @@ export default function Dashboard() {
   }
 
   if (!user) {
+    if (typeof window !== "undefined") window.location.replace("/");
     return (
       <main className="dashboardShell">
         <a className="brand" href="/">
@@ -109,10 +111,7 @@ export default function Dashboard() {
           <span>Moon<span className="accent">Bot</span></span>
         </a>
         <div className="dashboardTopRight">
-          <span className="welcomeUser"><img className="accountAvatar" src={user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.${user.avatar.startsWith("a_") ? "gif" : "png"}?size=64` : `https://cdn.discordapp.com/embed/avatars/0.png`} alt=""/><span>{user.global_name || user.username}</span></span>
-          <form action="/api/auth/logout" method="post">
-            <button className="logoutButton">Abmelden</button>
-          </form>
+          <AccountMenu userId={user.id} username={user.username} displayName={user.global_name} avatar={user.avatar} />
         </div>
       </header>
 
