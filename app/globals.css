@@ -448,3 +448,36 @@ body{
 /* Discord account identity */
 .welcomeUser{display:inline-flex;align-items:center;gap:9px;color:#f4f2ff;font-weight:600}
 .accountAvatar{width:34px;height:34px;border-radius:50%;object-fit:cover;border:1px solid #28e3ed;box-shadow:0 0 12px #20dfea44}
+
+
+/* Real button styling for every "Server hinzufügen" action */
+.serverCheck.addServerLink{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  flex-shrink:0;
+  min-height:38px;
+  padding:9px 14px;
+  border:1px solid #27e1e9;
+  border-radius:9px;
+  background:linear-gradient(105deg,#4b24a0,#174c83);
+  color:#f3ffff;
+  font-size:11px;
+  font-weight:700;
+  line-height:1;
+  text-decoration:none;
+  white-space:nowrap;
+  box-shadow:0 0 14px #22dce933;
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+}
+.serverCheck.addServerLink:hover{
+  transform:translateY(-2px);
+  border-color:#72fbff;
+  box-shadow:0 0 20px #22dce977,0 0 34px #7650df44;
+}
+.serverCheck.addServerLink:active{transform:translateY(0) scale(.98)}
+.serverCheck.addServerLink:focus-visible{outline:2px solid #8afaff;outline-offset:3px}
+@media(max-width:460px){
+  .serverCheck.addServerLink{min-height:36px;padding:8px 10px;font-size:10px}
+}
