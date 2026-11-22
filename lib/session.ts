@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 
 export const SESSION_COOKIE = "moonbot_session";
 type Guild = { id: string; name: string; icon: string | null; permissions?: string; owner: boolean };
-type SessionUser = { id: string; username: string; avatar: string | null; guilds: Guild[] };
+type SessionUser = { id: string; username: string; global_name: string | null; avatar: string | null; guilds: Guild[] };
 
 function key() {
   const secret = process.env.SESSION_SECRET;
