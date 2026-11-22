@@ -62,7 +62,7 @@ export default function ServerManagement(){
    {!settings&&!error&&<div className="moduleNotice">Lade Servereinstellungen …</div>}
    {settings&&<div className="moduleWorkspace">
     <aside className="moduleSidebar"><div className="moduleSidebarTitle">BOT-MODULE</div>
-     {modules.map((m,index)=>{const Icon=m.icon;const value=settings[m.key]??{};return <Fragment key={m.key}>{m.category&&(index===0||modules[index-1].category!==m.category)&&<div className="moduleSidebarTitle">{m.category}</div>}<button className={activeModule===m.key?"moduleNavItem active":"moduleNavItem"} onClick={()=>m.key==="tickets"?window.location.assign("/dashboard/"+guildId+"/ticket"):setActiveModule(m.key)}><Icon size={17}/><span>{m.name}</span><i className={value.enabled?"moduleStatus enabled":"moduleStatus"} /></button></Fragment>;})}
+     {modules.map((m,index)=>{const Icon=m.icon;const value=settings[m.key]??{};return <Fragment key={m.key}>{m.category&&(index===0||modules[index-1].category!==m.category)&&<div className="moduleSidebarTitle">{m.category}</div>}<button className={activeModule===m.key?"moduleNavItem active":"moduleNavItem"} onClick={()=>window.location.assign("/dashboard/"+guildId+"/"+(({voiceMaster:"tempvoice",tickets:"ticket",antiSpam:"antispam",antiLinks:"antilinks"} as Record<string,string>)[m.key]??m.key))}><Icon size={17}/><span>{m.name}</span><i className={value.enabled?"moduleStatus enabled":"moduleStatus"} /></button></Fragment>;})}
     </aside>
     <div className="moduleWorkspaceMain">
      {!activeModule&&<article className="moduleManagePanel"><div className="modulePanelHeader"><div><h2>Modul auswählen</h2><p>Wähle links ein Bot-Modul aus, um die Einstellungen zu öffnen.</p></div></div></article>}
