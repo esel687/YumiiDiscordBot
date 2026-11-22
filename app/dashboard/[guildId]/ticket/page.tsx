@@ -45,7 +45,7 @@ export default function TicketDashboardPage() {
   const [settings, setSettings] = useState<any>({ enabled: true, logChannelId: "" });
   const [panels, setPanels] = useState<TicketPanel[]>([]);
   const [panel, setPanel] = useState<TicketPanel | null>(null);
-  const [channels, setChannels] = useState<Channel[]>([]);
+  const [channels, setChannels] = useState<Channel[]>([]);\n  const [serverName, setServerName] = useState("");\n  const [testingPreview, setTestingPreview] = useState(false);
   const [activeTab, setActiveTab] = useState("allgemeines");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -77,7 +77,7 @@ export default function TicketDashboardPage() {
       setSettings(data.settings);
       setPanels(data.panels || []);
       const resourceData = await resourceResponse.json();
-      if (resourceResponse.ok) setChannels((resourceData.channels || []).filter((channel: Channel) => [0, 5].includes(channel.type)));
+      if (resourceResponse.ok) { setChannels((resourceData.channels || []).filter((channel: Channel) => [0, 5].includes(channel.type))); setServerName(resourceData.guildName || ""); }
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Ticket-Daten konnten nicht geladen werden.");
     } finally {
@@ -187,7 +187,7 @@ export default function TicketDashboardPage() {
     }
   }
 
-  async function createCategory() {
+  async function testPreview(kind: string, categoryId: string, withAnswers: boolean) {\n    if (!panel) return;\n    setTestingPreview(true);\n    setError("");\n    try {\n      const response = await fetch("/api/guilds/" + guildId + "/ticket/test-preview", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind, categoryId, withAnswers, panel }), cache: "no-store" });\n      const result = await response.json();\n      if (!response.ok || result.ok === false) throw new Error(result.error || "Testnachricht konnte nicht gesendet werden.");\n      setNotice("Die Vorschau wurde dir per Discord-DM gesendet.");\n    } catch (cause) { setError(cause instanceof Error ? cause.message : "Testnachricht konnte nicht gesendet werden."); }\n    finally { setTestingPreview(false); }\n  }\n\n  async function createCategory() {
     if (!panel || !newCategoryName.trim()) return;
     setSaving(true);
     try {
@@ -287,17 +287,21 @@ export default function TicketDashboardPage() {
             </section>
           </div>}
 
-          {activeTab === "nachrichten" && <div className="ticket-tab-content">
-            <section className="ticket-card"><div className="ticket-card-head"><div><h3>Panel-Nachricht</h3><p>Die Nachricht im Panel-Kanal, über die Nutzer ein Ticket öffnen.</p></div></div>
-              <label className="ticket-field"><span>Titel</span><input maxLength={256} value={panel.panelMessage.title} onChange={event => updatePanel({ panelMessage: { ...panel.panelMessage, title: event.target.value } })}/><small>{panel.panelMessage.title.length} / 256</small></label>
-              <label className="ticket-field"><span>Beschreibung</span><textarea rows={5} maxLength={3800} value={panel.panelMessage.description} onChange={event => updatePanel({ panelMessage: { ...panel.panelMessage, description: event.target.value } })}/><small>{panel.panelMessage.description.length} / 3800</small></label>
-              <div className="ticket-fields"><label className="ticket-field"><span>Thumbnail-URL</span><input value={panel.panelMessage.thumbnailUrl} onChange={event => updatePanel({ panelMessage: { ...panel.panelMessage, thumbnailUrl: event.target.value } })}/></label><label className="ticket-field"><span>Bild-URL</span><input value={panel.panelMessage.imageUrl} onChange={event => updatePanel({ panelMessage: { ...panel.panelMessage, imageUrl: event.target.value } })}/></label></div>
-              <label className="ticket-field"><span>Button-Beschriftung</span><input maxLength={80} value={panel.panelMessage.buttonLabel} onChange={event => updatePanel({ panelMessage: { ...panel.panelMessage, buttonLabel: event.target.value } })}/></label>
-            </section>
-            <section className="ticket-card"><div className="ticket-card-head"><div><h3>Begrüßung im Ticket</h3><p>Die erste Nachricht in jedem neuen Ticket.</p></div></div>
-              <label className="ticket-field"><span>Titel</span><input maxLength={256} value={panel.welcomeMessage.title} onChange={event => updatePanel({ welcomeMessage: { ...panel.welcomeMessage, title: event.target.value } })}/></label>
-              <label className="ticket-field"><span>Beschreibung</span><textarea rows={4} maxLength={4000} value={panel.welcomeMessage.description} onChange={event => updatePanel({ welcomeMessage: { ...panel.welcomeMessage, description: event.target.value } })}/></label>
-            </section>
+          {activeTab === "nachrichten" && <div className="ticket-preview-layout">
+            <div className="ticket-tab-content">
+              <section className="ticket-card"><div className="ticket-card-head"><div><h3>Panel-Nachricht</h3><p>Die Nachricht im Panel-Kanal, über die Nutzer ein Ticket öffnen.</p></div></div>
+                <label className="ticket-field"><span>Titel</span><input maxLength={256} value={panel.panelMessage.title} onChange={event => updatePanel({ panelMessage: { ...panel.panelMessage, title: event.target.value } })}/><small>{panel.panelMessage.title.length} / 256</small></label>
+                <label className="ticket-field"><span>Beschreibung</span><textarea rows={5} maxLength={3800} value={panel.panelMessage.description} onChange={event => updatePanel({ panelMessage: { ...panel.panelMessage, description: event.target.value } })}/><small>{panel.panelMessage.description.length} / 3800</small></label>
+                <div className="ticket-fields"><label className="ticket-field"><span>Thumbnail-URL</span><input value={panel.panelMessage.thumbnailUrl} onChange={event => updatePanel({ panelMessage: { ...panel.panelMessage, thumbnailUrl: event.target.value } })}/></label><label className="ticket-field"><span>Bild-URL</span><input value={panel.panelMessage.imageUrl} onChange={event => updatePanel({ panelMessage: { ...panel.panelMessage, imageUrl: event.target.value } })}/></label></div>
+                <label className="ticket-field"><span>Button-Beschriftung</span><input maxLength={80} value={panel.panelMessage.buttonLabel} onChange={event => updatePanel({ panelMessage: { ...panel.panelMessage, buttonLabel: event.target.value } })}/></label>
+              </section>
+              <section className="ticket-card"><div className="ticket-card-head"><div><h3>Begrüßung im Ticket</h3><p>Die erste Nachricht in jedem neuen Ticket.</p></div></div>
+                <label className="ticket-field"><span>Titel</span><input maxLength={256} value={panel.welcomeMessage.title} onChange={event => updatePanel({ welcomeMessage: { ...panel.welcomeMessage, title: event.target.value } })}/><small>{panel.welcomeMessage.title.length} / 256</small></label>
+                <label className="ticket-field"><span>Beschreibung</span><textarea rows={4} maxLength={4000} value={panel.welcomeMessage.description} onChange={event => updatePanel({ welcomeMessage: { ...panel.welcomeMessage, description: event.target.value } })}/><small>{panel.welcomeMessage.description.length} / 4000</small></label>
+                <div className="ticket-fields"><label className="ticket-field"><span>Thumbnail-URL</span><input value={panel.welcomeMessage.thumbnailUrl} onChange={event => updatePanel({ welcomeMessage: { ...panel.welcomeMessage, thumbnailUrl: event.target.value } })}/></label><label className="ticket-field"><span>Bild-URL</span><input value={panel.welcomeMessage.imageUrl} onChange={event => updatePanel({ welcomeMessage: { ...panel.welcomeMessage, imageUrl: event.target.value } })}/></label></div>
+              </section>
+            </div>
+            <TicketMessagePreview panel={panel} serverName={serverName} guildId={guildId} onTest={testPreview} testing={testingPreview}/>
           </div>}
 
           {activeTab === "kategorien" && <section className="ticket-card"><div className="ticket-card-head"><div><h3>Kategorien</h3><p>Nutzer wählen beim Öffnen eine Kategorie.</p></div></div>
