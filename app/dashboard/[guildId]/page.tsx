@@ -30,7 +30,7 @@ export default function ServerManagement(){
  const params=useParams<{guildId:string}>(); const guildId=params.guildId;
  const [user,setUser]=useState<User|null>(null); const [settings,setSettings]=useState<any>(null);
  const [resources,setResources]=useState<Resources|null>(null); const [error,setError]=useState(""); const [resourceError,setResourceError]=useState(""); const [aiConfigured,setAiConfigured]=useState<boolean|null>(null);
- const [saving,setSaving]=useState(false); const [publishingPanel,setPublishingPanel]=useState(false); const [panelNotice,setPanelNotice]=useState(""); const [loading,setLoading]=useState(true); const [refreshing,setRefreshing]=useState(false); const [activeModule,setActiveModule]=useState<string>("tickets");
+ const [saving,setSaving]=useState(false); const [publishingPanel,setPublishingPanel]=useState(false); const [panelNotice,setPanelNotice]=useState(""); const [loading,setLoading]=useState(true); const [refreshing,setRefreshing]=useState(false); const [activeModule,setActiveModule]=useState<string>("");
  const guild=user?.guilds?.find(g=>g.id===guildId);
  const textChannels=useMemo(()=>resources?.channels.filter(c=>[0,5,15,16].includes(c.type))??[],[resources]);
  const categories=useMemo(()=>resources?.channels.filter(c=>c.type===4)??[],[resources]);
@@ -65,6 +65,8 @@ export default function ServerManagement(){
      {modules.map((m,index)=>{const Icon=m.icon;const value=settings[m.key]??{};return <Fragment key={m.key}>{m.category&&(index===0||modules[index-1].category!==m.category)&&<div className="moduleSidebarTitle">{m.category}</div>}<button className={activeModule===m.key?"moduleNavItem active":"moduleNavItem"} onClick={()=>m.key==="tickets"?window.location.assign("/dashboard/"+guildId+"/ticket"):setActiveModule(m.key)}><Icon size={17}/><span>{m.name}</span><i className={value.enabled?"moduleStatus enabled":"moduleStatus"} /></button></Fragment>;})}
     </aside>
     <div className="moduleWorkspaceMain">
+     {!activeModule&&<article className="moduleManagePanel"><div className="modulePanelHeader"><div><h2>Modul auswählen</h2><p>Wähle links ein Bot-Modul aus, um die Einstellungen zu öffnen.</p></div></div></article>}
+
      {modules.filter(m=>m.key===activeModule).map(m=>{const Icon=m.icon;const value=settings[m.key]??{};return <article className="moduleManagePanel" key={m.key}>
       <div className="modulePanelHeader"><span className="manageIcon"><Icon/></span><div><h2>{m.name}</h2><p>{m.desc}</p></div><button className={value.enabled?"moduleToggle on":"moduleToggle"} onClick={()=>update(m.key,{enabled:!value.enabled})}>{value.enabled?"Aktiv":"Aus"}</button></div>
       <div className="moduleEditor"><div className="moduleEditorTitle"><strong>Einrichtung</strong><span>In drei einfachen Schritten: Modul einschalten, Einstellungen auswählen und unten speichern. Du kannst alles später jederzeit ändern.</span><div className="moduleSetupSteps"><span><b>1</b> Aktivieren</span><span><b>2</b> Anpassen</span><span><b>3</b> Speichern</span></div></div>
