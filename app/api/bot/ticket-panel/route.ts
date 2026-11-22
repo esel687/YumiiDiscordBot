@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
   const secret = process.env.MOONBOT_API_SECRET;
   if (!base || !secret) return NextResponse.json({ error: "Bot-Verbindung ist noch nicht konfiguriert." }, { status: 503 });
   try {
-    const response = await fetch(\`\${base}/guilds/\${guildId}/actions/ticket-panel\`, {
+    const response = await fetch(base + "/guilds/" + guildId + "/actions/ticket-panel", {
       method: "POST",
       headers: { "x-moonbot-secret": secret },
       cache: "no-store",
