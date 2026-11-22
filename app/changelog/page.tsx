@@ -1,7 +1,17 @@
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, Globe2, LayoutDashboard, Smartphone, UserRound, Wrench } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Globe2, LayoutDashboard, Smartphone, UserRound, Wrench, ShieldCheck } from "lucide-react";
 
 const updates = [
+  {
+    date: "22. November 2026",
+    title: "AutoMod erweitert & Giveaways ergänzt",
+    tag: "Neue Funktionen",
+    icon: ShieldCheck,
+    items: [
+      "KI-Auto-Mod, Anti Spam und Anti Links sind in der Serververwaltung unter der gemeinsamen Kategorie AutoMod zusammengefasst.",
+      "Giveaways können als eigenes Modul aktiviert und mit /moonbot giveaway gestartet werden."
+    ]
+  },
   {
     date: "22. November 2026",
     title: "Temp Voice & öffentliche Statusseite",
