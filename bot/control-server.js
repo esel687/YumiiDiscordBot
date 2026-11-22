@@ -156,12 +156,16 @@ function startControlServer(client) {
           } else {
             const menu = new StringSelectMenuBuilder().setCustomId("ticket:select:" + panel.id)
               .setPlaceholder("Wähle eine Kategorie")
-              .addOptions(panel.categories.slice(0, 25).map(category => ({
-                label: category.name.slice(0, 100),
-                value: category.id,
-                description: (category.description || "Ticket erstellen").slice(0, 100),
-                ...(category.emoji ? { emoji: category.emoji } : {})
-              })));
+              .addOptions(panel.categories.slice(0, 25).map(category => {
+                const openCount = ticketStore.listOpenTickets(guildId, panel.id, null, category.id).length;
+                const workload = panel.showWorkload && category.workloadLimit ? " · " + openCount + "/" + category.workloadLimit + " offen" : "";
+                return {
+                  label: category.name.slice(0, 100),
+                  value: category.id,
+                  description: ((category.description || "Ticket erstellen") + workload).slice(0, 100),
+                  ...(category.emoji ? { emoji: category.emoji } : {})
+                };
+              }));
             components = [new ActionRowBuilder().addComponents(menu)];
           }
           let message = null;
