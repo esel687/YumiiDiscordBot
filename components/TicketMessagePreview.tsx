@@ -64,8 +64,8 @@ export default function TicketMessagePreview({ panel, serverName, guildId, onTes
   const category=categories.find(c=>c.id===categoryId) || categories[0];
   const message=kind==="panel" ? panel.panelMessage : (kind==="category" && category?.customWelcome ? category.customWelcome : panel.welcomeMessage);
   const placeholders={ user:"@Beispielnutzer", username:"Beispielnutzer", category:category?.name || "Allgemein", ticket:"0001", server:serverName || "Dein Discord-Server", panel:panel.name, answers: (category?.formQuestions || []).map(q=>q.label+": Beispielantwort").join("\n") || "Beispielantworten aus dem Formular" };
-  const title=useMemo(()=>renderTicketPlaceholders(message?.title || "",placeholders),[message?.title,categoryId,panel.name,serverName]);
-  const description=useMemo(()=>renderTicketPlaceholders(message?.description || "",placeholders),[message?.description,categoryId,panel.name,serverName]);
+  const title=useMemo(()=>renderTicketPlaceholders(message?.title || "",placeholders),[message?.title,categoryId,category?.name,panel.name,serverName,withAnswers]);
+  const description=useMemo(()=>renderTicketPlaceholders(message?.description || "",placeholders),[message?.description,categoryId,category?.name,panel.name,serverName,withAnswers]);
   const customCategories=categories.filter(c=>c.customWelcome);
   return <aside className="ticket-preview-wrap">
     <div className="ticket-preview-heading"><h3>Vorschau</h3><button type="button" className="ticket-preview-collapse" onClick={()=>setCollapsed(v=>!v)}>{collapsed ? <><Eye size={15}/> Vorschau anzeigen</> : <><EyeOff size={15}/> Vorschau ausblenden</>}</button></div>
