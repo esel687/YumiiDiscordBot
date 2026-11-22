@@ -443,3 +443,8 @@ body{
 .discordFakeButton{background:#5865f2}
 .brandIcon img{object-fit:cover}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
+
+
+/* Discord account identity */
+.welcomeUser{display:inline-flex;align-items:center;gap:9px;color:#f4f2ff;font-weight:600}
+.accountAvatar{width:34px;height:34px;border-radius:50%;object-fit:cover;border:1px solid #28e3ed;box-shadow:0 0 12px #20dfea44}
