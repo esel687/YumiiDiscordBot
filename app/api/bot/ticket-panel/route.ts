@@ -8,14 +8,14 @@ export async function POST(request: NextRequest) {
   const session = await readSession();
   const guildId = request.nextUrl.searchParams.get("guildId");
   const guilds = Array.isArray(session?.guilds) ? session.guilds : [];
-  if (!session || !guildId || !/^\\d{17,20}$/.test(guildId) || !guilds.some(guild => guild.id === guildId)) {
+  if (!session || !guildId || !/^\d{17,20}$/.test(guildId) || !guilds.some(guild => guild.id === guildId)) {
     return NextResponse.json({ error: "Nicht angemeldet oder keine Serverberechtigung." }, { status: 403 });
   }
-  const base = process.env.MOONBOT_API_URL?.replace(/\\/$/, "");
+  const base = process.env.MOONBOT_API_URL?.replace(/\/$/, "");
   const secret = process.env.MOONBOT_API_SECRET;
   if (!base || !secret) return NextResponse.json({ error: "Bot-Verbindung ist noch nicht konfiguriert." }, { status: 503 });
   try {
-    const response = await fetch(`${base}/guilds/${guildId}/actions/ticket-panel`, {
+    const response = await fetch(\`\${base}/guilds/\${guildId}/actions/ticket-panel\`, {
       method: "POST",
       headers: { "x-moonbot-secret": secret },
       cache: "no-store",
