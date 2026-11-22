@@ -93,7 +93,7 @@ function updateSettings(guildId, patch) {
   const current = data.settings[guildId] || { guildId, enabled: true, logChannelId: "", ticketCounter: 0 };
   const next = { ...current };
   if (typeof patch.enabled === "boolean") next.enabled = patch.enabled;
-  if (typeof patch.logChannelId === "string" && /^\\d{17,20}$/.test(patch.logChannelId)) next.logChannelId = patch.logChannelId;
+  if (typeof patch.logChannelId === "string" && /^\d{17,20}$/.test(patch.logChannelId)) next.logChannelId = patch.logChannelId;
   else if (patch.logChannelId === "") next.logChannelId = "";
   next.updatedAt = new Date().toISOString();
   data.settings[guildId] = next;
@@ -160,7 +160,7 @@ function updatePanel(guildId, panelId, patch) {
       next[field].thumbnailUrl = cleanString(next[field].thumbnailUrl, 500);
       next[field].imageUrl = cleanString(next[field].imageUrl, 500);
       for (const key of ["thumbnailUrl", "imageUrl"]) {
-        if (next[field][key] && !/^https:\\/\\//i.test(next[field][key])) throw new Error("Bild-URLs müssen mit https:// beginnen.");
+        if (next[field][key] && !/^https:\/\//i.test(next[field][key])) throw new Error("Bild-URLs müssen mit https:// beginnen.");
       }
     }
   }
@@ -195,8 +195,8 @@ function createCategory(guildId, panelId, input = {}) {
     emoji: cleanString(input.emoji, 32, "🎫"),
     description: cleanString(input.description, 100),
     prefix: cleanString(input.prefix, 20).toLowerCase().replace(/[^a-z0-9-]/g, ""),
-    teamRoleIds: Array.isArray(input.teamRoleIds) ? input.teamRoleIds.filter(id => /^\\d{17,20}$/.test(id)).slice(0, 25) : [],
-    teamUserIds: Array.isArray(input.teamUserIds) ? input.teamUserIds.filter(id => /^\\d{17,20}$/.test(id)).slice(0, 25) : [],
+    teamRoleIds: Array.isArray(input.teamRoleIds) ? input.teamRoleIds.filter(id => /^\d{17,20}$/.test(id)).slice(0, 25) : [],
+    teamUserIds: Array.isArray(input.teamUserIds) ? input.teamUserIds.filter(id => /^\d{17,20}$/.test(id)).slice(0, 25) : [],
     discordCategoryId: cleanString(input.discordCategoryId, 24),
     customWelcome: input.customWelcome && typeof input.customWelcome === "object" ? input.customWelcome : null,
     workloadLimit: Math.min(500, Math.max(0, Math.floor(Number(input.workloadLimit) || 0))),
