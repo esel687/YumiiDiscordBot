@@ -1085,3 +1085,38 @@ input,select,textarea{font-size:16px}
   .publicNav>.brand .brandIcon{width:26px!important;height:26px!important;flex-basis:26px!important}
   .publicNav>.brand>span:last-child{font-size:14px!important}
 }
+
+
+/* Dedicated MoonBot module pages — uses the existing dashboard theme tokens */
+.moduleManagePanel{min-width:0;overflow:hidden;border:1px solid var(--line);border-radius:18px;background:var(--panel);box-shadow:0 12px 36px #0002}
+.modulePanelHeader{display:flex;align-items:center;gap:15px;padding:22px;border-bottom:1px solid var(--line)}
+.modulePanelHeader>div{flex:1;min-width:0}
+.modulePanelHeader h2{margin:0 0 5px;font:700 19px 'Space Grotesk',sans-serif;color:var(--text)}
+.modulePanelHeader p{margin:0;color:var(--muted);font-size:13px;line-height:1.55}
+.modulePanelHeader .manageIcon{display:grid;place-items:center;flex:0 0 46px;width:46px;height:46px;border:1px solid var(--line);border-radius:13px;background:var(--bg);color:var(--cyan)}
+.moduleToggle{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;min-width:76px;min-height:38px;padding:8px 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--muted);font:700 12px 'DM Sans',sans-serif;cursor:pointer}
+.moduleToggle.on{border-color:var(--cyan);background:rgba(54,214,208,.12);color:var(--cyan)}
+.moduleToggle:disabled{opacity:.6;cursor:wait}
+.moduleEditor{padding:22px;min-width:0}
+.moduleFields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.moduleFields .discordPickerLabel{min-width:0;display:flex;flex-direction:column;gap:8px;color:var(--text);font-size:13px;font-weight:600}
+.moduleFields .discordPickerLabel small{color:var(--muted);font-size:11px;font-weight:400;line-height:1.5}
+.moduleTextInput{width:100%;min-width:0;min-height:43px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);font:400 13px 'DM Sans',sans-serif;outline:none}
+.moduleTextInput:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(54,214,208,.1)}
+.moduleTextInput option{background:var(--panel);color:var(--text)}
+.manageSaveRow{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 22px;border-top:1px solid var(--line)}
+.manageSaveRow p{margin:0;color:var(--muted);font-size:12px;line-height:1.6}
+.manageSaveRow p [role=status]{display:inline-flex;align-items:center;gap:7px;color:var(--cyan);font-weight:700}
+.moduleNotice{margin:14px 0;padding:13px 15px;border:1px solid var(--line);border-radius:11px;background:var(--panel);color:var(--muted);font-size:13px;line-height:1.55}
+.moduleNotice[role=alert]{border-color:var(--purple);color:var(--text)}
+.backLink{display:inline-flex;align-items:center;gap:7px;margin:0 0 16px;color:var(--muted);font-size:13px;text-decoration:none}
+.backLink:hover{color:var(--cyan)}
+@media(max-width:760px){
+ .modulePanelHeader{align-items:flex-start;flex-wrap:wrap;padding:16px}
+ .modulePanelHeader>div{flex:1 1 calc(100% - 65px)}
+ .modulePanelHeader>.moduleToggle{margin-left:61px}
+ .moduleEditor{padding:16px}
+ .moduleFields{grid-template-columns:minmax(0,1fr);gap:15px}
+ .manageSaveRow{align-items:stretch;flex-direction:column;padding:16px}
+ .manageSaveRow .heroCta{width:100%;justify-content:center}
+}
