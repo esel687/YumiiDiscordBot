@@ -15,7 +15,7 @@ const modules=[
   {key:"welcome",name:"Willkommensnachrichten",icon:Bell,desc:"Wofür: Neue Mitglieder willkommen heißen. Kann: beim Beitritt eine Nachricht im ausgewählten Kanal senden, mit anpassbarem Text, Titel, Farbe und optionaler Erwähnung."},
   {key:"autorole",name:"Auto Role",icon:UserPlus,desc:"Wofür: Neue Mitglieder direkt einer Startrolle zuweisen. Kann: jedem beitretenden Mitglied automatisch die ausgewählte Discord-Rolle geben."},
   {key:"selfroles",name:"Self Roles",icon:Users,desc:"Wofür: Mitglieder können passende Rollen selbst wählen. Kann: ein Rollen-Auswahl-Panel in einem Kanal bereitstellen und die dort konfigurierten Rollen zur Auswahl anbieten."},
-  {key:"tickets",name:"Ticketsystem",category:"Sicherheit",icon:Ticket,desc:"Wofür: Mitglieder können Hilfe vom Team anfordern. Kann: private Ticket-Kanäle erstellen und dafür die festgelegte Support-Rolle sowie den Panel-Kanal verwenden."},
+  {key:"tickets",name:"Ticket",icon:Ticket,desc:"Wofür: Mitglieder können Hilfe vom Team anfordern. Kann: private Ticket-Kanäle erstellen und dafür die festgelegte Support-Rolle sowie den Panel-Kanal verwenden."},
   {key:"automod",name:"KI-Auto-Mod",category:"Sicherheit",icon:ShieldCheck,desc:"Wofür: Problematische Nachrichten in der Community erkennen. Kann: Nachrichten mithilfe der verbundenen KI prüfen und je nach Einstellung löschen und/oder im Moderationskanal protokollieren."},
   {key:"antiSpam",name:"Anti Spam",category:"Sicherheit",icon:Ban,desc:"Wofür: Schnelles Zuspammen von Textkanälen verhindern. Kann: eine festgelegte Nachrichtenanzahl innerhalb eines Zeitfensters erkennen und Nachrichten löschen sowie warnen."},
   {key:"antiLinks",name:"Anti Links",category:"Sicherheit",icon:Link2,desc:"Wofür: Unerwünschte Links in der Community begrenzen. Kann: Links außerhalb des ausgewählten Ausnahme-Kanals erkennen und je nach Einstellung löschen und warnen."}
@@ -62,7 +62,7 @@ export default function ServerManagement(){
    {!settings&&!error&&<div className="moduleNotice">Lade Servereinstellungen …</div>}
    {settings&&<div className="moduleWorkspace">
     <aside className="moduleSidebar"><div className="moduleSidebarTitle">BOT-MODULE</div>
-     {modules.map((m,index)=>{const Icon=m.icon;const value=settings[m.key]??{};return <Fragment key={m.key}>{m.category&&(index===0||modules[index-1].category!==m.category)&&<div className="moduleSidebarTitle">{m.category}</div>}<button className={activeModule===m.key?"moduleNavItem active":"moduleNavItem"} onClick={()=>setActiveModule(m.key)}><Icon size={17}/><span>{m.name}</span><i className={value.enabled?"moduleStatus enabled":"moduleStatus"} /></button></Fragment>;})}
+     {modules.map((m,index)=>{const Icon=m.icon;const value=settings[m.key]??{};return <Fragment key={m.key}>{m.category&&(index===0||modules[index-1].category!==m.category)&&<div className="moduleSidebarTitle">{m.category}</div>}<button className={activeModule===m.key?"moduleNavItem active":"moduleNavItem"} onClick={()=>m.key==="tickets"?window.location.assign("/dashboard/"+guildId+"/ticket"):setActiveModule(m.key)}><Icon size={17}/><span>{m.name}</span><i className={value.enabled?"moduleStatus enabled":"moduleStatus"} /></button></Fragment>;})}
     </aside>
     <div className="moduleWorkspaceMain">
      {modules.filter(m=>m.key===activeModule).map(m=>{const Icon=m.icon;const value=settings[m.key]??{};return <article className="moduleManagePanel" key={m.key}>
