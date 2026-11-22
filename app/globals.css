@@ -955,3 +955,90 @@ input,select,textarea{font-size:16px}
  .publicNav nav::-webkit-scrollbar{display:none}
  .publicNav nav .publicNavButton{flex:0 0 auto;white-space:nowrap;min-height:36px;padding:8px 10px;font-size:11px}
 }
+
+
+/* One consistent hamburger menu on every screen size */
+.publicNav{
+  position:relative;
+  z-index:100;
+  gap:12px;
+}
+.publicNav .publicMenuToggle{
+  display:inline-flex!important;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 44px;
+  width:44px;
+  height:44px;
+  margin-left:auto;
+  border:1px solid #a855f7;
+  border-radius:11px;
+  background:linear-gradient(135deg,#321044,#4a164c);
+  color:#f5c8ff;
+  box-shadow:0 0 14px #a855f744;
+  cursor:pointer;
+  transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
+}
+.publicNav .publicMenuToggle:hover{
+  transform:translateY(-1px);
+  border-color:#f0abfc;
+  box-shadow:0 0 20px #d946ef66;
+}
+.publicNav .publicMenuToggle:focus-visible{
+  outline:2px solid #f0abfc;
+  outline-offset:3px;
+}
+.publicNav nav.publicMenu,
+.publicNav nav.publicMenu.isOpen{
+  position:absolute!important;
+  top:calc(100% + 8px);
+  right:clamp(12px,4vw,48px);
+  z-index:150;
+  display:none!important;
+  flex-direction:column;
+  align-items:stretch;
+  gap:7px;
+  width:min(310px,calc(100vw - 28px));
+  min-width:0;
+  max-height:min(70vh,440px);
+  overflow-y:auto;
+  padding:10px;
+  border:1px solid #78428d;
+  border-radius:14px;
+  background:linear-gradient(145deg,#1b1028f7,#110b1af7);
+  box-shadow:0 16px 42px #000a,0 0 24px #a855f733;
+  backdrop-filter:blur(16px);
+}
+.publicNav nav.publicMenu.isOpen{display:flex!important}
+.publicNav nav.publicMenu .publicNavButton{
+  display:flex;
+  justify-content:flex-start;
+  width:100%;
+  min-height:44px;
+  padding:12px 14px;
+  white-space:normal;
+}
+@media(max-width:640px){
+  .publicNav{height:auto;min-height:64px;flex-wrap:nowrap;row-gap:0;padding-top:10px;padding-bottom:10px}
+  .publicNav>.brand{order:1;flex:0 1 auto;min-width:0}
+  .publicNav>.publicMenuToggle{order:2;margin-left:auto}
+  .publicNav>.publicActions{order:3;margin-left:0;flex:0 0 auto}
+  .publicNav nav.publicMenu,
+  .publicNav nav.publicMenu.isOpen{
+    top:calc(100% + 8px);
+    right:10px;
+    order:initial;
+    flex:initial;
+    width:min(310px,calc(100vw - 20px));
+    padding:9px;
+    overflow:visible;
+  }
+}
+@media(max-width:390px){
+  .publicNav{gap:6px}
+  .publicNav>.brand{gap:7px;padding-left:2px}
+  .publicNav>.brand .brandIcon{width:34px;height:34px;flex-basis:34px}
+  .publicNav>.brand>span:last-child{font-size:18px}
+  .publicNav .publicMenuToggle{width:40px;height:40px;flex-basis:40px}
+  .publicNav .publicActions .login{gap:5px;padding:8px 9px;font-size:10px}
+}
