@@ -4,6 +4,16 @@ import { ArrowLeft, CheckCircle2, Globe2, LayoutDashboard, Smartphone, UserRound
 const updates = [
   {
     date: "22. November 2026",
+    title: "Temp Voice & öffentliche Statusseite",
+    tag: "Neue Funktion",
+    icon: LayoutDashboard,
+    items: [
+      "Das Voice-Master-Modul wird im Dashboard jetzt als Temp Voice bezeichnet. Es erstellt persönliche Sprachkanäle automatisch, wenn Mitglieder den eingerichteten Startkanal betreten.",
+      "Eine öffentliche Statusseite zeigt an, ob MoonBot erreichbar ist."
+    ]
+  },
+  {
+    date: "22. November 2026",
     title: "Navigation verbessert",
     tag: "Verbesserung",
     icon: LayoutDashboard,
