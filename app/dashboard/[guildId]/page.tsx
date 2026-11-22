@@ -10,13 +10,13 @@ type DiscordChannel={id:string;name:string;type:number;parentId:string;position:
 type DiscordRole={id:string;name:string;color:string;position:number};
 type Resources={channels:DiscordChannel[];roles:DiscordRole[]};
 const modules=[
-  {key:"tickets",name:"Ticketsystem",category:"Sicherheit",icon:Ticket,desc:"Wofür: Mitglieder können Hilfe vom Team anfordern. Kann: private Ticket-Kanäle erstellen und dafür die festgelegte Support-Rolle sowie den Panel-Kanal verwenden."},
   {key:"welcome",name:"Willkommensnachrichten",icon:Bell,desc:"Wofür: Neue Mitglieder willkommen heißen. Kann: beim Beitritt eine Nachricht im ausgewählten Kanal senden, mit anpassbarem Text, Titel, Farbe und optionaler Erwähnung."},
   {key:"autorole",name:"Auto Role",icon:UserPlus,desc:"Wofür: Neue Mitglieder direkt einer Startrolle zuweisen. Kann: jedem beitretenden Mitglied automatisch die ausgewählte Discord-Rolle geben."},
   {key:"selfroles",name:"Self Roles",icon:Users,desc:"Wofür: Mitglieder können passende Rollen selbst wählen. Kann: ein Rollen-Auswahl-Panel in einem Kanal bereitstellen und die dort konfigurierten Rollen zur Auswahl anbieten."},
+  {key:"tickets",name:"Ticketsystem",category:"Sicherheit",icon:Ticket,desc:"Wofür: Mitglieder können Hilfe vom Team anfordern. Kann: private Ticket-Kanäle erstellen und dafür die festgelegte Support-Rolle sowie den Panel-Kanal verwenden."},
   {key:"automod",name:"KI-Auto-Mod",category:"Sicherheit",icon:ShieldCheck,desc:"Wofür: Problematische Nachrichten in der Community erkennen. Kann: Nachrichten mithilfe der verbundenen KI prüfen und je nach Einstellung löschen und/oder im Moderationskanal protokollieren."},
-  {key:"antiSpam",name:"Anti Spam",category:"AutoMod",icon:Ban,desc:"Wofür: Schnelles Zuspammen von Textkanälen verhindern. Kann: eine festgelegte Nachrichtenanzahl innerhalb eines Zeitfensters erkennen und Nachrichten löschen sowie warnen."},
-  {key:"antiLinks",name:"Anti Links",category:"AutoMod",icon:Link2,desc:"Wofür: Unerwünschte Links in der Community begrenzen. Kann: Links außerhalb des ausgewählten Ausnahme-Kanals erkennen und je nach Einstellung löschen und warnen."},
+  {key:"antiSpam",name:"Anti Spam",category:"Sicherheit",icon:Ban,desc:"Wofür: Schnelles Zuspammen von Textkanälen verhindern. Kann: eine festgelegte Nachrichtenanzahl innerhalb eines Zeitfensters erkennen und Nachrichten löschen sowie warnen."},
+  {key:"antiLinks",name:"Anti Links",category:"Sicherheit",icon:Link2,desc:"Wofür: Unerwünschte Links in der Community begrenzen. Kann: Links außerhalb des ausgewählten Ausnahme-Kanals erkennen und je nach Einstellung löschen und warnen."},
   {key:"giveaways",name:"Giveaways",icon:Gift,desc:"Wofür: Gewinnspiele für deine Community veranstalten. Kann: über /moonbot giveaway ein Gewinnspiel mit Preis und Laufzeit starten, an dem Mitglieder per 🎉-Reaktion teilnehmen."},
   {key:"voiceMaster",name:"Temp Voice",icon:Headphones,desc:"Wofür: Mitglieder bekommen eigene temporäre Sprachräume. Kann: beim Betreten des festgelegten Startkanals einen persönlichen Sprachkanal mit konfigurierbarem Namen und Nutzerlimit erstellen."}
 ];
