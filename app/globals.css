@@ -742,3 +742,18 @@ input,select,textarea{font-size:16px}
  .changelogFooter{gap:12px}
  .changelogFooter span{flex-basis:100%}
 }
+
+
+/* Clickable button-style links in the homepage top navigation */
+.publicNav nav{display:flex;align-items:center;gap:10px}
+.publicNav nav .publicNavButton{
+ display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:9px 15px;
+ border:1px solid #57449b;border-radius:10px;
+ background:linear-gradient(110deg,#211347,#142d55);color:#e8e4ff;
+ text-decoration:none;font-size:12px;font-weight:700;line-height:1.2;
+ box-shadow:0 0 12px #5b45ca22;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease,background .18s ease;
+}
+.publicNav nav .publicNavButton:hover{transform:translateY(-2px);border-color:#27e3ed;background:linear-gradient(110deg,#302064,#17446b);color:#fff;box-shadow:0 0 17px #22dce944}
+.publicNav nav .publicNavButton:active{transform:translateY(0) scale(.98)}
+.publicNav nav .publicNavButton:focus-visible{outline:2px solid #8afaff;outline-offset:3px}
+@media(max-width:850px){.publicNav nav{gap:7px}.publicNav nav .publicNavButton{min-height:38px;padding:8px 11px;font-size:11px}}
