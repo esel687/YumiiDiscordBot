@@ -8,6 +8,6 @@ function renderTicketPlaceholders(value, data = {}) {
     "{panel}": data.panel || "Support",
     "{answers}": data.answers || "Beispielantworten aus dem Formular"
   };
-  return String(value || "").replace(/\\{user\\}|\\{username\\}|\\{category\\}|\\{ticket\\}|\\{server\\}|\\{panel\\}|\\{answers\\}/g, token => replacements[token]);
+  return String(value || "").replace(/\{user\}|\{username\}|\{category\}|\{ticket\}|\{server\}|\{panel\}|\{answers\}/g, token => replacements[token]);
 }
 module.exports = { renderTicketPlaceholders };
