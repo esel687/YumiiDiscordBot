@@ -26,7 +26,7 @@ function ServerCard({ guild, installed }: { guild: Guild; installed: boolean }) 
         <small>{guild.owner ? "Server-Inhaber" : "Administrator / Server verwalten"}</small>
       </span>
       {installed ? (
-        <a className="serverCheck" href={`/dashboard/${guild.id}`}>
+        <a className="serverCheck manageServerLink" href={`/dashboard/${guild.id}`}>
           Verwalten <ArrowRight size={14} />
         </a>
       ) : (
