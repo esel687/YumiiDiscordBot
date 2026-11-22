@@ -682,3 +682,23 @@ input,select,textarea{font-size:16px}
   align-self:center;
   align-items:center;
 }
+
+
+/* Keep the floating language selector clear of the homepage footer links */
+.publicShell .publicFooter{
+  padding-bottom:100px;
+}
+@media(max-width:700px){
+  .publicShell .publicFooter{
+    padding-bottom:104px;
+    padding-right:150px;
+    min-height:150px;
+    align-content:flex-start;
+  }
+}
+@media(max-width:420px){
+  .publicShell .publicFooter{
+    padding-right:0;
+    padding-bottom:112px;
+  }
+}
