@@ -46,7 +46,9 @@ export default function TicketDashboardPage() {
   const [settings, setSettings] = useState<any>({ enabled: true, logChannelId: "" });
   const [panels, setPanels] = useState<TicketPanel[]>([]);
   const [panel, setPanel] = useState<TicketPanel | null>(null);
-  const [channels, setChannels] = useState<Channel[]>([]);\n  const [serverName, setServerName] = useState("");\n  const [testingPreview, setTestingPreview] = useState(false);
+  const [channels, setChannels] = useState<Channel[]>([]);
+  const [serverName, setServerName] = useState("");
+  const [testingPreview, setTestingPreview] = useState(false);
   const [activeTab, setActiveTab] = useState("allgemeines");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -188,7 +190,20 @@ export default function TicketDashboardPage() {
     }
   }
 
-  async function testPreview(kind: string, categoryId: string, withAnswers: boolean) {\n    if (!panel) return;\n    setTestingPreview(true);\n    setError("");\n    try {\n      const response = await fetch("/api/guilds/" + guildId + "/ticket/test-preview", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind, categoryId, withAnswers, panel }), cache: "no-store" });\n      const result = await response.json();\n      if (!response.ok || result.ok === false) throw new Error(result.error || "Testnachricht konnte nicht gesendet werden.");\n      setNotice("Die Vorschau wurde dir per Discord-DM gesendet.");\n    } catch (cause) { setError(cause instanceof Error ? cause.message : "Testnachricht konnte nicht gesendet werden."); }\n    finally { setTestingPreview(false); }\n  }\n\n  async function createCategory() {
+  async function testPreview(kind: string, categoryId: string, withAnswers: boolean) {
+    if (!panel) return;
+    setTestingPreview(true);
+    setError("");
+    try {
+      const response = await fetch("/api/guilds/" + guildId + "/ticket/test-preview", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind, categoryId, withAnswers, panel }), cache: "no-store" });
+      const result = await response.json();
+      if (!response.ok || result.ok === false) throw new Error(result.error || "Testnachricht konnte nicht gesendet werden.");
+      setNotice("Die Vorschau wurde dir per Discord-DM gesendet.");
+    } catch (cause) { setError(cause instanceof Error ? cause.message : "Testnachricht konnte nicht gesendet werden."); }
+    finally { setTestingPreview(false); }
+  }
+
+  async function createCategory() {
     if (!panel || !newCategoryName.trim()) return;
     setSaving(true);
     try {
