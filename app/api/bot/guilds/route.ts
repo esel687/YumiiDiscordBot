@@ -28,7 +28,7 @@ export async function GET() {
       const batch = manageableGuilds.slice(index, index + batchSize);
       const results = await Promise.all(batch.map(async guild => {
         const response = await fetch(
-          `https://discord.com/api/v10/guilds/${guild.id}/members/${botUserId}`,
+          `https://discord.com/api/v10/guilds/${guild.id}`,
           {
             headers: { Authorization: `Bot ${token}` },
             cache: "no-store"
