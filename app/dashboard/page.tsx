@@ -163,7 +163,7 @@ export default function Dashboard() {
       </section>
 
       <footer className="publicFooter">
-        <b>MoonBot</b><span>Deine Server. Deine Einstellungen.</span><a href="/impressum">Impressum</a>
+        <b>MoonBot</b><span>Deine Server. Deine Einstellungen.</span><a href="/changelog">Changelog</a><a href="/impressum">Impressum</a>
       </footer>
     </main>
   );
