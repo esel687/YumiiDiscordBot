@@ -7,6 +7,7 @@ const {
 const { getGuildSettings, setGuildModule } = require("./config-store");
 const { startControlServer } = require("./control-server");
 const ticketStore = require("./ticket-store");
+const { renderTicketPlaceholders } = require("../shared/ticket-message");
 
 const token = process.env.DISCORD_TOKEN;
 const clientId = process.env.DISCORD_CLIENT_ID;
@@ -487,13 +488,12 @@ async function createConfiguredTicket(interaction, panelId, categoryId) {
       formAnswers: [], lastMessageAt: new Date().toISOString()
     });
     const welcome = category.customWelcome || panel.welcomeMessage;
-    const description = (welcome.description || "Ein Teammitglied wird sich demnächst um dich kümmern.")
-      .replaceAll("{user}", "<@" + interaction.user.id + ">")
-      .replaceAll("{username}", interaction.user.username)
-      .replaceAll("{category}", category.name)
-      .replaceAll("{ticket}", String(number).padStart(4, "0"))
-      .replaceAll("{server}", interaction.guild.name);
-    const embed = new EmbedBuilder().setColor(0x36d6d0).setTitle(welcome.title || "Dein Ticket wurde erstellt").setDescription(description);
+    const placeholderData = { user: "<@" + interaction.user.id + ">", username: interaction.user.username, category: category.name, ticket: String(number).padStart(4, "0"), server: interaction.guild.name, panel: panel.name, answers: (ticket.formAnswers || []).map(answer => answer.question + ": " + answer.value).join("\n") };
+    const description = renderTicketPlaceholders(welcome.description || "Ein Teammitglied wird sich demnächst um dich kümmern.", placeholderData);
+    const title = renderTicketPlaceholders(welcome.title || "Dein Ticket wurde erstellt", placeholderData);
+    const embed = new EmbedBuilder().setColor(0x36d6d0);
+    if (title) embed.setTitle(title);
+    if (description) embed.setDescription(description);
     if (welcome.thumbnailUrl) embed.setThumbnail(welcome.thumbnailUrl);
     if (welcome.imageUrl) embed.setImage(welcome.imageUrl);
     const controls = new ActionRowBuilder().addComponents(
