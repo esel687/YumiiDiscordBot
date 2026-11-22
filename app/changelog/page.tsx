@@ -4,11 +4,11 @@ import { ArrowLeft, CheckCircle2, Globe2, LayoutDashboard, Smartphone, UserRound
 const updates = [
   {
     date: "22. November 2026",
-    title: "AutoMod erweitert & Giveaways ergänzt",
+    title: "Sicherheitsmenü erweitert",
     tag: "Neue Funktionen",
     icon: ShieldCheck,
     items: [
-      "KI-Auto-Mod, Anti Spam und Anti Links sind in der Serververwaltung unter der gemeinsamen Kategorie AutoMod zusammengefasst.",
+      "Das Menü heißt jetzt Sicherheit und enthält das Ticketsystem sowie KI-Auto-Mod, Anti Spam und Anti Links.",
       "Giveaways können als eigenes Modul aktiviert und mit /moonbot giveaway gestartet werden."
     ]
   },
