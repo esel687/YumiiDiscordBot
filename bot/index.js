@@ -6,6 +6,7 @@ const {
 } = require("discord.js");
 const { getGuildSettings, setGuildModule } = require("./config-store");
 const { startControlServer } = require("./control-server");
+const ticketStore = require("./ticket-store");
 
 const token = process.env.DISCORD_TOKEN;
 const clientId = process.env.DISCORD_CLIENT_ID;
@@ -414,8 +415,142 @@ client.on(Events.MessageReactionAdd, async (reaction, user) => {
   if (files[0]) embed.setImage(files[0]);
   await target.send({ content: `${settings.starboard.emoji || "⭐"} **${reaction.count}**`, embeds: [embed], allowedMentions: { parse: [] } }).catch(() => {});
 });
+async function createConfiguredTicket(interaction, panelId, categoryId) {
+  await interaction.deferReply({ ephemeral: true });
+  try {
+    const data = ticketStore.getGuildData(interaction.guildId);
+    if (!data.settings.enabled) return interaction.editReply("Das Ticket-System ist aktuell deaktiviert.");
+    const panel = ticketStore.getPanel(interaction.guildId, panelId);
+    if (!panel) return interaction.editReply("Dieses Panel existiert nicht mehr.");
+    const category = panel.categories.find(item => item.id === categoryId);
+    if (!category) return interaction.editReply("Diese Ticket-Kategorie existiert nicht mehr.");
+    const userOpen = ticketStore.listOpenTickets(interaction.guildId, panelId, interaction.user.id);
+    if (panel.openLimitPerUser > 0 && userOpen.length >= panel.openLimitPerUser) {
+      return interaction.editReply("Du hast bereits die maximale Anzahl offener Tickets erreicht.");
+    }
+    const categoryOpen = ticketStore.listOpenTickets(interaction.guildId, panelId, null, categoryId);
+    if (category.workloadLimit > 0 && categoryOpen.length >= category.workloadLimit) {
+      return interaction.editReply("Diese Kategorie ist aktuell ausgelastet. Bitte versuche es später erneut.");
+    }
+    const botMember = interaction.guild.members.me;
+    if (!botMember?.permissions.has(PermissionFlagsBits.ManageChannels)) {
+      return interaction.editReply("MoonBot benötigt die Berechtigung „Kanäle verwalten“, um ein Ticket zu erstellen.");
+    }
+    const number = ticketStore.nextTicketNumber(interaction.guildId);
+    const caseId = ticketStore.createId().slice(0, 8);
+    const userName = interaction.member?.nickname || interaction.user.username;
+    let channelName = (category.channelNamePattern || panel.channelNamePattern || "ticket-%TICKET_NUMBER%")
+      .replaceAll("%CASEID%", caseId)
+      .replaceAll("%TICKET_NUMBER%", String(number).padStart(4, "0"))
+      .replaceAll("%PREFIX%", category.prefix || "ticket")
+      .replaceAll("%USERNAME%", interaction.user.username)
+      .replaceAll("%USER_ID%", interaction.user.id)
+      .replaceAll("%USER_NICK_NAME%", userName)
+      .replaceAll("%DISPLAY_NAME%", interaction.user.globalName || interaction.user.username)
+      .replaceAll("%EMOTE%", category.emoji || "ticket")
+      .toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "").replace(/-+/g, "-").replace(/^-|-$/g, "").slice(0, 100);
+    if (!channelName) channelName = "ticket-" + String(number).padStart(4, "0");
+
+    const overwrites = [
+      { id: interaction.guild.roles.everyone.id, deny: [PermissionsBitField.Flags.ViewChannel] },
+      { id: interaction.user.id, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.AttachFiles, PermissionsBitField.Flags.ReadMessageHistory] },
+      { id: client.user.id, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks, PermissionsBitField.Flags.ManageChannels, PermissionsBitField.Flags.ReadMessageHistory] }
+    ];
+    for (const roleId of category.teamRoleIds || []) {
+      overwrites.push({ id: roleId, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.AttachFiles, PermissionsBitField.Flags.ReadMessageHistory, PermissionsBitField.Flags.ManageMessages] });
+    }
+    for (const userId of category.teamUserIds || []) {
+      overwrites.push({ id: userId, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.AttachFiles, PermissionsBitField.Flags.ReadMessageHistory, PermissionsBitField.Flags.ManageMessages] });
+    }
+    const channel = await interaction.guild.channels.create({
+      name: channelName,
+      type: ChannelType.GuildText,
+      parent: category.discordCategoryId || undefined,
+      topic: "moonbot-ticket-panel:" + panel.id + ":creator:" + interaction.user.id,
+      permissionOverwrites: overwrites,
+      reason: "MoonBot Ticket-System"
+    });
+    const ticket = ticketStore.createTicket({
+      guildId: interaction.guildId, panelId, categoryId, number, caseId,
+      channelId: channel.id, creatorId: interaction.user.id,
+      addedUserIds: [], claimedBy: null, status: "open",
+      formAnswers: [], lastMessageAt: new Date().toISOString()
+    });
+    const welcome = category.customWelcome || panel.welcomeMessage;
+    const description = (welcome.description || "Ein Teammitglied wird sich demnächst um dich kümmern.")
+      .replaceAll("{user}", "<@" + interaction.user.id + ">")
+      .replaceAll("{username}", interaction.user.username)
+      .replaceAll("{category}", category.name)
+      .replaceAll("{ticket}", String(number).padStart(4, "0"))
+      .replaceAll("{server}", interaction.guild.name);
+    const embed = new EmbedBuilder().setColor(0x36d6d0).setTitle(welcome.title || "Dein Ticket wurde erstellt").setDescription(description);
+    if (welcome.thumbnailUrl) embed.setThumbnail(welcome.thumbnailUrl);
+    if (welcome.imageUrl) embed.setImage(welcome.imageUrl);
+    const controls = new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setCustomId("ticket:claim:" + ticket.id).setLabel("Ticket übernehmen").setStyle(ButtonStyle.Secondary),
+      new ButtonBuilder().setCustomId("ticket:close:" + ticket.id).setLabel("Ticket schließen").setStyle(ButtonStyle.Danger)
+    );
+    const teamPing = panel.pingTeam && category.pingTeamOverride !== "no"
+      ? (category.teamRoleIds || []).map(id => "<@&" + id + ">").join(" ")
+      : "";
+    await channel.send({ content: teamPing || undefined, embeds: [embed], components: [controls], allowedMentions: { roles: panel.pingTeam && category.pingTeamOverride !== "no" ? category.teamRoleIds || [] : [] } });
+    await interaction.editReply("Dein Ticket wurde erstellt: <#" + channel.id + "> (Ticket #" + String(number).padStart(4, "0") + ")");
+  } catch (error) {
+    console.error("Ticket konnte nicht erstellt werden:", error);
+    if (interaction.deferred || interaction.replied) await interaction.editReply("Das Ticket konnte nicht erstellt werden. Bitte prüfe die Bot-Berechtigungen und versuche es erneut.").catch(() => {});
+  }
+}
+
 client.on(Events.InteractionCreate, async interaction => {
   if (!interaction.guild) return;
+
+  if (interaction.isButton() && interaction.customId.startsWith("ticket:open:")) {
+    const panelId = interaction.customId.slice("ticket:open:".length);
+    const panel = ticketStore.getPanel(interaction.guildId, panelId);
+    if (!panel || panel.categories.length !== 1) return interaction.reply({ content: "Dieses Ticket-Panel ist nicht mehr gültig.", ephemeral: true });
+    return createConfiguredTicket(interaction, panelId, panel.categories[0].id);
+  }
+
+  if (interaction.isStringSelectMenu() && interaction.customId.startsWith("ticket:select:")) {
+    const panelId = interaction.customId.slice("ticket:select:".length);
+    return createConfiguredTicket(interaction, panelId, interaction.values[0]);
+  }
+
+  if (interaction.isButton() && interaction.customId.startsWith("ticket:claim:")) {
+    await interaction.deferReply({ ephemeral: true });
+    const ticketId = interaction.customId.slice("ticket:claim:".length);
+    const ticket = ticketStore.getTicketByChannel(interaction.channelId);
+    const panel = ticket ? ticketStore.getPanel(interaction.guildId, ticket.panelId) : null;
+    const category = panel?.categories.find(item => item.id === ticket.categoryId);
+    const isTeam = interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild) ||
+      category?.teamRoleIds?.some(id => interaction.member.roles?.cache?.has(id)) ||
+      category?.teamUserIds?.includes(interaction.user.id);
+    if (!ticket || ticket.id !== ticketId) return interaction.editReply("Dieses Ticket wurde nicht gefunden.");
+    if (!isTeam) return interaction.editReply("Nur das zuständige Team darf Tickets übernehmen.");
+    if (ticket.claimedBy) return interaction.editReply("Dieses Ticket wurde bereits übernommen.");
+    ticketStore.updateTicket(ticket.id, { claimedBy: interaction.user.id });
+    await interaction.channel.send({ content: "<@" + interaction.user.id + "> hat dieses Ticket übernommen.", allowedMentions: { users: [interaction.user.id] } });
+    return interaction.editReply("Du hast das Ticket übernommen.");
+  }
+
+  if (interaction.isButton() && interaction.customId.startsWith("ticket:close:")) {
+    const ticketId = interaction.customId.slice("ticket:close:".length);
+    const ticket = ticketStore.getTicketByChannel(interaction.channelId);
+    const panel = ticket ? ticketStore.getPanel(interaction.guildId, ticket.panelId) : null;
+    const category = panel?.categories.find(item => item.id === ticket.categoryId);
+    if (!ticket || ticket.id !== ticketId) return interaction.reply({ content: "Dieses Ticket wurde nicht gefunden.", ephemeral: true });
+    const isTeam = interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild) ||
+      category?.teamRoleIds?.some(id => interaction.member.roles?.cache?.has(id)) ||
+      category?.teamUserIds?.includes(interaction.user.id);
+    if (!isTeam && panel.onlyTeamCanClose) return interaction.reply({ content: "Nur das Team darf dieses Ticket schließen.", ephemeral: true });
+    if (!isTeam && panel.closeRequestNeedsClaim && !ticket.claimedBy) return interaction.reply({ content: "Das Ticket muss zuerst von einem Teammitglied übernommen werden.", ephemeral: true });
+    await interaction.deferReply({ ephemeral: true });
+    ticketStore.updateTicket(ticket.id, { status: "closed", closedAt: new Date().toISOString(), closedBy: interaction.user.id });
+    await interaction.channel.send("Dieses Ticket wird in 5 Sekunden geschlossen.");
+    await interaction.editReply("Ticket wird geschlossen.");
+    setTimeout(() => interaction.channel.delete("MoonBot Ticket geschlossen").catch(error => console.error("Ticket-Kanal konnte nicht gelöscht werden:", error)), 5000);
+    return;
+  }
 
   if (interaction.isChatInputCommand() && interaction.commandName === "moonbot") {
     if (!interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) {
