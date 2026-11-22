@@ -643,3 +643,42 @@ input,select,textarea{font-size:16px}
  .publicOrb{width:100px;height:100px}
  .cookieDialog{max-height:45vh}
 }
+
+
+/* Fix landing-page header vertical alignment */
+.publicNav{align-items:center}
+.publicNav>.brand{
+  display:flex;
+  align-items:center;
+  align-self:center;
+  padding:0 9px;
+  margin:0;
+  line-height:1;
+}
+.publicNav>.brand .brandIcon{
+  display:grid;
+  place-items:center;
+  flex:0 0 38px;
+  width:38px;
+  height:38px;
+  margin:0;
+}
+.publicNav>.brand>span:last-child{
+  display:inline-flex;
+  align-items:center;
+  line-height:1;
+}
+.publicNav nav{
+  align-self:center;
+  align-items:center;
+  margin:0;
+}
+.publicNav nav a{
+  display:inline-flex;
+  align-items:center;
+  line-height:1.2;
+}
+.publicNav .publicActions{
+  align-self:center;
+  align-items:center;
+}
