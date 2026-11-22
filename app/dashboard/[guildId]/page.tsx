@@ -1,10 +1,11 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
+import AccountMenu from "../../../components/AccountMenu";
 import { Bot, ArrowLeft, Ticket, Bell, UserPlus, Users, ShieldCheck, Save, Hash, ChevronDown, ChevronRight, RefreshCw, MessageSquare, LogIn, LogOut, Star, Link2, ClipboardList, Ban, Filter, Timer, Gift, Vote, CaseSensitive, VolumeX, AtSign, GitBranch, Trash2, UsersRound, Pin, Headphones, BellRing } from "lucide-react";
 
 type Guild={id:string;name:string;icon:string|null;owner:boolean};
-type User={username:string;guilds:Guild[]};
+type User={id:string;username:string;global_name:string|null;avatar:string|null;guilds:Guild[]};
 type DiscordChannel={id:string;name:string;type:number;parentId:string;position:number};
 type DiscordRole={id:string;name:string;color:string;position:number};
 type Resources={channels:DiscordChannel[];roles:DiscordRole[]};
@@ -60,7 +61,7 @@ export default function ServerManagement(){
  if(loading)return <main className="dashboardShell"><p className="moduleNotice">Server wird geladen …</p></main>;
  if(!user||!guild)return <main className="dashboardShell"><a className="backLink" href="/dashboard"><ArrowLeft size={15}/> Zur Serverübersicht</a><section className="emptyServers">Dieser Server ist nicht in deiner Sitzung enthalten oder du hast keine Verwaltungsrechte. <a href="/api/auth/discord">Erneut mit Discord anmelden</a>.</section></main>;
  return <main className="dashboardShell">
-  <header className="dashboardTop"><a className="brand" href="/"><span className="brandIcon"><img src="/moonbot-logo.svg" alt="MoonBot Logo"/></span><span>Moon<span className="accent">Bot</span></span></a><div className="dashboardTopRight"><span>{user.username}</span><form action="/api/auth/logout" method="post"><button className="logoutButton">Abmelden</button></form></div></header>
+  <header className="dashboardTop"><a className="brand" href="/"><span className="brandIcon"><img src="/moonbot-logo.svg" alt="MoonBot Logo"/></span><span>Moon<span className="accent">Bot</span></span></a><div className="dashboardTopRight"><AccountMenu userId={user.id} username={user.username} displayName={user.global_name} avatar={user.avatar}/></div></header>
   <section className="dashboardIntro"><a className="backLink" href="/dashboard"><ArrowLeft size={15}/> Alle Server</a><div className="selectedServerHero"><span className="serverAvatar">{guild.icon?<img src={"https://cdn.discordapp.com/icons/"+guild.id+"/"+guild.icon+".png?size=96"} alt=""/>:guild.name.slice(0,1).toUpperCase()}</span><div><div className="eyebrow">SERVERVERWALTUNG</div><h1>{guild.name}</h1><p>Wähle Kanäle und Rollen direkt aus deinem Discord-Server aus.</p></div></div></section>
   <section className="manageSection">
    <div className="sectionHead"><div><h2>Serververwaltung</h2><p>Wähle links ein Modul aus, um es zu konfigurieren.</p></div><span className="serverCount">{modules.length} MODULE</span></div>
