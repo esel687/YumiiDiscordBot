@@ -799,3 +799,23 @@ input,select,textarea{font-size:16px}
 @media(max-width:460px){
   .serverCheck.manageServerLink{min-height:36px;padding:8px 10px;font-size:10px}
 }
+
+/* Clearer, beginner-friendly module editor */
+.modulePanelHeader p{font-size:12px;max-width:760px}
+.moduleEditorTitle{gap:7px;margin-bottom:18px}
+.moduleEditorTitle strong{font-size:16px}
+.moduleEditorTitle span{font-size:12px;max-width:760px}
+.moduleSetupSteps{display:flex;flex-wrap:wrap;gap:9px;margin-top:8px}
+.moduleSetupSteps span{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid #49305c;border-radius:9px;background:#160d20;color:#d8c7e2;font-size:11px}
+.moduleSetupSteps b{display:grid;place-items:center;width:19px;height:19px;border-radius:50%;background:#623078;color:#fff;font-size:10px}
+.moduleFields{gap:16px;margin-top:16px}
+.moduleFields label{gap:8px;color:#e0d1e8;font-size:12px;font-weight:600}
+.moduleFields input:not([type="checkbox"]):not([type="color"]),.moduleFields select,.moduleFields textarea{padding:12px 13px;border:1px solid #574067;border-radius:10px;background:#100a18;color:#fff;font:13px 'DM Sans';}
+.moduleFields input:focus,.moduleFields select:focus,.moduleFields textarea:focus{border-color:#c084fc;outline:none;box-shadow:0 0 0 3px #c084fc22}
+.moduleFields label small{color:#a997b5;font-size:11px;font-weight:400;line-height:1.5}
+.moduleFields input[type="checkbox"]{width:auto;accent-color:#a855f7}
+.discordPickerLabel .discordPicker{min-height:44px;border-radius:10px}
+.manageSaveRow{position:sticky;bottom:12px;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:22px;padding:14px 16px;border:1px solid #65417a;border-radius:13px;background:#170e22ee;backdrop-filter:blur(12px);box-shadow:0 10px 30px #0007}
+.manageSaveRow p{margin:0;color:#c9b6d8;font-size:11px;line-height:1.5}
+.manageSaveRow p b{color:#fff;font-size:12px}
+@media(max-width:560px){.manageSaveRow{position:static;align-items:stretch;flex-direction:column}.manageSaveRow .heroCta{width:100%;justify-content:center}.moduleSetupSteps{gap:6px}.moduleSetupSteps span{font-size:10px}}
