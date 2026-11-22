@@ -1,6 +1,7 @@
 const http = require("node:http");
 const { timingSafeEqual } = require("node:crypto");
 const { getGuildSettings, setGuildSettings } = require("./config-store");
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
 
 function send(res, status, data) {
   const body = JSON.stringify(data);
@@ -46,9 +47,32 @@ function startControlServer(client) {
       return send(res, 200, { ok: true, aiConfigured: Boolean(process.env.OPENAI_API_KEY) });
     }
     if (!authorized(req)) return send(res, 401, { error: "Unauthorized" });
-    const match = /^\/guilds\/(\d{17,20})\/(settings|resources)$/.exec((req.url || "").split("?")[0]);
+    const match = /^\/guilds\/(\d{17,20})\/(settings|resources|actions)$/.exec((req.url || "").split("?")[0]);
     if (!match) return send(res, 404, { error: "Not found" });
     const guildId = match[1];
+    if (req.method === "POST" && (req.url || "").split("?")[0] === `/guilds/${guildId}/actions/ticket-panel`) {
+      const settings = getGuildSettings(guildId);
+      if (settings.tickets?.enabled !== true) return send(res, 400, { error: "Aktiviere zuerst das Ticketsystem im Dashboard." });
+      const guild = await client.guilds.fetch(guildId).catch(() => null);
+      if (!guild) return send(res, 404, { error: "MoonBot ist nicht auf diesem Discord-Server." });
+      const channelId = settings.tickets.panelChannelId;
+      const target = channelId ? await guild.channels.fetch(channelId).catch(() => null) : null;
+      if (!target?.isTextBased()) return send(res, 400, { error: "Wähle zuerst einen gültigen Ticket-Panel-Kanal aus." });
+      const embed = new EmbedBuilder()
+        .setColor(Number.parseInt((settings.tickets.color || "#22d3ee").slice(1), 16))
+        .setTitle(settings.tickets.panelTitle || "Support benötigt?")
+        .setDescription(settings.tickets.panelDescription || "Klicke auf die Schaltfläche, um ein privates Support-Ticket zu erstellen.");
+      const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId("moonbot:ticket:create").setLabel(settings.tickets.buttonLabel || "Ticket erstellen").setStyle(ButtonStyle.Primary).setEmoji("🎫")
+      );
+      try {
+        const message = await target.send({ embeds: [embed], components: [row] });
+        return send(res, 200, { ok: true, message: "Ticket-Panel wurde veröffentlicht.", channelId: target.id, messageId: message.id });
+      } catch (error) {
+        console.error("Ticket panel publish failed:", error);
+        return send(res, 502, { error: "Discord hat das Panel nicht angenommen. Prüfe, ob MoonBot im Zielkanal Nachrichten und Links/Embeds senden darf." });
+      }
+    }
     if (req.method === "GET" && (req.url || "").split("?")[0] === `/guilds/${guildId}/resources`) {
       const guild = await client.guilds.fetch(guildId).catch(() => null);
       if (!guild) return send(res, 404, { error: "Bot ist nicht auf diesem Server oder der Server wurde nicht gefunden." });
