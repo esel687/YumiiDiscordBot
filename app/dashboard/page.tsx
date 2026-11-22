@@ -41,7 +41,7 @@ export default function Dashboard() {
   const [user, setUser] = useState<User | null>(null);
   const [installedIds, setInstalledIds] = useState<string[] | null>(null);
   const [loading, setLoading] = useState(true);
-  const [botGuildsError, setBotGuildsError] = useState(false);
+  const [botGuildsError, setBotGuildsError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -59,12 +59,13 @@ export default function Dashboard() {
           const botData = await botResponse.json();
           setInstalledIds(Array.isArray(botData.guildIds) ? botData.guildIds : []);
         } else {
-          setBotGuildsError(true);
+          const errorData = await botResponse.json().catch(() => ({}));
+          setBotGuildsError(errorData.error || `Serverfehler (${botResponse.status})`);
           setInstalledIds([]);
         }
       } catch {
         if (active) {
-          setBotGuildsError(true);
+          setBotGuildsError("Die Verbindung zum Dashboard-Server ist fehlgeschlagen.");
           setInstalledIds([]);
         }
       } finally {
@@ -125,7 +126,7 @@ export default function Dashboard() {
 
       {botGuildsError && (
         <div className="emptyServers">
-          <RefreshCw size={15} /> Der Installationsstatus konnte gerade nicht geladen werden. Bitte prüfe, ob DISCORD_TOKEN in den Vercel-Umgebungsvariablen gesetzt ist.
+          <RefreshCw size={15} /> {botGuildsError}
         </div>
       )}
 
