@@ -23,6 +23,8 @@ function InlineMarkdown({ text }: { text: string }) {
     if (/^<@!?\d+>$/.test(part)) return <span className="ticket-preview-chip" key={i}>@Nutzer</span>;
     if (/^<@&\d+>$/.test(part)) return <span className="ticket-preview-chip" key={i}>@Rolle</span>;
     if (/^<#\d+>$/.test(part)) return <span className="ticket-preview-chip" key={i}>#kanal</span>;
+    if (/^#[A-Za-z0-9_-]+$/.test(part)) return <span className="ticket-preview-chip" key={i}>#Kanal</span>;
+    if (/^@[A-Za-z0-9_-]+$/.test(part)) return <span className="ticket-preview-chip" key={i}>{part}</span>;
     if (/^https?:\/\//.test(part)) return <a key={i} href={part} target="_blank" rel="noreferrer">{part}</a>;
     return <span key={i}>{part}</span>;
   })}</>;
@@ -88,5 +90,3 @@ export default function TicketMessagePreview({ panel, serverName, guildId, onTes
     </>}
   </aside>;
 }
-    if (/^<#\\d+>$/.test(part) || /^#[A-Za-z0-9_-]+$/.test(part)) return <span className="ticket-preview-chip" key={i}>#Kanal</span>;
-    if (/^@[A-Za-z0-9_-]+$/.test(part)) return <span className="ticket-preview-chip" key={i}>{part}</span>;
