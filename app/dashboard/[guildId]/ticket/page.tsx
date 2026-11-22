@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import TicketMessagePreview from "@/components/TicketMessagePreview";
 import {
   ArrowLeft, BookOpen, CheckCircle2, ChevronDown, CirclePause, Folder,
   MessageSquare, Pencil, Plus, Save, Send, Settings, Trash2, Workflow,
