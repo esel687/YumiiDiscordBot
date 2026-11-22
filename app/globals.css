@@ -945,3 +945,13 @@ input,select,textarea{font-size:16px}
 .ticket-preview-test:disabled{opacity:.5;cursor:wait}
 @media(max-width:900px){.ticket-preview-layout{grid-template-columns:1fr}.ticket-preview-wrap{position:static}}
 @media(max-width:760px){.ticket-preview-collapse{display:inline-flex}.ticket-preview-wrap{padding:14px}.ticket-preview-switch button{font-size:10px}}
+
+/* Mobile homepage navigation: keep the top links visible and scrollable */
+@media(max-width:640px){
+ .publicNav{height:auto;min-height:0;flex-wrap:wrap;row-gap:8px;padding-top:10px;padding-bottom:10px}
+ .publicNav>.brand{order:1}
+ .publicNav>.publicActions{order:2;margin-left:auto}
+ .publicNav nav{order:3;display:flex!important;flex:0 0 100%;width:100%;min-width:0;gap:7px;overflow-x:auto;overflow-y:hidden;padding:4px 2px 6px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+ .publicNav nav::-webkit-scrollbar{display:none}
+ .publicNav nav .publicNavButton{flex:0 0 auto;white-space:nowrap;min-height:36px;padding:8px 10px;font-size:11px}
+}
