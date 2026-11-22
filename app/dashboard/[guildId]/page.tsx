@@ -32,7 +32,7 @@ const modules=[
   {key:"messageCleanup",name:"Nachrichten-Auto-Löschung",icon:Trash2,desc:"Entfernt Nachrichten nach einer festgelegten Zeit."},
   {key:"memberCounter",name:"Mitgliederzähler",icon:UsersRound,desc:"Hält einen Kanalnamen mit der Mitgliederzahl aktuell."},
   {key:"autoPin",name:"Auto-Pin",icon:Pin,desc:"Pinnt Nachrichten ab einer Reaktionszahl."},
-  {key:"voiceMaster",name:"Voice Master",icon:Headphones,desc:"Erstellt persönliche Sprachkanäle beim Beitreten."},
+  {key:"voiceMaster",name:"Temp Voice",icon:Headphones,desc:"Erstellt automatisch persönliche Sprachkanäle, wenn Mitglieder den festgelegten Startkanal betreten."},
   {key:"bumpReminder",name:"Bump-Erinnerung",icon:BellRing,desc:"Erinnert nach einem erfolgreichen Disboard-Bump."},
   {key:"logs",name:"Server-Logs",icon:ClipboardList,desc:"Protokolliert wichtige Serverereignisse."}
 ];
