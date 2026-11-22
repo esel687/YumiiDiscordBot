@@ -2,7 +2,8 @@ const http = require("node:http");
 const { timingSafeEqual } = require("node:crypto");
 const { getGuildSettings, setGuildSettings } = require("./config-store");
 const ticketStore = require("./ticket-store");
-const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } = require("discord.js");
+const { renderTicketPlaceholders } = require("../shared/ticket-message");
 
 function send(res, status, data) {
   const body = JSON.stringify(data);
@@ -56,6 +57,48 @@ function startControlServer(client) {
       try {
         const memberGuild = await client.guilds.fetch(guildId).catch(() => null);
         if (!memberGuild) return send(res, 404, { ok: false, error: "MoonBot ist nicht auf diesem Discord-Server." });
+        if (parts[0] === "test-preview" && parts.length === 1 && req.method === "POST") {
+          const body = await readBody(req);
+          if (!/^\d{17,20}$/.test(body.userId || "")) return send(res, 400, { ok: false, error: "Discord-Nutzer konnte nicht zugeordnet werden." });
+          const panel = body.panel;
+          if (!panel || typeof panel !== "object" || !panel.panelMessage || !panel.welcomeMessage) return send(res, 400, { ok: false, error: "Ungültige Panel-Daten." });
+          const categories = Array.isArray(panel.categories) ? panel.categories : [];
+          const category = categories.find(item => item.id === body.categoryId) || categories[0] || {};
+          const kind = ["panel", "welcome", "category"].includes(body.kind) ? body.kind : "panel";
+          const message = kind === "panel" ? panel.panelMessage : (kind === "category" && category.customWelcome ? category.customWelcome : panel.welcomeMessage);
+          const placeholders = { user: "<@" + body.userId + ">", username: "Beispielnutzer", category: category.name || "Allgemein", ticket: "0001", server: memberGuild.name, panel: panel.name || "Support", answers: (category.formQuestions || []).map(question => question.label + ": Beispielantwort").join("\n") };
+          const embed = new EmbedBuilder().setColor(0x36d6d0);
+          const title = renderTicketPlaceholders(message.title || "", placeholders);
+          const description = renderTicketPlaceholders(message.description || "", placeholders);
+          if (title) embed.setTitle(title);
+          if (description) embed.setDescription(description);
+          if (message.thumbnailUrl) embed.setThumbnail(message.thumbnailUrl);
+          if (message.imageUrl) embed.setImage(message.imageUrl);
+          if (body.kind !== "panel" && body.withAnswers && (category.formQuestions || []).length) {
+            const answers = category.formQuestions.map(question => "**" + question.label + "**\nBeispielantwort").join("\n\n");
+            embed.addFields({ name: "Formular-Antworten (Beispiel)", value: answers.slice(0, 1024) || "Keine Fragen" });
+          }
+          const components = [];
+          if (kind === "panel") {
+            if (categories.length === 1) components.push(new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId("ticket-preview-disabled").setLabel(panel.panelMessage.buttonLabel || "Ticket erstellen").setEmoji(panel.panelMessage.buttonEmoji || "🎫").setStyle(ButtonStyle.Primary).setDisabled(true)));
+            else if (categories.length > 1) components.push(new ActionRowBuilder().addComponents(new StringSelectMenuBuilder().setCustomId("ticket-preview-disabled").setPlaceholder("Wähle eine Kategorie").setDisabled(true).addOptions(categories.slice(0,25).map(item => ({ label: String(item.name || "Kategorie").slice(0,100), value: String(item.id), description: String(item.description || "Ticket erstellen").slice(0,100), ...(item.emoji ? { emoji: item.emoji } : {}) })))));
+          } else {
+            const row = new ActionRowBuilder().addComponents(
+              new ButtonBuilder().setCustomId("ticket-preview-disabled").setLabel("Ticket übernehmen").setStyle(ButtonStyle.Secondary).setDisabled(true),
+              new ButtonBuilder().setCustomId("ticket-preview-disabled").setLabel("Ticket schließen").setStyle(ButtonStyle.Danger).setDisabled(true)
+            );
+            components.push(row);
+            if (panel.creatorsCanAddUsers) components.push(new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId("ticket-preview-disabled").setLabel("Person hinzufügen").setStyle(ButtonStyle.Secondary).setDisabled(true)));
+          }
+          try {
+            const user = await client.users.fetch(body.userId);
+            await user.send({ content: "MoonBot – private Ticket-Vorschau", embeds: [embed], components });
+            return send(res, 200, { ok: true, data: { sent: true } });
+          } catch (error) {
+            console.error("Ticket preview DM failed:", error);
+            return send(res, 502, { ok: false, error: "Die Discord-DM konnte nicht gesendet werden. Erlaube Direktnachrichten von Servermitgliedern und versuche es erneut." });
+          }
+        }
         if (parts.length === 0 && req.method === "GET") return send(res, 200, { ok: true, data: ticketStore.getGuildData(guildId) });
         if (parts.length === 0 && req.method === "PATCH") {
           const body = await readBody(req);
@@ -210,7 +253,7 @@ function startControlServer(client) {
           .filter(role => role && role.id !== guild.id && !role.managed)
           .sort((a, b) => b.position - a.position)
           .map(role => ({ id: role.id, name: role.name, color: role.hexColor, position: role.position }));
-        return send(res, 200, { channels: channelItems, roles: roleItems });
+        return send(res, 200, { channels: channelItems, roles: roleItems, guildName: guild.name });
       } catch (error) {
         console.error("Could not load Discord server resources:", error);
         return send(res, 502, { error: "Discord-Kanäle und Rollen konnten nicht geladen werden." });
