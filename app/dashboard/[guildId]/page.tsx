@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import AccountMenu from "../../../components/AccountMenu";
 import { Bot, ArrowLeft, Ticket, Bell, UserPlus, Users, ShieldCheck, Save, Hash, ChevronDown, ChevronRight, RefreshCw, MessageSquare, LogIn, LogOut, Star, Link2, ClipboardList, Ban, Filter, Timer, Gift, Vote, CaseSensitive, VolumeX, AtSign, GitBranch, Trash2, UsersRound, Pin, Headphones, BellRing } from "lucide-react";
@@ -55,7 +55,7 @@ export default function ServerManagement(){
    {!settings&&!error&&<div className="moduleNotice">Lade Servereinstellungen …</div>}
    {settings&&<div className="moduleWorkspace">
     <aside className="moduleSidebar"><div className="moduleSidebarTitle">BOT-MODULE</div>
-     {modules.map((m,index)=>{const Icon=m.icon;const value=settings[m.key]??{};return <>{m.category&&(index===0||modules[index-1].category!==m.category)&&<div className="moduleSidebarTitle">{m.category}</div>}<button key={m.key} className={activeModule===m.key?"moduleNavItem active":"moduleNavItem"} onClick={()=>setActiveModule(m.key)}><Icon size={17}/><span>{m.name}</span><i className={value.enabled?"moduleStatus enabled":"moduleStatus"} /></button></>;})}
+     {modules.map((m,index)=>{const Icon=m.icon;const value=settings[m.key]??{};return <Fragment key={m.key}>{m.category&&(index===0||modules[index-1].category!==m.category)&&<div className="moduleSidebarTitle">{m.category}</div>}{m.key==="giveaways"&&<div className="moduleSidebarTitle moduleSidebarDivider">WEITERE MODULE</div>}<button className={activeModule===m.key?"moduleNavItem active":"moduleNavItem"} onClick={()=>setActiveModule(m.key)}><Icon size={17}/><span>{m.name}</span><i className={value.enabled?"moduleStatus enabled":"moduleStatus"} /></button></Fragment>;})}
     </aside>
     <div className="moduleWorkspaceMain">
      {modules.filter(m=>m.key===activeModule).map(m=>{const Icon=m.icon;const value=settings[m.key]??{};return <article className="moduleManagePanel" key={m.key}>
