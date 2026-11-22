@@ -14,7 +14,10 @@ const modules=[
   {key:"welcome",name:"Willkommensnachrichten",icon:Bell,desc:"Begrüße neue Mitglieder automatisch."},
   {key:"autorole",name:"Auto Role",icon:UserPlus,desc:"Weise neuen Mitgliedern automatisch eine Rolle zu."},
   {key:"selfroles",name:"Self Roles",icon:Users,desc:"Mitglieder können ihre Rollen selbst auswählen."},
-  {key:"automod",name:"KI-Auto-Mod",icon:ShieldCheck,desc:"Unterstützt die Moderation beim Erkennen problematischer Nachrichten."},
+  {key:"automod",name:"KI-Auto-Mod",category:"AutoMod",icon:ShieldCheck,desc:"Prüft Nachrichten mit KI auf problematische Inhalte."},
+  {key:"antiSpam",name:"Anti Spam",category:"AutoMod",icon:Ban,desc:"Erkennt zu viele Nachrichten in kurzer Zeit."},
+  {key:"antiLinks",name:"Anti Links",category:"AutoMod",icon:Link2,desc:"Entfernt Links außerhalb des erlaubten Kanals."},
+  {key:"giveaways",name:"Giveaways",icon:Gift,desc:"Starte Gewinnspiele direkt über MoonBot."},
   {key:"voiceMaster",name:"Temp Voice",icon:Headphones,desc:"Erstellt automatisch persönliche Sprachkanäle, wenn Mitglieder den festgelegten Startkanal betreten."}
 ];
 function ChannelPicker({label,value,channels,emptyLabel,onChange}:{label:string;value:string;channels:DiscordChannel[];emptyLabel:string;onChange:(id:string)=>void}){
@@ -52,7 +55,7 @@ export default function ServerManagement(){
    {!settings&&!error&&<div className="moduleNotice">Lade Servereinstellungen …</div>}
    {settings&&<div className="moduleWorkspace">
     <aside className="moduleSidebar"><div className="moduleSidebarTitle">BOT-MODULE</div>
-     {modules.map(m=>{const Icon=m.icon;const value=settings[m.key]??{};return <button key={m.key} className={activeModule===m.key?"moduleNavItem active":"moduleNavItem"} onClick={()=>setActiveModule(m.key)}><Icon size={17}/><span>{m.name}</span><i className={value.enabled?"moduleStatus enabled":"moduleStatus"} /></button>;})}
+     {modules.map((m,index)=>{const Icon=m.icon;const value=settings[m.key]??{};return <>{m.category&&(index===0||modules[index-1].category!==m.category)&&<div className="moduleSidebarTitle">{m.category}</div>}<button key={m.key} className={activeModule===m.key?"moduleNavItem active":"moduleNavItem"} onClick={()=>setActiveModule(m.key)}><Icon size={17}/><span>{m.name}</span><i className={value.enabled?"moduleStatus enabled":"moduleStatus"} /></button></>;})}
     </aside>
     <div className="moduleWorkspaceMain">
      {modules.filter(m=>m.key===activeModule).map(m=>{const Icon=m.icon;const value=settings[m.key]??{};return <article className="moduleManagePanel" key={m.key}>
