@@ -49,7 +49,7 @@ export default function LanguageTools() {
      const data=await response.json();
      data.translations.forEach((value:string,index:number)=>translationCache.set(language+"|"+missing[i+index],value));
     }
-    if(!stopped)batch.forEach((node,index)=>{const value=translationCache.get(language+"|"+texts[index]);if(value&&node.isConnected)node.nodeValue=value;});
+    if(!stopped)batch.forEach((node,index)=>{const value=translationCache.get(language+"|"+texts[index]);if(value&&node.isConnected&&node.nodeValue!==value)node.nodeValue=value;});
     setError("");
    }catch(e){if(!stopped)setError(e instanceof Error?e.message:"Übersetzung fehlgeschlagen");}
    finally{working=false;if(pending.size&&!stopped)void translate();}
