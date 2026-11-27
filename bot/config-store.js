@@ -21,7 +21,7 @@ function defaults() {
     automod: { enabled: false, logChannelId: "", threshold: 0.82, action: "delete_warn" },
     voiceMaster: { enabled: false, joinChannelId: "", categoryId: "", nameTemplate: "Raum von {username}", userLimit: 0 },
     antiSpam: { enabled: false, maxMessages: 5, intervalSeconds: 6, action: "delete_warn" },
-    antiLinks: { enabled: false, allowedChannelId: "", action: "delete_warn" },
+    antiLinks: { enabled: false, allowedChannelId: "", allowedDomains: [], action: "delete_warn" },
     giveaways: { enabled: false, channelId: "" }
   };
 }
@@ -80,6 +80,12 @@ function normalizeSettings(input) {
     antiLinks: {
       enabled: value.antiLinks?.enabled === true,
       allowedChannelId: stringValue(value.antiLinks?.allowedChannelId, 24),
+      allowedDomains: Array.isArray(value.antiLinks?.allowedDomains)
+        ? [...new Set(value.antiLinks.allowedDomains.slice(0, 100).map(domain => {
+            const raw = stringValue(domain, 253).toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").split(/[\s/:?#]/)[0];
+            return /^[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?\.[a-z]{2,}$/i.test(raw) ? raw : "";
+          }).filter(Boolean))]
+        : [],
       action: value.antiLinks?.action === "delete" ? "delete" : "delete_warn"
     },
     giveaways: {
