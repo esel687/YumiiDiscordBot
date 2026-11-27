@@ -10,7 +10,7 @@ async function authorizedGuild(request: NextRequest) {
   if (!session || !guildId || !/^\d{17,20}$/.test(guildId)) return null;
   const guilds = Array.isArray(session.guilds) ? session.guilds : [];
   const guild = guilds.find(guild => guild.id === guildId);
-  return guild ? { guildId, owner: guild.owner === true } : null;
+  return guild?.owner === true ? { guildId, owner: true } : null;
 }
 
 function config() {
@@ -28,7 +28,7 @@ function config() {
 
 export async function GET(request: NextRequest) {
   const access = await authorizedGuild(request);
-  if (!access) return NextResponse.json({ error: "Nicht angemeldet oder keine Serverberechtigung." }, { status: 403 });
+  if (!access) return NextResponse.json({ error: "Nur der Serverbesitzer darf MoonBot einstellen." }, { status: 403 });
   const { guildId } = access;
   const api = config();
   if (!api) return NextResponse.json({ error: "Bot-Verbindung ist noch nicht konfiguriert." }, { status: 503 });
@@ -60,9 +60,7 @@ export async function PUT(request: NextRequest) {
       const currentData = await currentResponse.json();
       const before = JSON.stringify([...(currentData.settings?.antiLinks?.allowedDomains || [])].sort());
       const after = JSON.stringify([...(body.settings.antiLinks.allowedDomains || [])].sort());
-      if (before !== after && !access.owner) {
-        return NextResponse.json({ error: "Nur der Discord-Serverbesitzer darf die Liste erlaubter Domains ändern." }, { status: 403 });
-      }
+
     }
     const response = await fetch(`${api.base}/guilds/${guildId}/settings`, {
       method: "PUT",
