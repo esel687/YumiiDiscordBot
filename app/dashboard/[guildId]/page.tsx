@@ -131,7 +131,9 @@ export default function ServerManagement(){
        <label className="discordPickerLabel">Aktion<select className="moduleTextInput" value={value.action??"delete_warn"} onChange={e=>update(m.key,{action:e.target.value})}><option value="delete_warn">Löschen und warnen</option><option value="delete">Nur löschen</option></select></label>
       </div>}
       {m.key==="antiLinks"&&<div className="moduleFields">
-       <ChannelPicker label="Ausnahme-Kanal (Links erlaubt)" value={value.allowedChannelId} channels={textChannels} emptyLabel="Keine Ausnahme" onChange={id=>update(m.key,{allowedChannelId:id})}/>
+       <div className="moduleNotice">Erlaubte Domains werden serverweit freigegeben. Auch Administratoren und Moderatoren müssen diese Regeln einhalten. Subdomains einer freigegebenen Domain sind ebenfalls erlaubt.</div>
+       {guild.owner?<label className="discordPickerLabel">Erlaubte Links / Domains<textarea className="moduleTextInput" rows={5} placeholder={"youtube.com\ndiscord.com\ntwitch.tv"} value={(value.allowedDomains??[]).join("\n")} onChange={e=>update(m.key,{allowedDomains:e.target.value.split(/\r?\n/).map((domain:string)=>domain.trim().toLowerCase().replace(/^https?:\/\//,"").replace(/^www\./,"").split(/[\s/:?#]/)[0]).filter(Boolean)})}/><small>Nur der Serverbesitzer kann diese Liste ändern. Eine Domain pro Zeile, z. B. youtube.com. Maximal 100 Domains.</small></label>:<div className="moduleNotice">Die Liste erlaubter Domains kann nur vom Serverbesitzer bearbeitet werden.</div>}
+       <ChannelPicker label="Ausnahme-Kanal (Links immer erlaubt)" value={value.allowedChannelId} channels={textChannels} emptyLabel="Keine Ausnahme" onChange={id=>update(m.key,{allowedChannelId:id})}/>
        <label className="discordPickerLabel">Aktion<select className="moduleTextInput" value={value.action??"delete_warn"} onChange={e=>update(m.key,{action:e.target.value})}><option value="delete_warn">Löschen und warnen</option><option value="delete">Nur löschen</option></select></label>
       </div>}
       {m.key==="keywordFilter"&&<div className="moduleFields">
