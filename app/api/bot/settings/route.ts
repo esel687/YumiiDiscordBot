@@ -46,8 +46,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-  const guildId = await authorizedGuild(request);
-  if (!guildId) return NextResponse.json({ error: "Nicht angemeldet oder keine Serverberechtigung." }, { status: 403 });
+  const access = await authorizedGuild(request);
+  if (!access) return NextResponse.json({ error: "Nicht angemeldet oder keine Serverberechtigung." }, { status: 403 });
+  const { guildId } = access;
   const api = config();
   if (!api) return NextResponse.json({ error: "Bot-Verbindung ist noch nicht konfiguriert." }, { status: 503 });
   try {
