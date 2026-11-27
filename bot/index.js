@@ -50,6 +50,13 @@ const commands = [
       .addStringOption(option => option.setName("preis").setDescription("Was wird verlost?").setRequired(true).setMaxLength(150))
       .addIntegerOption(option => option.setName("minuten").setDescription("Laufzeit in Minuten").setRequired(true).setMinValue(1).setMaxValue(10080)))
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
+    .toJSON(),
+  new SlashCommandBuilder()
+    .setName("giveaway")
+    .setDescription("Startet ein Giveaway auf diesem Server")
+    .addStringOption(option => option.setName("preis").setDescription("Was wird verlost?").setRequired(true).setMaxLength(150))
+    .addIntegerOption(option => option.setName("minuten").setDescription("Laufzeit in Minuten").setRequired(true).setMinValue(1).setMaxValue(10080))
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
     .toJSON()
 ];
 
@@ -599,13 +606,13 @@ client.on(Events.InteractionCreate, async interaction => {
     return;
   }
 
-  if (interaction.isChatInputCommand() && interaction.commandName === "moonbot") {
+  if (interaction.isChatInputCommand() && ["moonbot", "giveaway"].includes(interaction.commandName)) {
     if (!interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) {
       return interaction.reply({ content: "Du brauchst die Berechtigung „Server verwalten“.", ephemeral: true });
     }
 
     const settings = getGuildSettings(interaction.guildId);
-    const subcommand = interaction.options.getSubcommand();
+    const subcommand = interaction.commandName === "giveaway" ? "giveaway" : interaction.options.getSubcommand();
 
     if (subcommand === "poll") {
       if (!moduleEnabled(settings, "polls")) return interaction.reply({ content: "Aktiviere zuerst das Umfragen-Modul.", ephemeral: true });
