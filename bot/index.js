@@ -236,11 +236,23 @@ client.on(Events.MessageCreate, async message => {
     }
   }
 
-  const linkPattern = /https?:\/\/\S+/i;
-  if (moduleEnabled(config, "antiLinks") && linkPattern.test(message.content) && message.channelId !== config.antiLinks.allowedChannelId) {
+  // Anti-links applies to everyone, including server owners, administrators and moderators.
+  // The server owner manages this domain allowlist in the dashboard.
+  const linkPattern = /(?:https?:\/\/|www\.)[^\s<]+|(?:^|\s)(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}(?:\/[^\s<]*)?/gi;
+  const foundLinks = moduleEnabled(config, "antiLinks") ? (message.content.match(linkPattern) || []) : [];
+  const allowedDomains = Array.isArray(config.antiLinks.allowedDomains) ? config.antiLinks.allowedDomains : [];
+  const hasBlockedLink = foundLinks.some(rawLink => {
+    const cleaned = rawLink.trim().replace(/[),.!?]+$/, "");
+    let hostname = "";
+    try {
+      hostname = new URL(/^https?:\/\//i.test(cleaned) ? cleaned : "https://" + cleaned).hostname.toLowerCase().replace(/^www\./, "");
+    } catch { return true; }
+    return !allowedDomains.some(domain => hostname === domain || hostname.endsWith("." + domain));
+  });
+  if (moduleEnabled(config, "antiLinks") && hasBlockedLink && message.channelId !== config.antiLinks.allowedChannelId) {
     await message.delete().catch(() => {});
     if (config.antiLinks.action !== "delete") {
-      const warning = await message.channel.send({ content: `<@${message.author.id}> Links sind hier nicht erlaubt.`, allowedMentions: { users: [message.author.id] } }).catch(() => null);
+      const warning = await message.channel.send({ content: `<@${message.author.id}> Dieser Link ist auf dem Server nicht freigegeben.`, allowedMentions: { users: [message.author.id] } }).catch(() => null);
       if (warning) setTimeout(() => warning.delete().catch(() => {}), 7000);
     }
     return;
