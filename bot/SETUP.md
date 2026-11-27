@@ -45,6 +45,7 @@ Keep the bot's highest role above every role it should assign.
 - `/moonbot module`: enable or disable a module
 - `/moonbot ticket-panel`: publish the ticket panel
 - `/moonbot selfroles-panel`: publish the self-role selector
+- `/giveaway`: start a giveaway (requires the Discord permission “Manage Server”; the Giveaways module must be enabled)
 
 ## AI moderation and privacy
 When enabled and configured, message text is sent to OpenAI's Moderation API for classification. MoonBot only acts on harassment, hate, or threatening-harassment categories. If the API is unavailable, MoonBot does not delete the message. Make sure server members are informed and that the server owner has approved this data flow.
