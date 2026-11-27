@@ -9,7 +9,8 @@ async function authorizedGuild(request: NextRequest) {
   const guildId = request.nextUrl.searchParams.get("guildId");
   if (!session || !guildId || !/^\d{17,20}$/.test(guildId)) return null;
   const guilds = Array.isArray(session.guilds) ? session.guilds : [];
-  return guilds.some(guild => guild.id === guildId) ? guildId : null;
+  const guild = guilds.find(guild => guild.id === guildId);
+  return guild ? { guildId, owner: guild.owner === true } : null;
 }
 
 function config() {
@@ -26,8 +27,9 @@ function config() {
 }
 
 export async function GET(request: NextRequest) {
-  const guildId = await authorizedGuild(request);
-  if (!guildId) return NextResponse.json({ error: "Nicht angemeldet oder keine Serverberechtigung." }, { status: 403 });
+  const access = await authorizedGuild(request);
+  if (!access) return NextResponse.json({ error: "Nicht angemeldet oder keine Serverberechtigung." }, { status: 403 });
+  const { guildId } = access;
   const api = config();
   if (!api) return NextResponse.json({ error: "Bot-Verbindung ist noch nicht konfiguriert." }, { status: 503 });
   try {
@@ -50,6 +52,17 @@ export async function PUT(request: NextRequest) {
   if (!api) return NextResponse.json({ error: "Bot-Verbindung ist noch nicht konfiguriert." }, { status: 503 });
   try {
     const body = await request.json();
+    if (body.settings?.antiLinks && Object.prototype.hasOwnProperty.call(body.settings.antiLinks, "allowedDomains")) {
+      const currentResponse = await fetch(`${api.base}/guilds/${guildId}/settings`, {
+        headers: { "x-moonbot-secret": api.secret }, cache: "no-store", signal: AbortSignal.timeout(8000)
+      });
+      const currentData = await currentResponse.json();
+      const before = JSON.stringify([...(currentData.settings?.antiLinks?.allowedDomains || [])].sort());
+      const after = JSON.stringify([...(body.settings.antiLinks.allowedDomains || [])].sort());
+      if (before !== after && !access.owner) {
+        return NextResponse.json({ error: "Nur der Discord-Serverbesitzer darf die Liste erlaubter Domains ändern." }, { status: 403 });
+      }
+    }
     const response = await fetch(`${api.base}/guilds/${guildId}/settings`, {
       method: "PUT",
       headers: { "content-type": "application/json", "x-moonbot-secret": api.secret },
