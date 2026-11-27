@@ -8,8 +8,8 @@ export async function GET(request: NextRequest) {
   const session = await readSession();
   const guildId = request.nextUrl.searchParams.get("guildId");
   const guilds = Array.isArray(session?.guilds) ? session.guilds : [];
-  if (!session || !guildId || !/^\d{17,20}$/.test(guildId) || !guilds.some(guild => guild.id === guildId)) {
-    return NextResponse.json({ error: "Nicht angemeldet oder keine Serverberechtigung." }, { status: 403 });
+  if (!session || !guildId || !/^\d{17,20}$/.test(guildId) || !guilds.some(guild => guild.id === guildId && guild.owner === true)) {
+    return NextResponse.json({ error: "Nur der Serverbesitzer darf MoonBot einstellen." }, { status: 403 });
   }
 
   const base = process.env.MOONBOT_API_URL?.replace(/\/$/, "");
