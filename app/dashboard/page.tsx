@@ -98,7 +98,7 @@ export default function Dashboard() {
     );
   }
 
-  const manageableGuilds = user.guilds ?? [];
+  const manageableGuilds = (user.guilds ?? []).filter(guild => guild.owner === true);
   const installedSet = new Set(installedIds ?? []);
   const installedGuilds = manageableGuilds.filter(guild => installedSet.has(guild.id));
   const addableGuilds = manageableGuilds.filter(guild => !installedSet.has(guild.id));
@@ -119,7 +119,7 @@ export default function Dashboard() {
         <a className="backLink" href="/"><ArrowLeft size={15} /> Zur Startseite</a>
         <div className="eyebrow"><ShieldCheck size={14} /> DEINE COMMUNITYS</div>
         <h1>Dein Dashboard</h1>
-        <p>Hier findest du getrennt alle Server, auf denen MoonBot bereits installiert ist, und Server, zu denen du ihn hinzufügen kannst.</p>
+        <p>Hier kannst du MoonBot ausschließlich auf Servern einstellen, deren Besitzer du bist.</p>
       </section>
 
       {botGuildsError && (
@@ -149,7 +149,7 @@ export default function Dashboard() {
         <div className="sectionHead">
           <div>
             <h2><Plus size={18} /> MoonBot hinzufügen</h2>
-            <p>{addableGuilds.length} weitere Server, auf denen du MoonBot installieren kannst</p>
+            <p>{addableGuilds.length} weitere Server, deren Besitzer du bist und auf denen du MoonBot installieren kannst</p>
           </div>
           <span className="serverCount">{addableGuilds.length} SERVER</span>
         </div>
